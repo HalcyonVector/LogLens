@@ -1,0 +1,22 @@
+# data and pipeline outputs (rebuilt from raw logs)
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+data/runlog/
+mlruns/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# local planning docs
+LOGLENS_SPEC.md
+ROADMAP.md
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+.ipynb_checkpoints/

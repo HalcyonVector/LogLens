@@ -1,0 +1,284 @@
+{
+  "dataset": "hdfs",
+  "total_lines": 11175629,
+  "lines_per_hour": [
+    {
+      "hour": "2008-11-09-20",
+      "INFO": 188715,
+      "WARN": 8
+    },
+    {
+      "hour": "2008-11-09-21",
+      "INFO": 307477,
+      "WARN": 30680
+    },
+    {
+      "hour": "2008-11-09-22",
+      "INFO": 24344,
+      "WARN": 56758
+    },
+    {
+      "hour": "2008-11-09-23",
+      "INFO": 267017,
+      "WARN": 4380
+    },
+    {
+      "hour": "2008-11-10-00",
+      "INFO": 177398,
+      "WARN": 27
+    },
+    {
+      "hour": "2008-11-10-01",
+      "INFO": 436468,
+      "WARN": 66
+    },
+    {
+      "hour": "2008-11-10-02",
+      "INFO": 70533,
+      "WARN": 6763
+    },
+    {
+      "hour": "2008-11-10-03",
+      "INFO": 19481,
+      "WARN": 7929
+    },
+    {
+      "hour": "2008-11-10-04",
+      "INFO": 19130,
+      "WARN": 7884
+    },
+    {
+      "hour": "2008-11-10-05",
+      "INFO": 18959,
+      "WARN": 7840
+    },
+    {
+      "hour": "2008-11-10-06",
+      "INFO": 28929,
+      "WARN": 6533
+    },
+    {
+      "hour": "2008-11-10-07",
+      "INFO": 61557,
+      "WARN": 27997
+    },
+    {
+      "hour": "2008-11-10-08",
+      "INFO": 70864,
+      "WARN": 32405
+    },
+    {
+      "hour": "2008-11-10-09",
+      "INFO": 36401,
+      "WARN": 16806
+    },
+    {
+      "hour": "2008-11-10-10",
+      "INFO": 814324,
+      "WARN": 1331
+    },
+    {
+      "hour": "2008-11-10-11",
+      "INFO": 461797,
+      "WARN": 74
+    },
+    {
+      "hour": "2008-11-10-12",
+      "INFO": 316393,
+      "WARN": 23713
+    },
+    {
+      "hour": "2008-11-10-13",
+      "INFO": 27805,
+      "WARN": 65977
+    },
+    {
+      "hour": "2008-11-10-14",
+      "INFO": 253367,
+      "WARN": 2027
+    },
+    {
+      "hour": "2008-11-10-15",
+      "INFO": 181732,
+      "WARN": 47
+    },
+    {
+      "hour": "2008-11-10-16",
+      "INFO": 18874,
+      "WARN": 5595
+    },
+    {
+      "hour": "2008-11-10-17",
+      "INFO": 19536,
+      "WARN": 7970
+    },
+    {
+      "hour": "2008-11-10-18",
+      "INFO": 19232,
+      "WARN": 7846
+    },
+    {
+      "hour": "2008-11-10-19",
+      "INFO": 18895,
+      "WARN": 7821
+    },
+    {
+      "hour": "2008-11-10-20",
+      "INFO": 21363,
+      "WARN": 3215
+    },
+    {
+      "hour": "2008-11-10-21",
+      "INFO": 844258,
+      "WARN": 483
+    },
+    {
+      "hour": "2008-11-10-22",
+      "INFO": 644775,
+      "WARN": 710
+    },
+    {
+      "hour": "2008-11-10-23",
+      "INFO": 104943,
+      "WARN": 6003
+    },
+    {
+      "hour": "2008-11-11-00",
+      "INFO": 16823,
+      "WARN": 8012
+    },
+    {
+      "hour": "2008-11-11-01",
+      "INFO": 16588,
+      "WARN": 7895
+    },
+    {
+      "hour": "2008-11-11-02",
+      "INFO": 396183,
+      "WARN": 4759
+    },
+    {
+      "hour": "2008-11-11-03",
+      "INFO": 459001,
+      "WARN": 124
+    },
+    {
+      "hour": "2008-11-11-04",
+      "INFO": 843297,
+      "WARN": 598
+    },
+    {
+      "hour": "2008-11-11-05",
+      "INFO": 468840,
+      "WARN": 70
+    },
+    {
+      "hour": "2008-11-11-06",
+      "INFO": 638420,
+      "WARN": 79
+    },
+    {
+      "hour": "2008-11-11-07",
+      "INFO": 663062,
+      "WARN": 715
+    },
+    {
+      "hour": "2008-11-11-08",
+      "INFO": 574171,
+      "WARN": 173
+    },
+    {
+      "hour": "2008-11-11-09",
+      "INFO": 569388,
+      "WARN": 1363
+    },
+    {
+      "hour": "2008-11-11-10",
+      "INFO": 463723,
+      "WARN": 94
+    },
+    {
+      "hour": "2008-11-11-11",
+      "INFO": 228773,
+      "WARN": 23
+    }
+  ],
+  "levels": [
+    {
+      "level": "INFO",
+      "count": 10812836
+    },
+    {
+      "level": "WARN",
+      "count": 362793
+    }
+  ],
+  "components": [
+    {
+      "component": "dfs.FSNamesystem",
+      "lines": 3700245,
+      "non_info": 975
+    },
+    {
+      "component": "dfs.DataNode$PacketResponder",
+      "lines": 3413350,
+      "non_info": 0
+    },
+    {
+      "component": "dfs.DataNode$DataXceiver",
+      "lines": 2518678,
+      "non_info": 356207
+    },
+    {
+      "component": "dfs.FSDataset",
+      "lines": 1407597,
+      "non_info": 5545
+    },
+    {
+      "component": "dfs.DataBlockScanner",
+      "lines": 120046,
+      "non_info": 10
+    },
+    {
+      "component": "dfs.DataNode",
+      "lines": 7002,
+      "non_info": 0
+    },
+    {
+      "component": "dfs.DataNode$DataTransfer",
+      "lines": 6946,
+      "non_info": 9
+    },
+    {
+      "component": "dfs.DataNode$BlockReceiver",
+      "lines": 1718,
+      "non_info": 0
+    },
+    {
+      "component": "dfs.PendingReplicationBlocks$PendingReplicationMonitor",
+      "lines": 47,
+      "non_info": 47
+    }
+  ],
+  "blocks_per_line": [
+    {
+      "n": 1,
+      "count": 9773573
+    },
+    {
+      "n": 2,
+      "count": 1402056
+    }
+  ],
+  "labels": [
+    {
+      "Label": "Anomaly",
+      "count": 16838
+    },
+    {
+      "Label": "Normal",
+      "count": 558223
+    }
+  ],
+  "sessions": 575061
+}

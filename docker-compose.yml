@@ -1,0 +1,9 @@
+services:
+  loglens:
+    build: .
+    image: loglens:dev
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - LOGLENS_DRIVER_MEMORY=${LOGLENS_DRIVER_MEMORY:-5g}
