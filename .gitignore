@@ -10,7 +10,7 @@ metastore_db/
 derby.log
 
 # local planning docs
-LOGLENS_SPEC.md
+notes/
 ROADMAP.md
 
 # python

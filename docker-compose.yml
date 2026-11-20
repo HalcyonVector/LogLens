@@ -1,6 +1,8 @@
 services:
   loglens:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     image: loglens:dev
     working_dir: /app
     volumes:
