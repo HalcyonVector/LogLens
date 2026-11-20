@@ -11,10 +11,8 @@ import sys
 from pyspark.sql import functions as F
 
 from loglens import config
+from loglens.masking import BLOCK_RE
 from loglens.spark import get_spark
-
-# HDFS block IDs can be negative, e.g. blk_-1608999687919862906.
-BLOCK_RE = r"blk_-?\d+"
 
 
 def rows(df) -> list[dict]:

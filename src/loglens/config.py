@@ -27,5 +27,8 @@ DATASETS = {
         "ts_format": "yyMMddHHmmss",
         "partition": "hour",
         "expected_lines": 11_175_629,
+        # Drain3 similarity threshold, chosen by `parse_eval --sweep` on
+        # validation-period grouping accuracy (never on test).
+        "drain_sim_th": 0.9,
     },
 }

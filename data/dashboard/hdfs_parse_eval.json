@@ -1,0 +1,348 @@
+{
+  "overall": {
+    "lines": 11175629,
+    "correct": 11157936,
+    "grouping_accuracy": 0.998417,
+    "predicted_templates": 50,
+    "ground_truth_templates": 29,
+    "gt_split_across_templates": 5,
+    "templates_mixing_gt": 0
+  },
+  "by_period": {
+    "train": {
+      "lines": 6856030,
+      "correct": 6847651,
+      "grouping_accuracy": 0.998778,
+      "predicted_templates": 50,
+      "ground_truth_templates": 28,
+      "gt_split_across_templates": 5,
+      "templates_mixing_gt": 0
+    },
+    "val": {
+      "lines": 1185505,
+      "correct": 1183078,
+      "grouping_accuracy": 0.997953,
+      "predicted_templates": 33,
+      "ground_truth_templates": 25,
+      "gt_split_across_templates": 5,
+      "templates_mixing_gt": 0
+    },
+    "test": {
+      "lines": 3134094,
+      "correct": 3127207,
+      "grouping_accuracy": 0.997803,
+      "predicted_templates": 45,
+      "ground_truth_templates": 27,
+      "gt_split_across_templates": 5,
+      "templates_mixing_gt": 0
+    }
+  },
+  "lines_without_gt_template": 0,
+  "trace_check": {
+    "blocks": 575061,
+    "exact": 575061,
+    "same_events": 575061,
+    "missing_ours": 0,
+    "missing_published": 0
+  },
+  "trace_exact_share": 1.0,
+  "trace_same_events_share": 1.0,
+  "gt_templates": {
+    "E1": "[*]Adding an already existing block[*]",
+    "E2": "[*]Verification succeeded for[*]",
+    "E3": "[*]Served block[*]to[*]",
+    "E4": "[*]Got exception while serving[*]to[*]",
+    "E5": "[*]Receiving block[*]src:[*]dest:[*]",
+    "E6": "[*]Received block[*]src:[*]dest:[*]of size[*]",
+    "E7": "[*]writeBlock[*]received exception[*]",
+    "E8": "[*]PacketResponder[*]for block[*]Interrupted[*]",
+    "E9": "[*]Received block[*]of size[*]from[*]",
+    "E10": "[*]PacketResponder[*]Exception[*]",
+    "E11": "[*]PacketResponder[*]for block[*]terminating[*]",
+    "E12": "[*]:Exception writing block[*]to mirror[*]",
+    "E13": "[*]Receiving empty packet for block[*]",
+    "E14": "[*]Exception in receiveBlock for block[*]",
+    "E15": "[*]Changing block file offset of block[*]from[*]to[*]meta file offset to[*]",
+    "E16": "[*]:Transmitted block[*]to[*]",
+    "E17": "[*]:Failed to transfer[*]to[*]got[*]",
+    "E18": "[*]Starting thread to transfer block[*]to[*]",
+    "E19": "[*]Reopen Block[*]",
+    "E20": "[*]Unexpected error trying to delete block[*]BlockInfo not found in volumeMap[*]",
+    "E21": "[*]Deleting block[*]file[*]",
+    "E22": "[*]BLOCK* NameSystem[*]allocateBlock:[*]",
+    "E23": "[*]BLOCK* NameSystem[*]delete:[*]is added to invalidSet of[*]",
+    "E24": "[*]BLOCK* Removing block[*]from neededReplications as it does not belong to any file[*]",
+    "E25": "[*]BLOCK* ask[*]to replicate[*]to[*]",
+    "E26": "[*]BLOCK* NameSystem[*]addStoredBlock: blockMap updated:[*]is added to[*]size[*]",
+    "E27": "[*]BLOCK* NameSystem[*]addStoredBlock: Redundant addStoredBlock request received for[*]on[*]size[*]",
+    "E28": "[*]BLOCK* NameSystem[*]addStoredBlock: addStoredBlock request received for[*]on[*]size[*]But it does not belong to any file[*]",
+    "E29": "[*]PendingReplicationMonitor timed out block[*]"
+  },
+  "contingency": [
+    {
+      "event_id": "T01",
+      "gt": "E5",
+      "lines": 1723232
+    },
+    {
+      "event_id": "T02",
+      "gt": "E26",
+      "lines": 1719741
+    },
+    {
+      "event_id": "T03",
+      "gt": "E11",
+      "lines": 1706679
+    },
+    {
+      "event_id": "T04",
+      "gt": "E9",
+      "lines": 1706514
+    },
+    {
+      "event_id": "T05",
+      "gt": "E21",
+      "lines": 1402047
+    },
+    {
+      "event_id": "T06",
+      "gt": "E23",
+      "lines": 1396174
+    },
+    {
+      "event_id": "T07",
+      "gt": "E3",
+      "lines": 428726
+    },
+    {
+      "event_id": "T08",
+      "gt": "E4",
+      "lines": 356207
+    },
+    {
+      "event_id": "T09",
+      "gt": "E22",
+      "lines": 575061
+    },
+    {
+      "event_id": "T10",
+      "gt": "E2",
+      "lines": 120036
+    },
+    {
+      "event_id": "T11",
+      "gt": "E6",
+      "lines": 7097
+    },
+    {
+      "event_id": "T12",
+      "gt": "E16",
+      "lines": 6937
+    },
+    {
+      "event_id": "T13",
+      "gt": "E25",
+      "lines": 6837
+    },
+    {
+      "event_id": "T14",
+      "gt": "E18",
+      "lines": 6837
+    },
+    {
+      "event_id": "T15",
+      "gt": "E20",
+      "lines": 5545
+    },
+    {
+      "event_id": "T16",
+      "gt": "E7",
+      "lines": 3226
+    },
+    {
+      "event_id": "T17",
+      "gt": "E28",
+      "lines": 1288
+    },
+    {
+      "event_id": "T18",
+      "gt": "E13",
+      "lines": 1464
+    },
+    {
+      "event_id": "T19",
+      "gt": "E27",
+      "lines": 975
+    },
+    {
+      "event_id": "T20",
+      "gt": "E18",
+      "lines": 165
+    },
+    {
+      "event_id": "T21",
+      "gt": "E25",
+      "lines": 165
+    },
+    {
+      "event_id": "T22",
+      "gt": "E14",
+      "lines": 75
+    },
+    {
+      "event_id": "T23",
+      "gt": "E7",
+      "lines": 75
+    },
+    {
+      "event_id": "T24",
+      "gt": "E8",
+      "lines": 49
+    },
+    {
+      "event_id": "T25",
+      "gt": "E15",
+      "lines": 65
+    },
+    {
+      "event_id": "T26",
+      "gt": "E14",
+      "lines": 48
+    },
+    {
+      "event_id": "T27",
+      "gt": "E7",
+      "lines": 47
+    },
+    {
+      "event_id": "T28",
+      "gt": "E12",
+      "lines": 34
+    },
+    {
+      "event_id": "T29",
+      "gt": "E10",
+      "lines": 19
+    },
+    {
+      "event_id": "T30",
+      "gt": "E29",
+      "lines": 47
+    },
+    {
+      "event_id": "T31",
+      "gt": "E7",
+      "lines": 13
+    },
+    {
+      "event_id": "T32",
+      "gt": "E10",
+      "lines": 22
+    },
+    {
+      "event_id": "T33",
+      "gt": "E10",
+      "lines": 33
+    },
+    {
+      "event_id": "T34",
+      "gt": "E7",
+      "lines": 9
+    },
+    {
+      "event_id": "T35",
+      "gt": "E17",
+      "lines": 9
+    },
+    {
+      "event_id": "T36",
+      "gt": "E7",
+      "lines": 15
+    },
+    {
+      "event_id": "T37",
+      "gt": "E14",
+      "lines": 16
+    },
+    {
+      "event_id": "T38",
+      "gt": "E7",
+      "lines": 7
+    },
+    {
+      "event_id": "T39",
+      "gt": "E10",
+      "lines": 6
+    },
+    {
+      "event_id": "T40",
+      "gt": "E10",
+      "lines": 10
+    },
+    {
+      "event_id": "T41",
+      "gt": "E24",
+      "lines": 4
+    },
+    {
+      "event_id": "T42",
+      "gt": "E10",
+      "lines": 11
+    },
+    {
+      "event_id": "T43",
+      "gt": "E7",
+      "lines": 5
+    },
+    {
+      "event_id": "T44",
+      "gt": "E14",
+      "lines": 5
+    },
+    {
+      "event_id": "T45",
+      "gt": "E14",
+      "lines": 8
+    },
+    {
+      "event_id": "T46",
+      "gt": "E7",
+      "lines": 7
+    },
+    {
+      "event_id": "T47",
+      "gt": "E19",
+      "lines": 5
+    },
+    {
+      "event_id": "T48",
+      "gt": "E7",
+      "lines": 11
+    },
+    {
+      "event_id": "T49",
+      "gt": "E10",
+      "lines": 5
+    },
+    {
+      "event_id": "T50",
+      "gt": "E7",
+      "lines": 1
+    },
+    {
+      "event_id": "UNK",
+      "gt": "E1",
+      "lines": 10
+    },
+    {
+      "event_id": "UNK",
+      "gt": "E10",
+      "lines": 2
+    },
+    {
+      "event_id": "UNK",
+      "gt": "E14",
+      "lines": 3
+    }
+  ]
+}

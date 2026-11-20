@@ -1,0 +1,600 @@
+{
+  "templates": [
+    {
+      "event_id": "T01",
+      "cluster_id": 1,
+      "template": "Receiving block <BLK> src: <IP> dest: <IP>",
+      "train_lines": 1031918,
+      "all_lines": 1723232
+    },
+    {
+      "event_id": "T02",
+      "cluster_id": 5,
+      "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+      "train_lines": 1027203,
+      "all_lines": 1719741
+    },
+    {
+      "event_id": "T03",
+      "cluster_id": 3,
+      "template": "PacketResponder <NUM> for block <BLK> terminating",
+      "train_lines": 1021217,
+      "all_lines": 1706679
+    },
+    {
+      "event_id": "T04",
+      "cluster_id": 4,
+      "template": "Received block <BLK> of size <NUM> from <IP>",
+      "train_lines": 1021141,
+      "all_lines": 1706514
+    },
+    {
+      "event_id": "T05",
+      "cluster_id": 17,
+      "template": "Deleting block <BLK> file <PATH>",
+      "train_lines": 749853,
+      "all_lines": 1402047
+    },
+    {
+      "event_id": "T06",
+      "cluster_id": 34,
+      "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+      "train_lines": 747281,
+      "all_lines": 1396174
+    },
+    {
+      "event_id": "T07",
+      "cluster_id": 10,
+      "template": "<IP> Served block <BLK> to <IP>",
+      "train_lines": 426284,
+      "all_lines": 428726
+    },
+    {
+      "event_id": "T08",
+      "cluster_id": 37,
+      "template": "<IP>:Got exception while serving <BLK> to <IP>:",
+      "train_lines": 356207,
+      "all_lines": 356207
+    },
+    {
+      "event_id": "T09",
+      "cluster_id": 2,
+      "template": "BLOCK* NameSystem.allocateBlock: <PATH> <BLK>",
+      "train_lines": 345035,
+      "all_lines": 575061
+    },
+    {
+      "event_id": "T10",
+      "cluster_id": 13,
+      "template": "Verification succeeded for <BLK>",
+      "train_lines": 109942,
+      "all_lines": 120036
+    },
+    {
+      "event_id": "T11",
+      "cluster_id": 6,
+      "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+      "train_lines": 3076,
+      "all_lines": 7097
+    },
+    {
+      "event_id": "T12",
+      "cluster_id": 7,
+      "template": "<IP>:Transmitted block <BLK> to <IP>",
+      "train_lines": 2959,
+      "all_lines": 6937
+    },
+    {
+      "event_id": "T13",
+      "cluster_id": 11,
+      "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+      "train_lines": 2868,
+      "all_lines": 6837
+    },
+    {
+      "event_id": "T14",
+      "cluster_id": 12,
+      "template": "<IP> Starting thread to transfer block <BLK> to <IP>",
+      "train_lines": 2868,
+      "all_lines": 6837
+    },
+    {
+      "event_id": "T15",
+      "cluster_id": 35,
+      "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+      "train_lines": 2843,
+      "all_lines": 5545
+    },
+    {
+      "event_id": "T16",
+      "cluster_id": 16,
+      "template": "writeBlock <BLK> received exception java.io.IOException: Could not read from stream",
+      "train_lines": 2174,
+      "all_lines": 3226
+    },
+    {
+      "event_id": "T17",
+      "cluster_id": 36,
+      "template": "BLOCK* NameSystem.addStoredBlock: addStoredBlock request received for <BLK> on <IP> size <NUM> But it does not belong to any file.",
+      "train_lines": 1261,
+      "all_lines": 1288
+    },
+    {
+      "event_id": "T18",
+      "cluster_id": 18,
+      "template": "Receiving empty packet for block <BLK>",
+      "train_lines": 717,
+      "all_lines": 1464
+    },
+    {
+      "event_id": "T19",
+      "cluster_id": 21,
+      "template": "BLOCK* NameSystem.addStoredBlock: Redundant addStoredBlock request received for <BLK> on <IP> size <NUM>",
+      "train_lines": 624,
+      "all_lines": 975
+    },
+    {
+      "event_id": "T20",
+      "cluster_id": 8,
+      "template": "<IP> Starting thread to transfer block <BLK> to <IP>, <IP>",
+      "train_lines": 118,
+      "all_lines": 165
+    },
+    {
+      "event_id": "T21",
+      "cluster_id": 9,
+      "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP> <IP>",
+      "train_lines": 118,
+      "all_lines": 165
+    },
+    {
+      "event_id": "T22",
+      "cluster_id": 19,
+      "template": "Exception in receiveBlock for block <BLK> java.io.IOException: Connection reset by peer",
+      "train_lines": 48,
+      "all_lines": 75
+    },
+    {
+      "event_id": "T23",
+      "cluster_id": 20,
+      "template": "writeBlock <BLK> received exception java.io.IOException: Connection reset by peer",
+      "train_lines": 48,
+      "all_lines": 75
+    },
+    {
+      "event_id": "T24",
+      "cluster_id": 26,
+      "template": "PacketResponder <NUM> for block <BLK> Interrupted.",
+      "train_lines": 23,
+      "all_lines": 49
+    },
+    {
+      "event_id": "T25",
+      "cluster_id": 27,
+      "template": "Changing block file offset of block <BLK> from <NUM> to <NUM> meta file offset to <NUM>",
+      "train_lines": 23,
+      "all_lines": 65
+    },
+    {
+      "event_id": "T26",
+      "cluster_id": 24,
+      "template": "Exception in receiveBlock for block <BLK> java.io.EOFException",
+      "train_lines": 20,
+      "all_lines": 48
+    },
+    {
+      "event_id": "T27",
+      "cluster_id": 25,
+      "template": "writeBlock <BLK> received exception java.io.EOFException",
+      "train_lines": 20,
+      "all_lines": 47
+    },
+    {
+      "event_id": "T28",
+      "cluster_id": 28,
+      "template": "<IP>:Exception writing block <BLK> to mirror <IP>",
+      "train_lines": 17,
+      "all_lines": 34
+    },
+    {
+      "event_id": "T29",
+      "cluster_id": 15,
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.EOFException",
+      "train_lines": 15,
+      "all_lines": 19
+    },
+    {
+      "event_id": "T30",
+      "cluster_id": 46,
+      "template": "PendingReplicationMonitor timed out block <BLK>",
+      "train_lines": 14,
+      "all_lines": 47
+    },
+    {
+      "event_id": "T31",
+      "cluster_id": 14,
+      "template": "writeBlock <BLK> received exception java.net.SocketTimeoutException",
+      "train_lines": 13,
+      "all_lines": 13
+    },
+    {
+      "event_id": "T32",
+      "cluster_id": 22,
+      "template": "PacketResponder <BLK> <NUM> Exception java.net.SocketTimeoutException: <NUM> millis timeout while waiting for channel to be ready for read. ch : java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]",
+      "train_lines": 13,
+      "all_lines": 22
+    },
+    {
+      "event_id": "T33",
+      "cluster_id": 23,
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]. <NUM> millis timeout left.",
+      "train_lines": 11,
+      "all_lines": 33
+    },
+    {
+      "event_id": "T34",
+      "cluster_id": 32,
+      "template": "writeBlock <BLK> received exception java.io.IOException: Block <BLK> is valid, and cannot be written to.",
+      "train_lines": 8,
+      "all_lines": 9
+    },
+    {
+      "event_id": "T35",
+      "cluster_id": 33,
+      "template": "<IP>:Failed to transfer <BLK> to <IP> got java.io.IOException: Connection reset by peer",
+      "train_lines": 8,
+      "all_lines": 9
+    },
+    {
+      "event_id": "T36",
+      "cluster_id": 40,
+      "template": "writeBlock <BLK> received exception java.net.SocketTimeoutException: <NUM> millis timeout while waiting for channel to be ready for <*> ch : java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]",
+      "train_lines": 8,
+      "all_lines": 15
+    },
+    {
+      "event_id": "T37",
+      "cluster_id": 29,
+      "template": "Exception in receiveBlock for block <BLK> java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]. <NUM> millis timeout left.",
+      "train_lines": 6,
+      "all_lines": 16
+    },
+    {
+      "event_id": "T38",
+      "cluster_id": 30,
+      "template": "writeBlock <BLK> received exception java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]. <NUM> millis timeout left.",
+      "train_lines": 5,
+      "all_lines": 7
+    },
+    {
+      "event_id": "T39",
+      "cluster_id": 31,
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.IOException: Broken pipe",
+      "train_lines": 4,
+      "all_lines": 6
+    },
+    {
+      "event_id": "T40",
+      "cluster_id": 44,
+      "template": "PacketResponder <BLK> <NUM> Exception java.nio.channels.ClosedByInterruptException",
+      "train_lines": 4,
+      "all_lines": 10
+    },
+    {
+      "event_id": "T41",
+      "cluster_id": 45,
+      "template": "BLOCK* Removing block <BLK> from neededReplications as it does not belong to any file.",
+      "train_lines": 4,
+      "all_lines": 4
+    },
+    {
+      "event_id": "T42",
+      "cluster_id": 38,
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.IOException: Connection reset by peer",
+      "train_lines": 2,
+      "all_lines": 11
+    },
+    {
+      "event_id": "T43",
+      "cluster_id": 50,
+      "template": "writeBlock <BLK> received exception java.io.IOException: Broken pipe",
+      "train_lines": 2,
+      "all_lines": 5
+    },
+    {
+      "event_id": "T44",
+      "cluster_id": 39,
+      "template": "Exception in receiveBlock for block <BLK> java.net.SocketTimeoutException: <NUM> millis timeout while waiting for channel to be ready for write. ch : java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]",
+      "train_lines": 1,
+      "all_lines": 5
+    },
+    {
+      "event_id": "T45",
+      "cluster_id": 41,
+      "template": "Exception in receiveBlock for block <BLK> java.nio.channels.ClosedByInterruptException",
+      "train_lines": 1,
+      "all_lines": 8
+    },
+    {
+      "event_id": "T46",
+      "cluster_id": 42,
+      "template": "writeBlock <BLK> received exception java.nio.channels.ClosedByInterruptException",
+      "train_lines": 1,
+      "all_lines": 7
+    },
+    {
+      "event_id": "T47",
+      "cluster_id": 43,
+      "template": "Reopen Block <BLK>",
+      "train_lines": 1,
+      "all_lines": 5
+    },
+    {
+      "event_id": "T48",
+      "cluster_id": 47,
+      "template": "writeBlock <BLK> received exception java.io.IOException: Interrupted receiveBlock",
+      "train_lines": 1,
+      "all_lines": 11
+    },
+    {
+      "event_id": "T49",
+      "cluster_id": 48,
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[closed]. <NUM> millis timeout left.",
+      "train_lines": 1,
+      "all_lines": 5
+    },
+    {
+      "event_id": "T50",
+      "cluster_id": 49,
+      "template": "writeBlock <BLK> received exception java.net.NoRouteToHostException: No route to host",
+      "train_lines": 1,
+      "all_lines": 1
+    }
+  ],
+  "unk_by_period": {
+    "val": {
+      "lines": 1185505,
+      "unk": 4,
+      "unk_rate": 3e-06
+    },
+    "train": {
+      "lines": 6856030,
+      "unk": 0,
+      "unk_rate": 0.0
+    },
+    "test": {
+      "lines": 3134094,
+      "unk": 11,
+      "unk_rate": 4e-06
+    }
+  },
+  "unk_per_hour": [
+    {
+      "hour": "2008-11-09-20",
+      "lines": 188723,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-09-21",
+      "lines": 338157,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-09-22",
+      "lines": 81102,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-09-23",
+      "lines": 271397,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-00",
+      "lines": 177425,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-01",
+      "lines": 436534,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-02",
+      "lines": 77296,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-03",
+      "lines": 27410,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-04",
+      "lines": 27014,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-05",
+      "lines": 26799,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-06",
+      "lines": 35462,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-07",
+      "lines": 89554,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-08",
+      "lines": 103269,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-09",
+      "lines": 53207,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-10",
+      "lines": 815655,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-11",
+      "lines": 461871,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-12",
+      "lines": 340106,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-13",
+      "lines": 93782,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-14",
+      "lines": 255394,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-15",
+      "lines": 181779,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-16",
+      "lines": 24469,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-17",
+      "lines": 27506,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-18",
+      "lines": 27078,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-19",
+      "lines": 26716,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-20",
+      "lines": 24578,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-21",
+      "lines": 844741,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-22",
+      "lines": 645485,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-10-23",
+      "lines": 110946,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-00",
+      "lines": 24835,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-01",
+      "lines": 24483,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-02",
+      "lines": 400942,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-03",
+      "lines": 459125,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-04",
+      "lines": 843895,
+      "unk": 4
+    },
+    {
+      "hour": "2008-11-11-05",
+      "lines": 468910,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-06",
+      "lines": 638499,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-07",
+      "lines": 663777,
+      "unk": 11
+    },
+    {
+      "hour": "2008-11-11-08",
+      "lines": 574344,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-09",
+      "lines": 570751,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-10",
+      "lines": 463817,
+      "unk": 0
+    },
+    {
+      "hour": "2008-11-11-11",
+      "lines": 228796,
+      "unk": 0
+    }
+  ],
+  "benchmark": {
+    "udf": {
+      "seconds": 49.7,
+      "lines_per_s": 224737
+    },
+    "regex": {
+      "seconds": 34.0,
+      "lines_per_s": 328523
+    },
+    "dict": {
+      "seconds": 64.7,
+      "lines_per_s": 172598
+    },
+    "disagreements": {
+      "dict_vs_udf": 0,
+      "dict_vs_regex": 0,
+      "udf_vs_regex": 0
+    }
+  },
+  "method": "regex",
+  "fit": {
+    "train_lines": 6856030,
+    "train_distinct_masked": 51,
+    "templates": 50,
+    "templates_with_train_lines": 50,
+    "drain_sim_th": 0.9
+  }
+}
