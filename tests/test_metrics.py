@@ -43,3 +43,25 @@ def test_label_conflicts_counts_sequences_with_both_labels():
     assert r["conflicting_sequences"] == 1
     assert r["sessions_in_conflicting_sequences"] == 2
     assert r["anomalies_in_conflicting_sequences"] == 1
+
+
+def test_prf_reports_false_positive_rate_and_prevalence():
+    y = np.array([0, 0, 0, 0, 1])
+    r = prf(y, np.array([1, 0, 0, 0, 1]))
+    assert r["fpr"] == 0.25
+    assert r["prevalence"] == 0.2
+
+
+def test_f1_at_prevalence_matches_direct_computation():
+    from loglens.metrics import f1_at_prevalence
+
+    # 100 anomalies, 900 normals; recall 0.8 and fpr 0.1 -> tp 80, fp 90.
+    p = 80 / 170
+    expected = 2 * p * 0.8 / (p + 0.8)
+    assert abs(f1_at_prevalence(0.8, 0.1, 0.1) - expected) < 1e-6
+
+
+def test_same_detector_scores_higher_f1_when_anomalies_are_commoner():
+    from loglens.metrics import f1_at_prevalence
+
+    assert f1_at_prevalence(0.8, 0.01, 0.03) > f1_at_prevalence(0.8, 0.01, 0.02)

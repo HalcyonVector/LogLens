@@ -33,7 +33,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.metrics import average_precision_score
 
 from loglens import config, runlog
-from loglens.metrics import evaluate, pr_curve_points, prf
+from loglens.metrics import evaluate, f1_at_prevalence, pr_curve_points, prf
 
 SEED = 42
 FRACTIONS = (0.6, 0.1, 0.3)
@@ -148,6 +148,29 @@ def duplication(d: dict) -> dict:
     }
 
 
+def leakage_gap(chrono: dict, rand: dict) -> dict:
+    """Random minus chronological F1, raw and at the chronological test's anomaly rate.
+
+    The two test sets have different anomaly rates, which moves precision (and F1)
+    even for an identical detector. The adjusted gap rescales the random-split
+    result to the chronological prevalence, so what is left is the detector itself.
+    """
+    adjusted = f1_at_prevalence(rand["recall"], rand["fpr"], chrono["prevalence"])
+    return {
+        "chrono_f1": chrono["f1"],
+        "random_f1": rand["f1"],
+        "gap_points": round(100 * (rand["f1"] - chrono["f1"]), 2),
+        "random_f1_at_chrono_prevalence": adjusted,
+        "adjusted_gap_points": round(100 * (adjusted - chrono["f1"]), 2),
+        "chrono_recall": chrono["recall"],
+        "random_recall": rand["recall"],
+        "chrono_fpr": chrono["fpr"],
+        "random_fpr": rand["fpr"],
+        "chrono_prevalence": chrono["prevalence"],
+        "random_prevalence": rand["prevalence"],
+    }
+
+
 def label_conflicts(df: pd.DataFrame) -> dict:
     """Identical event sequences that carry both labels: no sequence model can get these all right."""
     g = df.groupby("seq_hash")["label"].agg(["nunique", "size"])
@@ -226,14 +249,7 @@ def run(dataset: str) -> None:
                 )
         timings[proto] = {n: results[proto][n]["fit_and_score_s"] for n in MODELS}
 
-    gap = {
-        n: {
-            "chrono_f1": results["chrono"][n]["f1"],
-            "random_f1": results["random"][n]["f1"],
-            "gap_points": round(100 * (results["random"][n]["f1"] - results["chrono"][n]["f1"]), 2),
-        }
-        for n in MODELS
-    }
+    gap = {n: leakage_gap(results["chrono"][n], results["random"][n]) for n in MODELS}
     conflicts = label_conflicts(df)
     summary = {"results": results, "leakage_gap": gap, "duplication": dup, "label_conflicts": conflicts}
     runlog.write(dataset, "baselines", {**summary, "timings": timings})
