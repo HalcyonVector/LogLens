@@ -9,3 +9,6 @@ services:
       - .:/app
     environment:
       - LOGLENS_DRIVER_MEMORY=${LOGLENS_DRIVER_MEMORY:-5g}
+      - GIT_PYTHON_REFRESH=quiet  # MLflow looks for git, which the image does not need
+    ports:
+      - "127.0.0.1:5000:5000"  # MLflow UI when started with: make mlflow-ui
