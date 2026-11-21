@@ -206,6 +206,7 @@ def run(dataset: str) -> None:
     results: dict = {}
     curves: dict = {}
     dup: dict = {}
+    chrono_scores: dict = {}
     for proto, split in protocols.items():
         d = {**base, "split": split}
         va, te = split == "val", split == "test"
@@ -227,6 +228,7 @@ def run(dataset: str) -> None:
             results[proto][name] = m
             if proto == "chrono":
                 curves[name] = pr_curve_points(d["y"][te], scores[te])
+                chrono_scores[name] = scores
             print(
                 f"{proto:6s} {name:10s} P={m['precision']:.3f} R={m['recall']:.3f} "
                 f"F1={m['f1']:.3f} PR-AUC={m['pr_auc']:.3f} | unseen F1={m['unseen_only']['f1']:.3f} "
@@ -255,6 +257,10 @@ def run(dataset: str) -> None:
     runlog.write(dataset, "baselines", {**summary, "timings": timings})
     (config.DASHBOARD / f"{dataset}_baselines.json").write_text(
         json.dumps({**summary, "pr_curves_chrono_test": curves}, indent=2)
+    )
+    # Per-session scores under the chronological protocol, for intervals and operational metrics.
+    pd.DataFrame({"block_id": df["block_id"], **chrono_scores}).to_parquet(
+        config.GOLD / f"{dataset}_baseline_scores.parquet", index=False
     )
 
 

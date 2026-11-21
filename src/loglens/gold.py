@@ -43,6 +43,10 @@ def run(dataset: str) -> None:
         sessions = sessions.select(
             "block_id",
             F.col("s.event_id").alias("events"),
+            # Seconds from the session's first event to each event, for detection latency.
+            F.transform(
+                "s", lambda e: (e["ts"].cast("long") - F.col("start_ts").cast("long")).cast("int")
+            ).alias("offsets_s"),
             "n_events",
             "n_warn",
             "start_ts",

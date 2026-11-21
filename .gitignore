@@ -20,3 +20,6 @@ __pycache__/
 .venv/
 *.egg-info/
 .ipynb_checkpoints/
+
+# local editor and agent settings
+.claude/

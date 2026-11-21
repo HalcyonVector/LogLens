@@ -6,9 +6,13 @@ Built with Python, PySpark (Parquet medallion layers), Drain3, scikit-learn, Lig
 
 > **What it's for:** checking whether a log anomaly detector's headline score survives a time-ordered evaluation, and seeing, session by session, which event in a sequence made the model raise an alert.
 
-**Live demo:** not published yet. The results dashboard (a single static page) will be linked here once the first models are evaluated.
+**Live demo:** [halcyonvector.github.io/LogLens](https://halcyonvector.github.io/LogLens/) (a single static page; every number on it comes from the pipeline's exported aggregates)
 
-**Status:** in progress. Ingest, the chronological split, template parsing (validated against LogHub's ground truth), sessionization, five baselines and the DeepLog-style LSTM are complete; confidence intervals, operational metrics and the dashboard are next. Screenshots will be added with the dashboard.
+![Dashboard opening: the verdict that PCA beats the best LSTM on F1 (0.964 against 0.870, with 95% bootstrap intervals), the paired difference, the random-split inflation, and a real test session whose event sequence shows where the LSTM fired](docs/screenshots/verdict.png)
+
+![Each of the 3,723 anomalous test sessions as one square: published DeepLog and PCA miss almost disjoint sets, while the LSTM with an END event catches nearly everything PCA does](docs/screenshots/misses.png)
+
+**Status:** the HDFS study (ingest through dashboard) is complete. The BGL generalization run and the Thunderbird scale run are next.
 
 ---
 
@@ -73,11 +77,22 @@ Chronological test set (172,519 sessions, 3,723 anomalous). Each threshold is ch
 - **Under a time-ordered split, the LSTM does not beat PCA.** DeepLog as published (10-event history, a session flagged when any event falls outside the model's top g predictions, g chosen on validation) reaches F1 **0.610 ± 0.006** over 3 seeds against PCA's **0.964**. The best variant (an END event plus a continuous log-probability score) reaches **0.867 ± 0.015**, and **0.873 ± 0.030** after tuning. It matches PCA's PR-AUC (**0.930**) but raises about 150 times as many false alarms at its validation-chosen threshold (0.62% of normal sessions against 0.004%).
 - **One anomaly in five simply stops early.** **683** of the 3,723 test anomalies are exact prefixes of normal training sessions: every event in them is a perfectly normal next event, so plain DeepLog catches **2** of them. Adding an END event after each session's last event lets the model flag a session that stops where it shouldn't, which lifts recall from 0.51 to **0.67** at top-g and to **0.98** with the log-probability score.
 - **A better language model caught fewer anomalies.** A first version that trained on noisy batches scored higher by luck. Once training was fixed and the model predicted normal behaviour better (validation loss 0.27 down to 0.19), recall fell to 0.51, because the anomalies it missed were never unusual next events in the first place.
-- **The LSTM and PCA miss almost completely different anomalies.** PCA catches **1,834 of the 1,840** anomalies plain DeepLog misses, and DeepLog catches **246 of the 252** anomalies PCA misses. Next-event models see order; count models see how often things happen.
+- **Published DeepLog and PCA miss almost completely different anomalies.** PCA catches **1,834 of the 1,840** anomalies plain DeepLog misses, and DeepLog catches **246 of the 252** anomalies PCA misses. Next-event models see order; count models see how often things happen. With the END event the picture changes: the tuned LSTM catches **95.7%** of test anomalies against PCA's 93.2% (only 2 that PCA catches slip past it), and loses on F1 only through its **902** false alarms against PCA's **7**.
 - **Top-g throws information away.** With the END event, scoring each session by its least likely event instead of its worst rank raises F1 from 0.710 to 0.867 and steadies it across seeds. The chosen g also swings between 5 and 8 from one seed to the next.
 - **Tuning the LSTM barely moves it.** A search over history length (5, 10, 20 events) and hidden size (64, 128 units), scored only on the validation period, picked 10 events and 128 units (validation PR-AUC 0.936 against 0.926 for the published setting). On test it steadies the top-g score (F1 0.744 ± 0.005 against 0.710 ± 0.043) but leaves the best score where it was: F1 **0.873** against 0.867, and PR-AUC 0.925 against 0.930. The gap to PCA is not a tuning problem.
 - **The sequence model leaks under a random split; the count models barely do.** After correcting for the random test set's higher anomaly rate, a random split adds **3.4** points of F1 for plain DeepLog, **4.1** for the END variant's log-probability score and **8.0** for its top-g score, against under 1 point for PCA and LightGBM. The clearest sign is on never-seen sequences: the END variant's F1 there is **0.84** under a random split but **0.70** under the chronological one, so new sequences from the same hours are far easier to judge than new sequences from later on.
 - **Even training length gives the random split away.** With early stopping on validation loss, chronological runs stop after 16 to 27 epochs, while random-split runs keep improving for 42 to 56. A shuffled validation set looks like the training data, so the model keeps finding more of it to learn.
+
+### Uncertainty, operations and the end of the log
+
+Intervals are 95% bootstrap intervals over 1,000 resamples of the chronological test sessions (LSTM rows use seed 0, whose per-event scores are saved).
+
+- **The PCA lead is real at the alert threshold, not in ranking.** PCA's F1 is **0.964 [0.960, 0.968]** against **0.870 [0.862, 0.877]** for the tuned LSTM; the paired difference is **+9.4 points [+8.7, +10.1]**, positive in every resample. Their PR-AUC is statistically tied (+0.3 points [-0.7, +1.2]): the LSTM ranks sessions about as well, and loses where the threshold has to separate them.
+- **Almost every PCA alert is real.** Over the 5.1 test hours PCA raises **688 alerts an hour**, of which **1.4** are false (0.04 per 1,000 normal sessions). The tuned LSTM raises 883 an hour, **178** of them false.
+- **A live count model would wait half a day.** A live system cannot know a session has finished; it has to assume so after a stretch of silence. Normal HDFS blocks routinely go quiet for hours before they are deleted, so that stretch has to be **12.3 hours** (the 99th percentile of the longest pause inside normal training sessions). PCA, and any detector that judges a finished session, therefore alerts a median **12.5 hours** after an anomalous session's first event. Published DeepLog fires on the surprising event itself: a median **6 seconds** in, with **72%** of its catches inside a minute.
+- **The time-ordered test set is also the end of the log.** The test period is the last 5 hours of a 38.7-hour log, and deletions come hours after a block is written, so only **59.6%** of test sessions reach their "Deleting block" events against **92.3%** of training sessions. The read traffic of the early hours has also gone: "Served block" appears in **39.8%** of training sessions and **0%** of test sessions. Every model is judged on these cut-off sessions, and a normal session that was merely cut off looks exactly like one that stopped early, which is a likely source of the END variant's false alarms.
+- **Even PCA's few mistakes come from that shift.** All **7** of its false alarms contain "Served block", the read traffic that almost vanished from the test period. Both models' misses are replication sessions: the replication templates appear in every missed anomaly, against 17% of all anomalies.
+- **PCA needs little data but is fragile with it.** Refitted on 1% of the training period (3,450 sessions, about what DeepLog trained on), PCA's F1 ranges from **0.724 to 0.964** across 5 random draws of those sessions (mean 0.871), and from 0.750 to 0.965 at 10%; LightGBM stays within 0.934 to 0.997, and the LSTM (one draw per size) scores 0.902 at 1% and 0.852 with everything.
 
 ---
 
@@ -135,15 +150,31 @@ Chronological test set (172,519 sessions, 3,723 anomalous). Each threshold is ch
 
 - Each stage writes a JSON run log with its row counts, timings and pass/fail checks, and fails loudly when a check fails: raw = bronze + quarantine, every block has exactly one label, every line gets an event ID, no training-period line is UNK, every event lands in exactly one session and the count vectors add up to the event totals.
 
+### Deeper evaluation
+
+- 95% bootstrap intervals (1,000 resamples of test sessions) for precision, recall, F1 and PR-AUC, and paired intervals for the differences that matter (PCA against the best LSTM, LightGBM against PCA).
+- Operational metrics: alerts and false alarms per hour, false alarms per 1,000 normal sessions, and alerts against labelled anomalies hour by hour.
+- An idle timeout learned from normal training sessions, and the time from an anomalous session's first event to the earliest possible alert, for every model.
+- Error analysis: templates over-represented in each model's false alarms and misses, and which anomalies two models catch together or alone.
+- A training-size ablation at 1%, 10%, 50% and 100% of the training sessions, with 5 random draws per size for the baselines.
+- A guard that recomputes every model's F1 from its saved scores and stops the stage if it differs from the training run's own result.
+
+### Results dashboard
+
+- One static page that answers the project's questions in order: which detector wins on future data, whether a random split flatters it, what each model misses, what it would be like to run, and how much data and parsing quality matter.
+- A unit chart of all 3,723 test anomalies, one square each, coloured by which model caught it, for published DeepLog against PCA and for the END variant against PCA.
+- Leaderboards with interval bars, a prevalence-adjusted leakage chart, a never-seen-sequence comparison, a censoring panel, alerts per hour, time to alert on a log scale with the idle timeout marked, and the ablation with ranges.
+- A session explorer: real test sessions drawn as their event sequences, shaded by how surprised the LSTM was at each event, with the event where it fired outlined and every template on hover.
+- Every learned template with its line count, the sessions containing it and their anomaly rate, plus the pipeline's row counts and checks.
+- Light and dark themes, keyboard-reachable tooltips, a table view under the leaderboard, and a layout that reflows to one column on a phone.
+
 ### Exploratory analysis
 
-- Lines per hour by level, level mix, lines and non-INFO lines per component, blocks named per line, and the label balance, written to a small JSON aggregate that the dashboard will read.
+- Lines per hour by level, level mix, lines and non-INFO lines per component, blocks named per line, and the label balance.
 
 ### Planned stages
 
-- **Evaluation:** bootstrap confidence intervals, a training-size ablation, alerts per hour and detection latency.
 - **Generalization and scale:** BGL with time windows, and the full Thunderbird log.
-- **Dashboard:** one static page with inline SVG charts, built only from the exported aggregates.
 
 ---
 
@@ -178,6 +209,8 @@ Chronological test set (172,519 sessions, 3,723 anomalous). Each threshold is ch
 | **Models** | scikit-learn, LightGBM | PCA, Isolation Forest, gradient boosting; metrics and PR curves |
 | **Sequence model** | PyTorch (CPU build) | DeepLog-style LSTM; trains in about 2 to 15 minutes per run on a laptop CPU |
 | **Tracking** | MLflow (local file store) | One run per model and protocol, compared in the MLflow UI |
+| **Dashboard** | Static HTML, CSS and inline SVG, a little vanilla JavaScript | Generated by `scripts/build_dashboard.py`; IBM Plex Sans and Mono; no framework |
+| **Hosting** | GitHub Pages | Serves `docs/index.html` from the main branch |
 | **Environment** | Docker (Python 3.12, Java 17) | Avoids Spark's Windows dependencies; code and data are bind-mounted |
 | **Testing** | pytest | Unit tests for the line regex, masking, template regexes and grouping accuracy |
 
@@ -207,6 +240,9 @@ docker compose run --rm loglens make gold          # one row per session: sequen
 docker compose run --rm loglens make baselines     # five baselines, two protocols, logged to MLflow
 docker compose run --rm loglens make lstm-tune     # LSTM settings searched on validation only (about 30 min)
 docker compose run --rm loglens make lstm          # 3 LSTM variants x 2 protocols x 3 seeds (about 2 h, resumable)
+docker compose run --rm loglens make evaluate      # intervals, alerts per hour, latency, errors (about 6 min)
+docker compose run --rm loglens make ablation      # training-size ablation (about 30 min, resumable)
+python scripts/build_dashboard.py                  # docs/index.html from data/dashboard/*.json (standard library only)
 docker compose run --rm loglens make test
 docker compose run --rm --service-ports loglens make mlflow-ui   # http://localhost:5000
 ```
@@ -229,7 +265,12 @@ LogLens/
 │   └── Dockerfile.dockerignore   # Keeps data/ out of the build context
 │
 ├── scripts/
-│   └── download_data.py          # Zenodo download with MD5 verification
+│   ├── download_data.py          # Zenodo download with MD5 verification
+│   └── build_dashboard.py        # docs/index.html from data/dashboard/*.json
+│
+├── docs/
+│   ├── index.html                # The results page (served by GitHub Pages)
+│   └── screenshots/              # README screenshots
 │
 ├── src/loglens/
 │   ├── config.py                 # Paths, per-dataset regex, expected counts, Drain3 threshold
@@ -244,7 +285,9 @@ LogLens/
 │   ├── gold.py                   # Sessions: sequences, count vectors, hashes, labels
 │   ├── metrics.py                # Validation-chosen thresholds, P/R/F1, PR-AUC, PR curves
 │   ├── baselines.py              # Five baselines, two protocols, duplication analysis, MLflow
-│   └── lstm.py                   # DeepLog-style LSTM, END-event variant, per-event ranks
+│   ├── lstm.py                   # DeepLog-style LSTM, END-event variant, tuning, checkpoints
+│   ├── evaluate.py               # Intervals, operations, timeout and latency, errors, drill-down
+│   └── ablation.py               # Training-size ablation
 │
 ├── tests/
 │   ├── test_ingest_regex.py
@@ -275,16 +318,17 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **The training cutoff is computed once.** The split stage records the first event of the first validation and test sessions; every later stage that fits anything reads those cutoffs from the run log, so no stage can quietly fit on the future.
 - **Matching runs in the JVM.** Templates are compiled to Java regexes and matched in a single Spark SQL `CASE WHEN`, which avoids moving 11M rows through Python. The pandas UDF and lookup-join versions stay in the code as the benchmark and as a cross-check.
 - **Run log.** Every stage writes `data/runlog/<dataset>_<stage>.json`. These feed the dashboard's pipeline-health panel.
-- **The dashboard never reads raw data.** It reads only the small aggregates in `data/dashboard/`, so the page stays a single file.
+- **The dashboard never reads raw data.** `scripts/build_dashboard.py` reads only the small aggregates in `data/dashboard/` (about 1 MB in all) and writes one self-contained `docs/index.html`, which GitHub Pages serves as a static file. Charts are HTML rows and inline SVG, so the page has no build step and no framework; line charts are drawn at two widths so their text stays readable on a phone.
+- **Colour follows the model family everywhere.** Count models are blue, sequence models orange, the supervised reference aqua and rules grey, checked with a colour-vision-deficiency validator in both themes; every mark also carries a text label, so colour is never the only cue.
 - **Execution.** Spark runs in local mode inside one container. Bronze ingest takes about 4 minutes, the split about 1.3 minutes, the parse about 1.5 minutes (plus 4.7 for the benchmark) and the gold layer about 2 minutes, mostly spent reading through the Windows bind mount. All five baselines under both protocols fit and score in under a minute; each LSTM run trains in 2 to 4 minutes on the CPU and scores all 575,061 sessions in about 7 seconds (about 83,000 windows per second, thanks to scoring each distinct sequence once).
 
 ---
 
 ## Testing and Validation
 
-**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix). 26 tests in all.
+**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label). 27 tests in all.
 
-**Reproducibility:** rerunning the LSTM after the code changes reproduced every chronological-split result for the published settings to the last digit (same seeds, same data), which confirms the runs are deterministic on CPU.
+**Reproducibility:** rerunning the LSTM after the code changes reproduced every chronological-split result for the published settings to the last digit (same seeds, same data), and retraining the seed-0 models to export their per-event scores reproduced their recorded F1 exactly for all three variants, so the runs are deterministic on CPU. The evaluation stage recomputes each model's F1 from the saved scores and stops if it differs from the training run's own result; that check exists because an earlier export rounded the scores and quietly moved a block of identical sessions across the threshold.
 
 **Pipeline checks, on the full dataset:** the raw line count equals LogHub's published 11,175,629; raw = bronze + quarantine; the time span matches LogHub's 38.7 hours; every one of the 575,061 blocks has exactly one label; every line gets an event ID and no training-period line is UNK; the three matchers agree on every line; ground-truth tagging reproduces LogHub's published event sequence for every block; and every event lands in exactly one session, with count vectors that sum to the event totals.
 
@@ -293,8 +337,10 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 ## Honest Limitations
 
 - **The LSTM search was small.** Six settings of history length and hidden size, one seed each, on validation; the learning rate, embedding size and number of layers stayed at their published values. It moved the best score by less than a point, so a larger search is unlikely to close a 9 point gap to PCA, but it was not tried.
-- **No confidence intervals yet.** The LSTM rows average 3 seeds; every other score is a single fit. Small differences (such as LightGBM's 0.8 point gap, or the tuned LSTM's 0.6 point gain) may be within noise until bootstrap intervals are added.
-- **The END event assumes a session is finished.** On a historical log that is true. Live, a block's session has no clear end, so the END variant would need a timeout to decide when a session has stopped.
+- **Intervals cover the test sample, not the training run.** Bootstrap intervals resample test sessions for one fitted model (seed 0 for the LSTM); seed-to-seed spread is reported separately as a standard deviation over 3 seeds, and the two are not combined.
+- **The test period is cut off by the end of the log.** About 40% of test sessions never reach their delete events because the log stops, and the read workload of the early hours is gone. That is the honest condition of evaluating on later data from a finite log, but it means part of what the models are judged on is censoring rather than behaviour.
+- **The idle timeout is a modelling choice.** Latency for count models and the END variant assumes a live system waits 12.3 hours of silence before judging a session; a different system would choose differently, and a shorter wait would cut more normal sessions short.
+- **The ablation's LSTM rows are single draws.** The baselines use 5 random training subsets per size; the LSTM, at several minutes per fit, uses one, so its 0.902 at 1% against 0.852 at 100% may be partly the luck of that draw.
 - **Validation thresholds maximise F1.** A real deployment would more likely fix an alert budget; alerts per hour are not reported yet.
 - **The random protocol reuses the chronological parser.** Templates were fitted on the chronological training period for both protocols. With only 15 unseen lines, this has a negligible effect, but it is not a fully separate pipeline.
 - **LightGBM sees labels; the other models do not.** It is shown as a supervised reference, not as a like-for-like competitor.
@@ -308,7 +354,8 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 
 ## Suggested Future Features
 
-- **A combined detector.** PCA and the LSTM miss almost disjoint sets of anomalies, so a count model and a sequence model voting together (with the rule tuned on validation) is the obvious next experiment.
+- **A combined detector.** Published DeepLog and PCA miss almost disjoint sets of anomalies, and DeepLog fires within seconds while PCA has to wait for a session to finish, so DeepLog as an early warning backed by PCA's verdict (with the combination tuned on validation) is the obvious next experiment.
+- **An uncensored test period.** Ending the test period 12 hours before the end of the log, so every test session has time to finish, would separate model errors from the cut-off sessions.
 - **A semantic event model** (sentence embeddings of templates) so unseen templates in later periods are handled without retraining.
 - **A streaming replay** of the test period with Spark Structured Streaming, to measure real time-to-alert.
 - **More LogHub systems**, such as Hadoop and OpenStack, to widen the generalization check.

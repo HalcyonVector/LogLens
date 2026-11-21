@@ -382,7 +382,9 @@ def run_variant(variant: str, cfg: dict, ctx: dict) -> dict:
                 }
                 curves.update(new_curves)
                 per_sequence = {
-                    str(h): {"ranks": v["ranks"].tolist(), "nll": np.round(v["nll"], 3).tolist()}
+                    # Unrounded: many identical sessions can share the exact threshold score, and
+                    # rounding would push all of them across it together.
+                    str(h): {"ranks": v["ranks"].tolist(), "nll": v["nll"].tolist()}
                     for h, v in r["by_hash"].items()
                 }
             with mlflow.start_run(run_name=f"{variant}-{proto}-seed{seed}"):
@@ -462,9 +464,43 @@ def run(dataset: str) -> None:
     checkpoint_clear(f"run_{dataset}_")
 
 
+def export_ranks(dataset: str) -> None:
+    """Retrain only the chronological seed-0 models and rewrite their per-event scores.
+
+    Training is deterministic on CPU, so this reproduces the full run's models
+    exactly; the check below confirms it against the recorded seed-0 results
+    before anything downstream uses the scores.
+    """
+    ctx = build_ctx(dataset)
+    recorded = json.loads((config.DASHBOARD / f"{dataset}_lstm.json").read_text())
+    split = ctx["protocols"]["chrono"]
+    y, va, te = ctx["y"], split == "val", split == "test"
+    for variant, cfg in recorded.items():
+        cfg = recorded[variant]["config"]
+        r = fit_and_score(ctx, sequences(ctx, cfg["end"]), split, cfg, SEEDS[0])
+        seed0 = recorded[variant]["results"]["chrono"]["seeds"]["0"]
+        m_rank = evaluate(y[va], r["s_rank"][va], y[te], r["s_rank"][te])
+        m_nll = evaluate(y[va], r["s_nll"][va], y[te], r["s_nll"][te])
+        same = m_rank["f1"] == seed0["f1"] and m_nll["f1"] == seed0["nll_score"]["f1"]
+        print(f"{variant}: top-g F1 {m_rank['f1']} (recorded {seed0['f1']}), log-prob F1 {m_nll['f1']} "
+              f"(recorded {seed0['nll_score']['f1']}) -> {'reproduced' if same else 'MISMATCH'}", flush=True)
+        if not same:
+            raise SystemExit(f"{variant} did not reproduce its recorded seed-0 result")
+        per_sequence = {
+            str(h): {"ranks": v["ranks"].tolist(), "nll": v["nll"].tolist()}
+            for h, v in r["by_hash"].items()
+        }
+        (config.GOLD / f"{dataset}_{variant}_ranks.json").write_text(json.dumps(per_sequence))
+
+
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     ds = args[0] if args else "hdfs"
     if "--fresh" in sys.argv:
         checkpoint_clear()
-    tune(ds) if "--tune" in sys.argv else run(ds)
+    if "--export-ranks" in sys.argv:
+        export_ranks(ds)
+    elif "--tune" in sys.argv:
+        tune(ds)
+    else:
+        run(ds)

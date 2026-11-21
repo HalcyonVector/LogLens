@@ -1,0 +1,94 @@
+{
+  "raw_lines": 11175629,
+  "quarantine_rows": 0,
+  "span_hours": 38.69,
+  "first_ts": "2008-11-09T20:35:18",
+  "last_ts": "2008-11-11T11:16:28",
+  "templates": 50,
+  "drain_sim_th": 0.9,
+  "train_distinct_masked": 51,
+  "unk_by_period": {
+    "val": {
+      "lines": 1185505,
+      "unk": 4,
+      "unk_rate": 3e-06
+    },
+    "train": {
+      "lines": 6856030,
+      "unk": 0,
+      "unk_rate": 0.0
+    },
+    "test": {
+      "lines": 3134094,
+      "unk": 11,
+      "unk_rate": 4e-06
+    }
+  },
+  "matching_benchmark": {
+    "udf": {
+      "seconds": 49.7,
+      "lines_per_s": 224737
+    },
+    "regex": {
+      "seconds": 34.0,
+      "lines_per_s": 328523
+    },
+    "dict": {
+      "seconds": 64.7,
+      "lines_per_s": 172598
+    },
+    "disagreements": {
+      "dict_vs_udf": 0,
+      "dict_vs_regex": 0,
+      "udf_vs_regex": 0
+    }
+  },
+  "grouping_accuracy": 0.998417,
+  "grouping_accuracy_test": 0.997803,
+  "trace_exact_share": 1.0,
+  "sessions": 575061,
+  "events": 11175629,
+  "distinct_sequences": 18375,
+  "distinct_count_vectors": 597,
+  "per_split": {
+    "val": {
+      "sessions": 57506,
+      "anomalies": 1957,
+      "anomaly_rate": 0.03403,
+      "first_start": "2008-11-11T04:17:26",
+      "last_start": "2008-11-11T06:00:46"
+    },
+    "train": {
+      "sessions": 345036,
+      "anomalies": 11158,
+      "anomaly_rate": 0.03234,
+      "first_start": "2008-11-09T20:35:18",
+      "last_start": "2008-11-11T04:17:26"
+    },
+    "test": {
+      "sessions": 172519,
+      "anomalies": 3723,
+      "anomaly_rate": 0.02158,
+      "first_start": "2008-11-11T06:00:46",
+      "last_start": "2008-11-11T11:04:13"
+    }
+  },
+  "checks": {
+    "bronze.raw_matches_expected": true,
+    "bronze.reconciles": true,
+    "split.every_block_labelled": true,
+    "split.every_label_has_block": true,
+    "split.session_count_matches": true,
+    "parse.every_line_tagged": true,
+    "parse.train_unk_is_zero": true,
+    "parse_eval.gt_tags_every_line": true,
+    "parse_eval.gt_reproduces_published_events": true,
+    "gold.session_count_matches": true,
+    "gold.every_silver_row_in_a_session": true,
+    "gold.count_vectors_cover_every_event": true,
+    "gold.one_block_per_line": true
+  },
+  "checks_passed": 13,
+  "checks_total": 13,
+  "run_date": "2026-11-21T08:12:08+00:00"
+}

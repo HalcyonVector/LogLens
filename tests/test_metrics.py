@@ -65,3 +65,13 @@ def test_same_detector_scores_higher_f1_when_anomalies_are_commoner():
     from loglens.metrics import f1_at_prevalence
 
     assert f1_at_prevalence(0.8, 0.01, 0.03) > f1_at_prevalence(0.8, 0.01, 0.02)
+
+
+def test_subsample_keeps_a_fraction_of_train_and_leaves_val_and_test_alone():
+    from loglens.ablation import subsample
+
+    split = np.array(["train"] * 100 + ["val"] * 10 + ["test"] * 30)
+    out = subsample(split, 0.1, seed=3)
+    assert (out == "train").sum() == 10
+    assert (out == "unused").sum() == 90
+    assert (out[100:] == split[100:]).all()

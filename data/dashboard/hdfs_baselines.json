@@ -114,7 +114,7 @@
           "prevalence": 0.426133,
           "pr_auc": 0.854635
         },
-        "fit_and_score_s": 30.24,
+        "fit_and_score_s": 7.74,
         "params": {
           "variance_kept": 0.95,
           "components": 5
@@ -155,7 +155,7 @@
           "prevalence": 0.426133,
           "pr_auc": 0.769715
         },
-        "fit_and_score_s": 11.76,
+        "fit_and_score_s": 6.45,
         "params": {
           "n_estimators": 300
         }
@@ -195,7 +195,7 @@
           "prevalence": 0.426133,
           "pr_auc": 0.998424
         },
-        "fit_and_score_s": 5.16,
+        "fit_and_score_s": 3.4,
         "params": {
           "best_iteration": 164
         }
@@ -237,7 +237,7 @@
           "prevalence": 0.266135,
           "pr_auc": 0.217332
         },
-        "fit_and_score_s": 0.04,
+        "fit_and_score_s": 0.0,
         "params": {}
       },
       "seq_lookup": {
@@ -275,7 +275,7 @@
           "prevalence": 0.266135,
           "pr_auc": 0.266135
         },
-        "fit_and_score_s": 0.11,
+        "fit_and_score_s": 0.04,
         "params": {
           "train_distinct_sequences": 13552
         }
@@ -315,7 +315,7 @@
           "prevalence": 0.266135,
           "pr_auc": 0.893818
         },
-        "fit_and_score_s": 14.04,
+        "fit_and_score_s": 12.1,
         "params": {
           "variance_kept": 0.95,
           "components": 5
@@ -356,7 +356,7 @@
           "prevalence": 0.266135,
           "pr_auc": 0.685549
         },
-        "fit_and_score_s": 8.17,
+        "fit_and_score_s": 8.18,
         "params": {
           "n_estimators": 300
         }
@@ -396,7 +396,7 @@
           "prevalence": 0.266135,
           "pr_auc": 0.999228
         },
-        "fit_and_score_s": 4.41,
+        "fit_and_score_s": 9.89,
         "params": {
           "best_iteration": 209
         }

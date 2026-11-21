@@ -1,0 +1,1510 @@
+{
+  "models": {
+    "warn_rule": {
+      "precision": 1.0,
+      "recall": 0.446146,
+      "f1": 0.617013,
+      "fpr": 0.0,
+      "tp": 1661,
+      "fp": 0,
+      "fn": 2062,
+      "flagged": 1661,
+      "prevalence": 0.02158,
+      "pr_auc": 0.458098,
+      "ci": {
+        "precision": [
+          1.0,
+          1.0
+        ],
+        "recall": [
+          0.4309,
+          0.4622
+        ],
+        "f1": [
+          0.6023,
+          0.6322
+        ],
+        "pr_auc": [
+          0.4431,
+          0.4737
+        ]
+      }
+    },
+    "seq_lookup": {
+      "precision": 0.792465,
+      "recall": 1.0,
+      "f1": 0.884218,
+      "fpr": 0.0057762,
+      "tp": 3723,
+      "fp": 975,
+      "fn": 0,
+      "flagged": 4698,
+      "prevalence": 0.02158,
+      "pr_auc": 0.792465,
+      "ci": {
+        "precision": [
+          0.7804,
+          0.8041
+        ],
+        "recall": [
+          1.0,
+          1.0
+        ],
+        "f1": [
+          0.8767,
+          0.8914
+        ],
+        "pr_auc": [
+          0.7804,
+          0.8041
+        ]
+      }
+    },
+    "pca": {
+      "precision": 0.997987,
+      "recall": 0.932313,
+      "f1": 0.964033,
+      "fpr": 4.147e-05,
+      "tp": 3471,
+      "fp": 7,
+      "fn": 252,
+      "flagged": 3478,
+      "prevalence": 0.02158,
+      "pr_auc": 0.929625,
+      "ci": {
+        "precision": [
+          0.9964,
+          0.9994
+        ],
+        "recall": [
+          0.9243,
+          0.9401
+        ],
+        "f1": [
+          0.9597,
+          0.9682
+        ],
+        "pr_auc": [
+          0.9207,
+          0.9386
+        ]
+      }
+    },
+    "iforest": {
+      "precision": 0.805714,
+      "recall": 0.56809,
+      "f1": 0.666352,
+      "fpr": 0.0030214,
+      "tp": 2115,
+      "fp": 510,
+      "fn": 1608,
+      "flagged": 2625,
+      "prevalence": 0.02158,
+      "pr_auc": 0.751057,
+      "ci": {
+        "precision": [
+          0.7896,
+          0.8204
+        ],
+        "recall": [
+          0.5511,
+          0.5837
+        ],
+        "f1": [
+          0.6518,
+          0.6792
+        ],
+        "pr_auc": [
+          0.7389,
+          0.7626
+        ]
+      }
+    },
+    "lightgbm": {
+      "precision": 0.979189,
+      "recall": 0.998388,
+      "f1": 0.988695,
+      "fpr": 0.00046802,
+      "tp": 3717,
+      "fp": 79,
+      "fn": 6,
+      "flagged": 3796,
+      "prevalence": 0.02158,
+      "pr_auc": 0.9999,
+      "ci": {
+        "precision": [
+          0.9746,
+          0.9836
+        ],
+        "recall": [
+          0.997,
+          0.9995
+        ],
+        "f1": [
+          0.9863,
+          0.9911
+        ],
+        "pr_auc": [
+          0.9998,
+          1.0
+        ]
+      }
+    },
+    "deeplog_topg": {
+      "precision": 0.765447,
+      "recall": 0.505775,
+      "f1": 0.609089,
+      "fpr": 0.00341833,
+      "tp": 1883,
+      "fp": 577,
+      "fn": 1840,
+      "flagged": 2460,
+      "prevalence": 0.02158,
+      "pr_auc": 0.527834,
+      "ci": {
+        "precision": [
+          0.7501,
+          0.7813
+        ],
+        "recall": [
+          0.4899,
+          0.5228
+        ],
+        "f1": [
+          0.5946,
+          0.6239
+        ],
+        "pr_auc": [
+          0.5126,
+          0.5441
+        ]
+      }
+    },
+    "deeplog_end_topg": {
+      "precision": 0.827653,
+      "recall": 0.684932,
+      "f1": 0.749559,
+      "fpr": 0.00314581,
+      "tp": 2550,
+      "fp": 531,
+      "fn": 1173,
+      "flagged": 3081,
+      "prevalence": 0.02158,
+      "pr_auc": 0.654802,
+      "ci": {
+        "precision": [
+          0.8145,
+          0.8401
+        ],
+        "recall": [
+          0.67,
+          0.6997
+        ],
+        "f1": [
+          0.7382,
+          0.7602
+        ],
+        "pr_auc": [
+          0.64,
+          0.6694
+        ]
+      }
+    },
+    "deeplog_end_logprob": {
+      "precision": 0.74247,
+      "recall": 0.999731,
+      "f1": 0.852106,
+      "fpr": 0.00764829,
+      "tp": 3722,
+      "fp": 1291,
+      "fn": 1,
+      "flagged": 5013,
+      "prevalence": 0.02158,
+      "pr_auc": 0.935345,
+      "ci": {
+        "precision": [
+          0.7312,
+          0.7539
+        ],
+        "recall": [
+          0.9992,
+          1.0
+        ],
+        "f1": [
+          0.8447,
+          0.8596
+        ],
+        "pr_auc": [
+          0.9295,
+          0.9409
+        ]
+      }
+    },
+    "deeplog_end_tuned_logprob": {
+      "precision": 0.797984,
+      "recall": 0.957024,
+      "f1": 0.870298,
+      "fpr": 0.00534373,
+      "tp": 3563,
+      "fp": 902,
+      "fn": 160,
+      "flagged": 4465,
+      "prevalence": 0.02158,
+      "pr_auc": 0.926937,
+      "ci": {
+        "precision": [
+          0.7862,
+          0.8092
+        ],
+        "recall": [
+          0.9504,
+          0.963
+        ],
+        "f1": [
+          0.8623,
+          0.8775
+        ],
+        "pr_auc": [
+          0.9198,
+          0.9336
+        ]
+      }
+    }
+  },
+  "paired_differences": {
+    "pca_minus_deeplog_end_tuned_logprob_f1": {
+      "mean": 0.0938,
+      "ci": [
+        0.0867,
+        0.1012
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "pca_minus_deeplog_end_tuned_logprob_pr_auc": {
+      "mean": 0.0029,
+      "ci": [
+        -0.0067,
+        0.012
+      ],
+      "share_of_resamples_above_zero": 0.714
+    },
+    "lightgbm_minus_pca_f1": {
+      "mean": 0.0247,
+      "ci": [
+        0.0201,
+        0.0295
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "lightgbm_minus_pca_pr_auc": {
+      "mean": 0.0702,
+      "ci": [
+        0.0612,
+        0.0792
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "deeplog_end_logprob_minus_deeplog_topg_f1": {
+      "mean": 0.2434,
+      "ci": [
+        0.2277,
+        0.2576
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "deeplog_end_logprob_minus_deeplog_topg_pr_auc": {
+      "mean": 0.4079,
+      "ci": [
+        0.3912,
+        0.4231
+      ],
+      "share_of_resamples_above_zero": 1.0
+    }
+  },
+  "bootstrap": {
+    "resamples": 1000,
+    "seed": 7,
+    "note": "LSTM rows use seed 0, whose per-event scores are saved"
+  },
+  "timeout": {
+    "timeout_s": 44334,
+    "chosen_as": "99th percentile of the longest idle gap inside normal training sessions",
+    "max_gap_percentiles_s": {
+      "p50": 20808,
+      "p90": 37587,
+      "p99": 44334
+    },
+    "normal_duration_percentiles_s": {
+      "p50": 7303,
+      "p90": 48138,
+      "p99": 53188
+    },
+    "test_sessions_cut_early": 0,
+    "test_sessions_cut_early_share": 0.0
+  },
+  "latency": {
+    "warn_rule": {
+      "caught": 1661,
+      "seconds": {
+        "p10": 44963,
+        "p50": 49938,
+        "p90": 51734
+      },
+      "events": {
+        "p10": 20,
+        "p50": 20,
+        "p90": 28
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1661
+      ]
+    },
+    "seq_lookup": {
+      "caught": 3723,
+      "seconds": {
+        "p10": 44334,
+        "p50": 45708,
+        "p90": 51521
+      },
+      "events": {
+        "p10": 2,
+        "p50": 20,
+        "p90": 27
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3723
+      ]
+    },
+    "pca": {
+      "caught": 3471,
+      "seconds": {
+        "p10": 44334,
+        "p50": 44828,
+        "p90": 51509
+      },
+      "events": {
+        "p10": 2,
+        "p50": 20,
+        "p90": 27
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3471
+      ]
+    },
+    "iforest": {
+      "caught": 2115,
+      "seconds": {
+        "p10": 44334,
+        "p50": 44338,
+        "p90": 51333
+      },
+      "events": {
+        "p10": 2,
+        "p50": 4,
+        "p90": 28
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2115
+      ]
+    },
+    "lightgbm": {
+      "caught": 3717,
+      "seconds": {
+        "p10": 44334,
+        "p50": 45671,
+        "p90": 51522
+      },
+      "events": {
+        "p10": 2,
+        "p50": 20,
+        "p90": 27
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3717
+      ]
+    },
+    "deeplog_topg": {
+      "caught": 1883,
+      "seconds": {
+        "p10": 3,
+        "p50": 6,
+        "p90": 5084
+      },
+      "events": {
+        "p10": 4,
+        "p50": 5,
+        "p90": 22
+      },
+      "within_1_minute": 0.7212,
+      "within_1_hour": 0.8391,
+      "histogram_minutes": [
+        1356,
+        73,
+        89,
+        62,
+        303,
+        0,
+        0
+      ]
+    },
+    "deeplog_end_topg": {
+      "caught": 2550,
+      "seconds": {
+        "p10": 3,
+        "p50": 44,
+        "p90": 44334
+      },
+      "events": {
+        "p10": 2,
+        "p50": 4,
+        "p90": 22
+      },
+      "within_1_minute": 0.5325,
+      "within_1_hour": 0.6176,
+      "histogram_minutes": [
+        1356,
+        72,
+        84,
+        63,
+        295,
+        0,
+        680
+      ]
+    },
+    "deeplog_end_logprob": {
+      "caught": 3722,
+      "seconds": {
+        "p10": 3,
+        "p50": 2822,
+        "p90": 44334
+      },
+      "events": {
+        "p10": 2,
+        "p50": 13,
+        "p90": 19
+      },
+      "within_1_minute": 0.3678,
+      "within_1_hour": 0.5306,
+      "histogram_minutes": [
+        1367,
+        86,
+        125,
+        397,
+        1067,
+        0,
+        680
+      ]
+    },
+    "deeplog_end_tuned_logprob": {
+      "caught": 3563,
+      "seconds": {
+        "p10": 3,
+        "p50": 4497,
+        "p90": 44334
+      },
+      "events": {
+        "p10": 2,
+        "p50": 5,
+        "p90": 20
+      },
+      "within_1_minute": 0.3839,
+      "within_1_hour": 0.4777,
+      "histogram_minutes": [
+        1366,
+        86,
+        119,
+        131,
+        1181,
+        0,
+        680
+      ]
+    }
+  },
+  "operations": {
+    "test_hours": 5.06,
+    "per_model": {
+      "warn_rule": {
+        "alerts": 1661,
+        "alerts_per_hour": 328.4,
+        "false_alarms_per_hour": 0.0,
+        "false_alarms_per_1000_normal": 0.0
+      },
+      "seq_lookup": {
+        "alerts": 4698,
+        "alerts_per_hour": 928.9,
+        "false_alarms_per_hour": 192.8,
+        "false_alarms_per_1000_normal": 5.78
+      },
+      "pca": {
+        "alerts": 3478,
+        "alerts_per_hour": 687.7,
+        "false_alarms_per_hour": 1.4,
+        "false_alarms_per_1000_normal": 0.04
+      },
+      "iforest": {
+        "alerts": 2625,
+        "alerts_per_hour": 519.0,
+        "false_alarms_per_hour": 100.8,
+        "false_alarms_per_1000_normal": 3.02
+      },
+      "lightgbm": {
+        "alerts": 3796,
+        "alerts_per_hour": 750.6,
+        "false_alarms_per_hour": 15.6,
+        "false_alarms_per_1000_normal": 0.47
+      },
+      "deeplog_topg": {
+        "alerts": 2460,
+        "alerts_per_hour": 486.4,
+        "false_alarms_per_hour": 114.1,
+        "false_alarms_per_1000_normal": 3.42
+      },
+      "deeplog_end_topg": {
+        "alerts": 3081,
+        "alerts_per_hour": 609.2,
+        "false_alarms_per_hour": 105.0,
+        "false_alarms_per_1000_normal": 3.15
+      },
+      "deeplog_end_logprob": {
+        "alerts": 5013,
+        "alerts_per_hour": 991.2,
+        "false_alarms_per_hour": 255.3,
+        "false_alarms_per_1000_normal": 7.65
+      },
+      "deeplog_end_tuned_logprob": {
+        "alerts": 4465,
+        "alerts_per_hour": 882.8,
+        "false_alarms_per_hour": 178.3,
+        "false_alarms_per_1000_normal": 5.34
+      }
+    },
+    "per_hour": {
+      "_sessions": {
+        "2008-11-11T06:00": 32263,
+        "2008-11-11T07:00": 33951,
+        "2008-11-11T08:00": 34737,
+        "2008-11-11T09:00": 35292,
+        "2008-11-11T10:00": 35383,
+        "2008-11-11T11:00": 893
+      },
+      "_labelled_anomalies": {
+        "2008-11-11T06:00": 686,
+        "2008-11-11T07:00": 1683,
+        "2008-11-11T08:00": 424,
+        "2008-11-11T09:00": 351,
+        "2008-11-11T10:00": 571,
+        "2008-11-11T11:00": 8
+      },
+      "warn_rule": {
+        "tp": {
+          "2008-11-11T06:00": 297,
+          "2008-11-11T07:00": 1131,
+          "2008-11-11T08:00": 80,
+          "2008-11-11T09:00": 63,
+          "2008-11-11T10:00": 88,
+          "2008-11-11T11:00": 2
+        },
+        "fp": {
+          "2008-11-11T06:00": 0,
+          "2008-11-11T07:00": 0,
+          "2008-11-11T08:00": 0,
+          "2008-11-11T09:00": 0,
+          "2008-11-11T10:00": 0,
+          "2008-11-11T11:00": 0
+        }
+      },
+      "seq_lookup": {
+        "tp": {
+          "2008-11-11T06:00": 686,
+          "2008-11-11T07:00": 1683,
+          "2008-11-11T08:00": 424,
+          "2008-11-11T09:00": 351,
+          "2008-11-11T10:00": 571,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 41,
+          "2008-11-11T07:00": 65,
+          "2008-11-11T08:00": 342,
+          "2008-11-11T09:00": 295,
+          "2008-11-11T10:00": 211,
+          "2008-11-11T11:00": 21
+        }
+      },
+      "pca": {
+        "tp": {
+          "2008-11-11T06:00": 658,
+          "2008-11-11T07:00": 1475,
+          "2008-11-11T08:00": 424,
+          "2008-11-11T09:00": 351,
+          "2008-11-11T10:00": 555,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 2,
+          "2008-11-11T07:00": 1,
+          "2008-11-11T08:00": 2,
+          "2008-11-11T09:00": 0,
+          "2008-11-11T10:00": 2,
+          "2008-11-11T11:00": 0
+        }
+      },
+      "iforest": {
+        "tp": {
+          "2008-11-11T06:00": 425,
+          "2008-11-11T07:00": 679,
+          "2008-11-11T08:00": 298,
+          "2008-11-11T09:00": 251,
+          "2008-11-11T10:00": 461,
+          "2008-11-11T11:00": 1
+        },
+        "fp": {
+          "2008-11-11T06:00": 4,
+          "2008-11-11T07:00": 13,
+          "2008-11-11T08:00": 382,
+          "2008-11-11T09:00": 110,
+          "2008-11-11T10:00": 1,
+          "2008-11-11T11:00": 0
+        }
+      },
+      "lightgbm": {
+        "tp": {
+          "2008-11-11T06:00": 686,
+          "2008-11-11T07:00": 1678,
+          "2008-11-11T08:00": 423,
+          "2008-11-11T09:00": 351,
+          "2008-11-11T10:00": 571,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 3,
+          "2008-11-11T07:00": 0,
+          "2008-11-11T08:00": 2,
+          "2008-11-11T09:00": 74,
+          "2008-11-11T10:00": 0,
+          "2008-11-11T11:00": 0
+        }
+      },
+      "deeplog_topg": {
+        "tp": {
+          "2008-11-11T06:00": 360,
+          "2008-11-11T07:00": 639,
+          "2008-11-11T08:00": 277,
+          "2008-11-11T09:00": 229,
+          "2008-11-11T10:00": 370,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 50,
+          "2008-11-11T07:00": 79,
+          "2008-11-11T08:00": 184,
+          "2008-11-11T09:00": 154,
+          "2008-11-11T10:00": 81,
+          "2008-11-11T11:00": 29
+        }
+      },
+      "deeplog_end_topg": {
+        "tp": {
+          "2008-11-11T06:00": 488,
+          "2008-11-11T07:00": 753,
+          "2008-11-11T08:00": 401,
+          "2008-11-11T09:00": 332,
+          "2008-11-11T10:00": 568,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 50,
+          "2008-11-11T07:00": 56,
+          "2008-11-11T08:00": 177,
+          "2008-11-11T09:00": 155,
+          "2008-11-11T10:00": 71,
+          "2008-11-11T11:00": 22
+        }
+      },
+      "deeplog_end_logprob": {
+        "tp": {
+          "2008-11-11T06:00": 686,
+          "2008-11-11T07:00": 1682,
+          "2008-11-11T08:00": 424,
+          "2008-11-11T09:00": 351,
+          "2008-11-11T10:00": 571,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 91,
+          "2008-11-11T07:00": 170,
+          "2008-11-11T08:00": 529,
+          "2008-11-11T09:00": 249,
+          "2008-11-11T10:00": 211,
+          "2008-11-11T11:00": 41
+        }
+      },
+      "deeplog_end_tuned_logprob": {
+        "tp": {
+          "2008-11-11T06:00": 676,
+          "2008-11-11T07:00": 1533,
+          "2008-11-11T08:00": 424,
+          "2008-11-11T09:00": 351,
+          "2008-11-11T10:00": 571,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 71,
+          "2008-11-11T07:00": 153,
+          "2008-11-11T08:00": 245,
+          "2008-11-11T09:00": 219,
+          "2008-11-11T10:00": 173,
+          "2008-11-11T11:00": 41
+        }
+      }
+    }
+  },
+  "errors": {
+    "pca": {
+      "false_alarms": 7,
+      "misses": 252,
+      "in_false_alarms": [
+        {
+          "event_id": "T07",
+          "template": "<IP> Served block <BLK> to <IP>",
+          "sessions": 7,
+          "share": 1.0,
+          "reference_share": 0.0001,
+          "lift": 15345.09
+        },
+        {
+          "event_id": "T06",
+          "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+          "sessions": 7,
+          "share": 1.0,
+          "reference_share": 0.5942,
+          "lift": 1.68
+        },
+        {
+          "event_id": "T05",
+          "template": "Deleting block <BLK> file <PATH>",
+          "sessions": 7,
+          "share": 1.0,
+          "reference_share": 0.5966,
+          "lift": 1.68
+        }
+      ],
+      "in_misses": [
+        {
+          "event_id": "T13",
+          "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.1668,
+          "lift": 6.0
+        },
+        {
+          "event_id": "T14",
+          "template": "<IP> Starting thread to transfer block <BLK> to <IP>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.1668,
+          "lift": 6.0
+        },
+        {
+          "event_id": "T11",
+          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.1698,
+          "lift": 5.89
+        },
+        {
+          "event_id": "T12",
+          "template": "<IP>:Transmitted block <BLK> to <IP>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.1698,
+          "lift": 5.89
+        },
+        {
+          "event_id": "T05",
+          "template": "Deleting block <BLK> file <PATH>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.5501,
+          "lift": 1.82
+        },
+        {
+          "event_id": "T06",
+          "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+          "sessions": 249,
+          "share": 0.9881,
+          "reference_share": 0.5442,
+          "lift": 1.82
+        },
+        {
+          "event_id": "T02",
+          "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.5966,
+          "lift": 1.68
+        },
+        {
+          "event_id": "T04",
+          "template": "Received block <BLK> of size <NUM> from <IP>",
+          "sessions": 252,
+          "share": 1.0,
+          "reference_share": 0.5966,
+          "lift": 1.68
+        }
+      ]
+    },
+    "deeplog_end_tuned_logprob": {
+      "false_alarms": 902,
+      "misses": 160,
+      "in_false_alarms": [
+        {
+          "event_id": "T11",
+          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+          "sessions": 221,
+          "share": 0.245,
+          "reference_share": 0.0029,
+          "lift": 84.06
+        },
+        {
+          "event_id": "T12",
+          "template": "<IP>:Transmitted block <BLK> to <IP>",
+          "sessions": 221,
+          "share": 0.245,
+          "reference_share": 0.0029,
+          "lift": 84.06
+        },
+        {
+          "event_id": "T13",
+          "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+          "sessions": 219,
+          "share": 0.2428,
+          "reference_share": 0.0029,
+          "lift": 83.64
+        },
+        {
+          "event_id": "T14",
+          "template": "<IP> Starting thread to transfer block <BLK> to <IP>",
+          "sessions": 219,
+          "share": 0.2428,
+          "reference_share": 0.0029,
+          "lift": 83.64
+        },
+        {
+          "event_id": "T05",
+          "template": "Deleting block <BLK> file <PATH>",
+          "sessions": 597,
+          "share": 0.6619,
+          "reference_share": 0.5966,
+          "lift": 1.11
+        },
+        {
+          "event_id": "T10",
+          "template": "Verification succeeded for <BLK>",
+          "sessions": 66,
+          "share": 0.0732,
+          "reference_share": 0.0201,
+          "lift": 3.64
+        },
+        {
+          "event_id": "T07",
+          "template": "<IP> Served block <BLK> to <IP>",
+          "sessions": 11,
+          "share": 0.0122,
+          "reference_share": 0.0001,
+          "lift": 187.14
+        }
+      ],
+      "in_misses": [
+        {
+          "event_id": "T13",
+          "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.1668,
+          "lift": 6.0
+        },
+        {
+          "event_id": "T14",
+          "template": "<IP> Starting thread to transfer block <BLK> to <IP>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.1668,
+          "lift": 6.0
+        },
+        {
+          "event_id": "T11",
+          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.1698,
+          "lift": 5.89
+        },
+        {
+          "event_id": "T12",
+          "template": "<IP>:Transmitted block <BLK> to <IP>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.1698,
+          "lift": 5.89
+        },
+        {
+          "event_id": "T05",
+          "template": "Deleting block <BLK> file <PATH>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.5501,
+          "lift": 1.82
+        },
+        {
+          "event_id": "T06",
+          "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+          "sessions": 156,
+          "share": 0.975,
+          "reference_share": 0.5442,
+          "lift": 1.79
+        },
+        {
+          "event_id": "T02",
+          "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.5966,
+          "lift": 1.68
+        },
+        {
+          "event_id": "T04",
+          "template": "Received block <BLK> of size <NUM> from <IP>",
+          "sessions": 160,
+          "share": 1.0,
+          "reference_share": 0.5966,
+          "lift": 1.68
+        }
+      ]
+    }
+  },
+  "overlap": {
+    "pca_vs_best_lstm": {
+      "a": "pca",
+      "b": "deeplog_end_tuned_logprob",
+      "anomalies": 3723,
+      "both": 3469,
+      "only_a": 2,
+      "only_b": 94,
+      "neither": 158
+    },
+    "pca_vs_deeplog": {
+      "a": "pca",
+      "b": "deeplog_topg",
+      "anomalies": 3723,
+      "both": 1637,
+      "only_a": 1834,
+      "only_b": 246,
+      "neither": 6
+    }
+  },
+  "templates": [
+    {
+      "event_id": "T01",
+      "template": "Receiving block <BLK> src: <IP> dest: <IP>",
+      "sessions": 575061,
+      "anomalous_sessions": 16838,
+      "anomaly_rate": 0.0293,
+      "train_sessions": 345036,
+      "test_sessions": 172519
+    },
+    {
+      "event_id": "T09",
+      "template": "BLOCK* NameSystem.allocateBlock: <PATH> <BLK>",
+      "sessions": 575061,
+      "anomalous_sessions": 16838,
+      "anomaly_rate": 0.0293,
+      "train_sessions": 345036,
+      "test_sessions": 172519
+    },
+    {
+      "event_id": "T03",
+      "template": "PacketResponder <NUM> for block <BLK> terminating",
+      "sessions": 568880,
+      "anomalous_sessions": 10657,
+      "anomaly_rate": 0.0187,
+      "train_sessions": 340809,
+      "test_sessions": 171022
+    },
+    {
+      "event_id": "T02",
+      "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+      "sessions": 568854,
+      "anomalous_sessions": 10631,
+      "anomaly_rate": 0.0187,
+      "train_sessions": 340788,
+      "test_sessions": 171017
+    },
+    {
+      "event_id": "T04",
+      "template": "Received block <BLK> of size <NUM> from <IP>",
+      "sessions": 568854,
+      "anomalous_sessions": 10631,
+      "anomaly_rate": 0.0187,
+      "train_sessions": 340788,
+      "test_sessions": 171017
+    },
+    {
+      "event_id": "T05",
+      "template": "Deleting block <BLK> file <PATH>",
+      "sessions": 466647,
+      "anomalous_sessions": 10393,
+      "anomaly_rate": 0.0223,
+      "train_sessions": 318478,
+      "test_sessions": 102759
+    },
+    {
+      "event_id": "T06",
+      "template": "BLOCK* NameSystem.delete: <BLK> is added to invalidSet of <IP>",
+      "sessions": 465015,
+      "anomalous_sessions": 10337,
+      "anomaly_rate": 0.0222,
+      "train_sessions": 317654,
+      "test_sessions": 102328
+    },
+    {
+      "event_id": "T07",
+      "template": "<IP> Served block <BLK> to <IP>",
+      "sessions": 137434,
+      "anomalous_sessions": 3627,
+      "anomaly_rate": 0.0264,
+      "train_sessions": 137416,
+      "test_sessions": 12
+    },
+    {
+      "event_id": "T08",
+      "template": "<IP>:Got exception while serving <BLK> to <IP>:",
+      "sessions": 129295,
+      "anomalous_sessions": 3178,
+      "anomaly_rate": 0.0246,
+      "train_sessions": 129295,
+      "test_sessions": 0
+    },
+    {
+      "event_id": "T10",
+      "template": "Verification succeeded for <BLK>",
+      "sessions": 82705,
+      "anomalous_sessions": 2056,
+      "anomaly_rate": 0.0249,
+      "train_sessions": 75948,
+      "test_sessions": 3429
+    },
+    {
+      "event_id": "T15",
+      "template": "Unexpected error trying to delete block <BLK>. BlockInfo not found in volumeMap.",
+      "sessions": 5345,
+      "anomalous_sessions": 5126,
+      "anomaly_rate": 0.959,
+      "train_sessions": 3242,
+      "test_sessions": 1405
+    },
+    {
+      "event_id": "T11",
+      "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+      "sessions": 5243,
+      "anomalous_sessions": 3465,
+      "anomaly_rate": 0.6609,
+      "train_sessions": 2841,
+      "test_sessions": 1124
+    },
+    {
+      "event_id": "T12",
+      "template": "<IP>:Transmitted block <BLK> to <IP>",
+      "sessions": 5243,
+      "anomalous_sessions": 3465,
+      "anomaly_rate": 0.6609,
+      "train_sessions": 2841,
+      "test_sessions": 1124
+    },
+    {
+      "event_id": "T13",
+      "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP>",
+      "sessions": 5192,
+      "anomalous_sessions": 3423,
+      "anomaly_rate": 0.6593,
+      "train_sessions": 2800,
+      "test_sessions": 1111
+    },
+    {
+      "event_id": "T14",
+      "template": "<IP> Starting thread to transfer block <BLK> to <IP>",
+      "sessions": 5192,
+      "anomalous_sessions": 3423,
+      "anomaly_rate": 0.6593,
+      "train_sessions": 2800,
+      "test_sessions": 1111
+    },
+    {
+      "event_id": "T16",
+      "template": "writeBlock <BLK> received exception java.io.IOException: Could not read from stream",
+      "sessions": 3226,
+      "anomalous_sessions": 3226,
+      "anomaly_rate": 1.0,
+      "train_sessions": 2174,
+      "test_sessions": 817
+    },
+    {
+      "event_id": "T17",
+      "template": "BLOCK* NameSystem.addStoredBlock: addStoredBlock request received for <BLK> on <IP> size <NUM> But it does not belong to any file.",
+      "sessions": 1259,
+      "anomalous_sessions": 1247,
+      "anomaly_rate": 0.9905,
+      "train_sessions": 1250,
+      "test_sessions": 6
+    },
+    {
+      "event_id": "T19",
+      "template": "BLOCK* NameSystem.addStoredBlock: Redundant addStoredBlock request received for <BLK> on <IP> size <NUM>",
+      "sessions": 974,
+      "anomalous_sessions": 971,
+      "anomaly_rate": 0.9969,
+      "train_sessions": 626,
+      "test_sessions": 258
+    },
+    {
+      "event_id": "T18",
+      "template": "Receiving empty packet for block <BLK>",
+      "sessions": 488,
+      "anomalous_sessions": 488,
+      "anomaly_rate": 1.0,
+      "train_sessions": 239,
+      "test_sessions": 183
+    },
+    {
+      "event_id": "T20",
+      "template": "<IP> Starting thread to transfer block <BLK> to <IP>, <IP>",
+      "sessions": 101,
+      "anomalous_sessions": 75,
+      "anomaly_rate": 0.7426,
+      "train_sessions": 73,
+      "test_sessions": 24
+    },
+    {
+      "event_id": "T21",
+      "template": "BLOCK* ask <IP> to replicate <BLK> to datanode(s) <IP> <IP>",
+      "sessions": 101,
+      "anomalous_sessions": 75,
+      "anomaly_rate": 0.7426,
+      "train_sessions": 73,
+      "test_sessions": 24
+    },
+    {
+      "event_id": "T22",
+      "template": "Exception in receiveBlock for block <BLK> java.io.IOException: Connection reset by peer",
+      "sessions": 54,
+      "anomalous_sessions": 54,
+      "anomaly_rate": 1.0,
+      "train_sessions": 35,
+      "test_sessions": 18
+    },
+    {
+      "event_id": "T23",
+      "template": "writeBlock <BLK> received exception java.io.IOException: Connection reset by peer",
+      "sessions": 54,
+      "anomalous_sessions": 54,
+      "anomaly_rate": 1.0,
+      "train_sessions": 35,
+      "test_sessions": 18
+    },
+    {
+      "event_id": "T24",
+      "template": "PacketResponder <NUM> for block <BLK> Interrupted.",
+      "sessions": 46,
+      "anomalous_sessions": 46,
+      "anomaly_rate": 1.0,
+      "train_sessions": 22,
+      "test_sessions": 22
+    },
+    {
+      "event_id": "T30",
+      "template": "PendingReplicationMonitor timed out block <BLK>",
+      "sessions": 46,
+      "anomalous_sessions": 46,
+      "anomaly_rate": 1.0,
+      "train_sessions": 22,
+      "test_sessions": 7
+    },
+    {
+      "event_id": "T25",
+      "template": "Changing block file offset of block <BLK> from <NUM> to <NUM> meta file offset to <NUM>",
+      "sessions": 38,
+      "anomalous_sessions": 38,
+      "anomaly_rate": 1.0,
+      "train_sessions": 16,
+      "test_sessions": 19
+    },
+    {
+      "event_id": "T26",
+      "template": "Exception in receiveBlock for block <BLK> java.io.EOFException",
+      "sessions": 37,
+      "anomalous_sessions": 37,
+      "anomaly_rate": 1.0,
+      "train_sessions": 16,
+      "test_sessions": 19
+    },
+    {
+      "event_id": "T27",
+      "template": "writeBlock <BLK> received exception java.io.EOFException",
+      "sessions": 36,
+      "anomalous_sessions": 36,
+      "anomaly_rate": 1.0,
+      "train_sessions": 16,
+      "test_sessions": 18
+    },
+    {
+      "event_id": "T28",
+      "template": "<IP>:Exception writing block <BLK> to mirror <IP>",
+      "sessions": 26,
+      "anomalous_sessions": 26,
+      "anomaly_rate": 1.0,
+      "train_sessions": 13,
+      "test_sessions": 13
+    },
+    {
+      "event_id": "T33",
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]. <NUM> millis timeout left.",
+      "sessions": 23,
+      "anomalous_sessions": 23,
+      "anomaly_rate": 1.0,
+      "train_sessions": 8,
+      "test_sessions": 13
+    },
+    {
+      "event_id": "T32",
+      "template": "PacketResponder <BLK> <NUM> Exception java.net.SocketTimeoutException: <NUM> millis timeout while waiting for channel to be ready for read. ch : java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]",
+      "sessions": 22,
+      "anomalous_sessions": 22,
+      "anomaly_rate": 1.0,
+      "train_sessions": 13,
+      "test_sessions": 8
+    },
+    {
+      "event_id": "T29",
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.EOFException",
+      "sessions": 19,
+      "anomalous_sessions": 19,
+      "anomaly_rate": 1.0,
+      "train_sessions": 15,
+      "test_sessions": 4
+    },
+    {
+      "event_id": "T36",
+      "template": "writeBlock <BLK> received exception java.net.SocketTimeoutException: <NUM> millis timeout while waiting for channel to be ready for <*> ch : java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]",
+      "sessions": 15,
+      "anomalous_sessions": 15,
+      "anomaly_rate": 1.0,
+      "train_sessions": 8,
+      "test_sessions": 7
+    },
+    {
+      "event_id": "T37",
+      "template": "Exception in receiveBlock for block <BLK> java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]. <NUM> millis timeout left.",
+      "sessions": 15,
+      "anomalous_sessions": 15,
+      "anomaly_rate": 1.0,
+      "train_sessions": 6,
+      "test_sessions": 9
+    },
+    {
+      "event_id": "T31",
+      "template": "writeBlock <BLK> received exception java.net.SocketTimeoutException",
+      "sessions": 13,
+      "anomalous_sessions": 13,
+      "anomaly_rate": 1.0,
+      "train_sessions": 13,
+      "test_sessions": 0
+    },
+    {
+      "event_id": "T42",
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.IOException: Connection reset by peer",
+      "sessions": 11,
+      "anomalous_sessions": 11,
+      "anomaly_rate": 1.0,
+      "train_sessions": 2,
+      "test_sessions": 8
+    },
+    {
+      "event_id": "T40",
+      "template": "PacketResponder <BLK> <NUM> Exception java.nio.channels.ClosedByInterruptException",
+      "sessions": 10,
+      "anomalous_sessions": 10,
+      "anomaly_rate": 1.0,
+      "train_sessions": 4,
+      "test_sessions": 6
+    },
+    {
+      "event_id": "T48",
+      "template": "writeBlock <BLK> received exception java.io.IOException: Interrupted receiveBlock",
+      "sessions": 10,
+      "anomalous_sessions": 10,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 9
+    },
+    {
+      "event_id": "UNK",
+      "template": "(unknown template)",
+      "sessions": 10,
+      "anomalous_sessions": 10,
+      "anomaly_rate": 1.0,
+      "train_sessions": 0,
+      "test_sessions": 8
+    },
+    {
+      "event_id": "T34",
+      "template": "writeBlock <BLK> received exception java.io.IOException: Block <BLK> is valid, and cannot be written to.",
+      "sessions": 9,
+      "anomalous_sessions": 9,
+      "anomaly_rate": 1.0,
+      "train_sessions": 8,
+      "test_sessions": 0
+    },
+    {
+      "event_id": "T35",
+      "template": "<IP>:Failed to transfer <BLK> to <IP> got java.io.IOException: Connection reset by peer",
+      "sessions": 9,
+      "anomalous_sessions": 9,
+      "anomaly_rate": 1.0,
+      "train_sessions": 8,
+      "test_sessions": 1
+    },
+    {
+      "event_id": "T45",
+      "template": "Exception in receiveBlock for block <BLK> java.nio.channels.ClosedByInterruptException",
+      "sessions": 8,
+      "anomalous_sessions": 8,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 7
+    },
+    {
+      "event_id": "T38",
+      "template": "writeBlock <BLK> received exception java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]. <NUM> millis timeout left.",
+      "sessions": 7,
+      "anomalous_sessions": 7,
+      "anomaly_rate": 1.0,
+      "train_sessions": 5,
+      "test_sessions": 2
+    },
+    {
+      "event_id": "T46",
+      "template": "writeBlock <BLK> received exception java.nio.channels.ClosedByInterruptException",
+      "sessions": 7,
+      "anomalous_sessions": 7,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 6
+    },
+    {
+      "event_id": "T39",
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.IOException: Broken pipe",
+      "sessions": 6,
+      "anomalous_sessions": 6,
+      "anomaly_rate": 1.0,
+      "train_sessions": 4,
+      "test_sessions": 1
+    },
+    {
+      "event_id": "T43",
+      "template": "writeBlock <BLK> received exception java.io.IOException: Broken pipe",
+      "sessions": 5,
+      "anomalous_sessions": 5,
+      "anomaly_rate": 1.0,
+      "train_sessions": 2,
+      "test_sessions": 3
+    },
+    {
+      "event_id": "T44",
+      "template": "Exception in receiveBlock for block <BLK> java.net.SocketTimeoutException: <NUM> millis timeout while waiting for channel to be ready for write. ch : java.nio.channels.SocketChannel[connected local=<IP> remote=<IP>]",
+      "sessions": 5,
+      "anomalous_sessions": 5,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 4
+    },
+    {
+      "event_id": "T49",
+      "template": "PacketResponder <BLK> <NUM> Exception java.io.InterruptedIOException: Interruped while waiting for IO on channel java.nio.channels.SocketChannel[closed]. <NUM> millis timeout left.",
+      "sessions": 5,
+      "anomalous_sessions": 5,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 4
+    },
+    {
+      "event_id": "T41",
+      "template": "BLOCK* Removing block <BLK> from neededReplications as it does not belong to any file.",
+      "sessions": 4,
+      "anomalous_sessions": 4,
+      "anomaly_rate": 1.0,
+      "train_sessions": 4,
+      "test_sessions": 0
+    },
+    {
+      "event_id": "T47",
+      "template": "Reopen Block <BLK>",
+      "sessions": 4,
+      "anomalous_sessions": 4,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 2
+    },
+    {
+      "event_id": "T50",
+      "template": "writeBlock <BLK> received exception java.net.NoRouteToHostException: No route to host",
+      "sessions": 1,
+      "anomalous_sessions": 1,
+      "anomaly_rate": 1.0,
+      "train_sessions": 1,
+      "test_sessions": 0
+    }
+  ],
+  "best_lstm": "deeplog_end_tuned_logprob"
+}
