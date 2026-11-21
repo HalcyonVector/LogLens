@@ -1,7 +1,7 @@
 # Run inside the container: docker compose run --rm loglens make <target>
 PY := python
 
-.PHONY: download bronze eda split parse-sweep parse parse-eval gold baselines lstm mlflow-ui test all
+.PHONY: download bronze eda split parse-sweep parse parse-eval gold baselines lstm-tune lstm mlflow-ui test all
 
 download:
 	$(PY) scripts/download_data.py HDFS_v1
@@ -15,7 +15,7 @@ eda:
 test:
 	$(PY) -m pytest -q tests
 
-all: download bronze eda split parse-sweep parse parse-eval gold baselines lstm
+all: download bronze eda split parse-sweep parse parse-eval gold baselines lstm-tune lstm
 
 split:
 	$(PY) -m loglens.split hdfs
@@ -34,6 +34,9 @@ gold:
 
 baselines:
 	$(PY) -m loglens.baselines hdfs
+
+lstm-tune:
+	$(PY) -m loglens.lstm hdfs --tune
 
 lstm:
 	$(PY) -m loglens.lstm hdfs

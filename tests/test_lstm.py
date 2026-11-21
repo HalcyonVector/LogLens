@@ -37,3 +37,25 @@ def test_padding_is_never_predicted():
     model = DeepLog(n_classes=4)
     logits = model(torch.zeros((2, H), dtype=torch.long))
     assert torch.isinf(logits[:, PAD]).all()
+
+
+def test_history_length_and_hidden_size_are_configurable():
+    X, y, w = weighted_windows([[1, 2, 3]], [4], h=5)
+    assert X.shape == (3, 5)
+    torch.manual_seed(0)
+    model = DeepLog(n_classes=4, hidden=16)
+    out = rank_sequences(model, [[1, 2, 3]], unk_class=99, h=5)
+    assert len(out[0]["ranks"]) == 3
+
+
+def test_checkpoints_round_trip_and_clear(tmp_path, monkeypatch):
+    import loglens.lstm as lstm
+
+    monkeypatch.setattr(lstm, "CHECKPOINTS", tmp_path / "ckpt")
+    assert lstm.checkpoint_load("run_x") is None
+    lstm.checkpoint_save("run_x", {"m": {"f1": 0.5}})
+    lstm.checkpoint_save("tune_y", {"h": 5})
+    assert lstm.checkpoint_load("run_x") == {"m": {"f1": 0.5}}
+    lstm.checkpoint_clear("run_")
+    assert lstm.checkpoint_load("run_x") is None
+    assert lstm.checkpoint_load("tune_y") == {"h": 5}   # other prefixes are kept
