@@ -50,3 +50,41 @@ ablation:
 # docker compose run --rm --service-ports loglens make mlflow-ui  ->  http://localhost:5000
 mlflow-ui:
 	mlflow ui --backend-store-uri ./mlruns --host 0.0.0.0 --port 5000
+
+# ---- BGL: one bronze log, two windowing schemes (1-hour and 20-event windows), each with its own parser
+BGL_SCHEMES := bgl_1h bgl_20ev bgl_20ev_allfit
+# The whole-log-parser scheme reuses bgl_20ev's threshold, so it is not swept.
+BGL_SWEPT := bgl_1h bgl_20ev
+.PHONY: bgl download-bgl bronze-bgl split-bgl parse-sweep-bgl parse-bgl parse-eval-bgl gold-bgl baselines-bgl drift-bgl lstm-bgl
+
+download-bgl:
+	$(PY) scripts/download_data.py BGL BGL_loghub2
+
+bronze-bgl:
+	$(PY) -m loglens.ingest bgl
+
+split-bgl:
+	for s in $(BGL_SCHEMES); do $(PY) -m loglens.split $$s || exit 1; done
+
+parse-sweep-bgl:
+	for s in $(BGL_SWEPT); do $(PY) -m loglens.parse_eval $$s --sweep || exit 1; done
+
+parse-bgl:
+	for s in $(BGL_SCHEMES); do $(PY) -m loglens.parse $$s || exit 1; done
+
+parse-eval-bgl:
+	for s in $(BGL_SCHEMES); do $(PY) -m loglens.parse_eval $$s || exit 1; done
+
+gold-bgl:
+	for s in $(BGL_SCHEMES); do $(PY) -m loglens.gold $$s || exit 1; done
+
+baselines-bgl:
+	for s in $(BGL_SCHEMES); do $(PY) -m loglens.baselines $$s || exit 1; done
+
+drift-bgl:
+	$(PY) -m loglens.drift bgl
+
+lstm-bgl:
+	for s in $(BGL_SCHEMES); do $(PY) -m loglens.lstm $$s || exit 1; done
+
+bgl: download-bgl bronze-bgl split-bgl parse-sweep-bgl parse-bgl parse-eval-bgl gold-bgl baselines-bgl drift-bgl lstm-bgl

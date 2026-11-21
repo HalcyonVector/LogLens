@@ -28,7 +28,7 @@ from drain3.template_miner_config import TemplateMinerConfig
 from pyspark.sql import Column, DataFrame, SparkSession, functions as F
 
 from loglens import config, runlog
-from loglens.masking import MASKS, block_ids, mask_col
+from loglens.masking import block_ids, mask_col, masks_for
 from loglens.spark import get_spark
 from loglens.split import before, load_cutoffs, period
 
@@ -40,17 +40,17 @@ DEFAULT_METHOD = "dict"
 # ---------------------------------------------------------------- Drain3 ----
 
 
-def miner_config(sim_th: float = 0.4) -> TemplateMinerConfig:
+def miner_config(sim_th: float = 0.4, dataset: str = "hdfs") -> TemplateMinerConfig:
     cfg = TemplateMinerConfig()
     cfg.profiling_enabled = False
     cfg.drain_sim_th = sim_th
     cfg.drain_depth = 4
-    cfg.masking_instructions = [MaskingInstruction(p, name) for name, p in MASKS]
+    cfg.masking_instructions = [MaskingInstruction(p, name) for name, p in masks_for(dataset)]
     return cfg
 
 
-def load_miner(drain_state: bytes, sim_th: float) -> TemplateMiner:
-    miner = TemplateMiner(config=miner_config(sim_th))
+def load_miner(drain_state: bytes, sim_th: float, dataset: str = "hdfs") -> TemplateMiner:
+    miner = TemplateMiner(config=miner_config(sim_th, dataset))
     miner.drain = pickle.loads(drain_state)
     return miner
 
@@ -60,15 +60,15 @@ def train_period(bronze: DataFrame, cutoff: dict) -> DataFrame:
     return bronze.filter(before(cutoff))
 
 
-def fit(bronze: DataFrame, cutoff: dict, sim_th: float) -> tuple[TemplateMiner, list[dict], dict]:
-    train = train_period(bronze, cutoff).select("line_id", mask_col("message").alias("masked"))
+def fit(bronze: DataFrame, cutoff: dict, sim_th: float, dataset: str = "hdfs") -> tuple[TemplateMiner, list[dict], dict]:
+    train = train_period(bronze, cutoff).select("line_id", mask_col("message", dataset).alias("masked"))
     distinct = (
         train.groupBy("masked")
         .agg(F.min("line_id").alias("first"), F.count("*").alias("n"))
         .orderBy("first")
         .collect()
     )
-    miner = TemplateMiner(config=miner_config(sim_th))
+    miner = TemplateMiner(config=miner_config(sim_th, dataset))
     for row in distinct:
         miner.add_log_message(row["masked"])
 
@@ -82,10 +82,11 @@ def fit(bronze: DataFrame, cutoff: dict, sim_th: float) -> tuple[TemplateMiner, 
 
     clusters = sorted(miner.drain.clusters, key=lambda c: -counts.get(c.cluster_id, 0))
     templates = []
+    width = max(2, len(str(len(clusters))))
     for rank, c in enumerate(clusters, start=1):
         templates.append(
             {
-                "event_id": f"T{rank:02d}",
+                "event_id": f"T{rank:0{width}d}",
                 "cluster_id": c.cluster_id,
                 "template": c.get_template(),
                 "train_lines": counts.get(c.cluster_id, 0),
@@ -109,10 +110,10 @@ def template_regex(template: str) -> str:
     return "^" + r"\s".join(parts) + "$"
 
 
-def match_regex(df: DataFrame, templates: list[dict]) -> Column:
+def match_regex(df: DataFrame, templates: list[dict], dataset: str = "hdfs") -> Column:
     # Fewest wildcards first, so the most specific template wins a tie.
     ordered = sorted(templates, key=lambda t: (t["template"].count("<*>"), t["event_id"]))
-    masked = mask_col("message")
+    masked = mask_col("message", dataset)
     expr = None
     for t in ordered:
         cond = masked.rlike(template_regex(t["template"]))
@@ -123,7 +124,7 @@ def match_regex(df: DataFrame, templates: list[dict]) -> Column:
 _MINER_CACHE: dict = {}
 
 
-def match_udf(spark: SparkSession, miner: TemplateMiner, templates: list[dict]):
+def match_udf(spark: SparkSession, miner: TemplateMiner, templates: list[dict], dataset: str = "hdfs"):
     state = spark.sparkContext.broadcast(pickle.dumps(miner.drain))
     sim_th = miner.drain.sim_th
     ids = {t["cluster_id"]: t["event_id"] for t in templates}
@@ -132,7 +133,7 @@ def match_udf(spark: SparkSession, miner: TemplateMiner, templates: list[dict]):
     def tag(messages: pd.Series) -> pd.Series:
         m = _MINER_CACHE.get("miner")
         if m is None:
-            m = _MINER_CACHE["miner"] = load_miner(state.value, sim_th)
+            m = _MINER_CACHE["miner"] = load_miner(state.value, sim_th, dataset)
         out = []
         for msg in messages:
             c = m.match(msg, full_search_strategy="fallback")
@@ -143,10 +144,10 @@ def match_udf(spark: SparkSession, miner: TemplateMiner, templates: list[dict]):
 
 
 def match_dict(
-    spark: SparkSession, bronze: DataFrame, miner: TemplateMiner, templates: list[dict]
+    spark: SparkSession, bronze: DataFrame, miner: TemplateMiner, templates: list[dict], dataset: str = "hdfs"
 ) -> tuple[DataFrame, int]:
     ids = {t["cluster_id"]: t["event_id"] for t in templates}
-    with_masked = bronze.withColumn("masked", mask_col("message"))
+    with_masked = bronze.withColumn("masked", mask_col("message", dataset))
     distinct = [r["masked"] for r in with_masked.select("masked").distinct().collect()]
     rows = []
     for msg in distinct:
@@ -157,33 +158,33 @@ def match_dict(
     return tagged.withColumn("event_id", F.coalesce("event_id", F.lit(UNK))), len(distinct)
 
 
-def tag_lines(spark, bronze, miner, templates, method: str) -> DataFrame:
+def tag_lines(spark, bronze, miner, templates, method: str, dataset: str = "hdfs") -> DataFrame:
     if method == "udf":
-        return bronze.withColumn("event_id", match_udf(spark, miner, templates))
+        return bronze.withColumn("event_id", match_udf(spark, miner, templates, dataset))
     if method == "regex":
-        return bronze.withColumn("event_id", match_regex(bronze, templates))
+        return bronze.withColumn("event_id", match_regex(bronze, templates, dataset))
     if method == "dict":
-        return match_dict(spark, bronze, miner, templates)[0]
+        return match_dict(spark, bronze, miner, templates, dataset)[0]
     raise ValueError(method)
 
 
 # ------------------------------------------------------------------- run ----
 
 
-def benchmark(spark, bronze, miner, templates, n_lines: int) -> dict:
+def benchmark(spark, bronze, miner, templates, n_lines: int, dataset: str = "hdfs") -> dict:
     """Time each matcher end to end (read + mask + match) with a no-op sink."""
     bronze.select("line_id").write.format("noop").mode("overwrite").save()  # warm the file cache
     results = {}
     for method in METHODS:
         start = time.perf_counter()
-        tag_lines(spark, bronze, miner, templates, method).select(
+        tag_lines(spark, bronze, miner, templates, method, dataset).select(
             "line_id", "event_id"
         ).write.format("noop").mode("overwrite").save()
         secs = time.perf_counter() - start
         results[method] = {"seconds": round(secs, 1), "lines_per_s": round(n_lines / secs)}
         print(f"benchmark {method}: {secs:.1f}s", flush=True)
 
-    tagged = {m: tag_lines(spark, bronze, miner, templates, m).select("line_id", F.col("event_id").alias(m)) for m in METHODS}
+    tagged = {m: tag_lines(spark, bronze, miner, templates, m, dataset).select("line_id", F.col("event_id").alias(m)) for m in METHODS}
     both = tagged["dict"].join(tagged["regex"], "line_id").join(tagged["udf"], "line_id")
     agree = both.agg(
         F.sum((F.col("dict") != F.col("udf")).cast("int")).alias("dict_vs_udf"),
@@ -198,12 +199,17 @@ def run(dataset: str, do_benchmark: bool) -> None:
     spark = get_spark(f"loglens-parse-{dataset}")
     timings: dict = {}
     cutoffs = load_cutoffs(dataset)
-    bronze = spark.read.parquet(str(config.BRONZE / dataset)).drop("hour")
+    cfg = config.settings(dataset)
+    bronze = spark.read.parquet(str(config.BRONZE / config.parent(dataset))).drop(cfg["partition"])
     n_lines = bronze.count()
 
     with runlog.timer(timings, "fit_s"):
-        sim_th = config.DATASETS[dataset]["drain_sim_th"]
-        miner, templates, fit_stats = fit(bronze, cutoffs["val_start"], sim_th)
+        sim_th = cfg["drain_sim_th"]
+        # Normally templates are learned on the training period only; "all" fits them on the
+        # whole log, the benchmark habit this project measures rather than follows.
+        fit_cut = {"ts": "9999-12-31T00:00:00", "line_id": 0} if cfg.get("parser_fit") == "all" else cutoffs["val_start"]
+        miner, templates, fit_stats = fit(bronze, fit_cut, sim_th, dataset)
+        fit_stats["parser_fit"] = cfg.get("parser_fit", "train")
         fit_stats["drain_sim_th"] = sim_th
     print(f"fitted {fit_stats['templates']} templates from {fit_stats['train_lines']:,} training lines", flush=True)
 
@@ -214,17 +220,20 @@ def run(dataset: str, do_benchmark: bool) -> None:
     bench = None
     if do_benchmark:
         with runlog.timer(timings, "benchmark_s"):
-            bench = benchmark(spark, bronze, miner, templates, n_lines)
+            bench = benchmark(spark, bronze, miner, templates, n_lines, dataset)
         method = min(METHODS, key=lambda m: bench[m]["seconds"])
     else:
         method = DEFAULT_METHOD
 
     with runlog.timer(timings, "write_s"):
-        tagged = tag_lines(spark, bronze, miner, templates, method)
-        events = tagged.select(
-            "line_id", "ts", "level", "component", "event_id",
-            F.explode(block_ids("message")).alias("block_id"),
-        )
+        tagged = tag_lines(spark, bronze, miner, templates, method, dataset)
+        base_cols = ["line_id", "ts", "level", "component", "event_id"]
+        if cfg.get("session", {}).get("kind") == "block":
+            # HDFS: one row per (line, block it names); a line repeating its block counts once.
+            events = tagged.select(*base_cols, F.explode(block_ids("message")).alias("block_id"))
+        else:
+            # Windowed logs: one row per line; windows are cut in the gold stage.
+            events = tagged.select(*base_cols, *[c for c in cfg.get("keep", []) if c != "pid"])
         out = config.SILVER / f"{dataset}_events"
         events.write.mode("overwrite").parquet(str(out))
 

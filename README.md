@@ -12,7 +12,7 @@ Built with Python, PySpark (Parquet medallion layers), Drain3, scikit-learn, Lig
 
 ![Each of the 3,723 anomalous test sessions as one square: published DeepLog and PCA miss almost disjoint sets, while the LSTM with an END event catches nearly everything PCA does](docs/screenshots/misses.png)
 
-**Status:** the HDFS study (ingest through dashboard) is complete. The BGL generalization run and the Thunderbird scale run are next.
+**Status:** the HDFS study and the BGL generalization run are complete and on the dashboard. The Thunderbird scale run is next.
 
 ---
 
@@ -94,6 +94,25 @@ Intervals are 95% bootstrap intervals over 1,000 resamples of the chronological 
 - **Even PCA's few mistakes come from that shift.** All **7** of its false alarms contain "Served block", the read traffic that almost vanished from the test period. Both models' misses are replication sessions: the replication templates appear in every missed anomaly, against 17% of all anomalies.
 - **PCA needs little data but is fragile with it.** Refitted on 1% of the training period (3,450 sessions, about what DeepLog trained on), PCA's F1 ranges from **0.724 to 0.964** across 5 random draws of those sessions (mean 0.871), and from 0.750 to 0.965 at 10%; LightGBM stays within 0.934 to 0.997, and the LSTM (one draw per size) scores 0.902 at 1% and 0.852 with everything.
 
+### Generalization: the same method on BGL
+
+BGL is 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, with an alert tag on every line (348,460 alert lines, 7.3%). It has no natural sessions, so the log is cut into **1-hour windows** (3,605) or **20-line windows** (237,399), and a window is anomalous if any line in it carries an alert. Each scheme gets its own chronological split and its own parser, fitted only on its own training period, because 60% of the hours and 60% of the lines end months apart (11 October against 28 July).
+
+| Time-ordered test F1 | 1-hour windows | 20-line windows | 20-line windows, parser fitted on the whole log |
+|----------------------|----------------|-----------------|--------------------------------------------------|
+| Any FATAL or FAILURE line (rule) | **0.854** | **0.622** | 0.622 |
+| PCA | 0.326 | 0.167 | 0.409 |
+| Isolation Forest | 0.596 | 0.139 | 0.139 |
+| LightGBM (supervised) | 0.657 | 0.114 | 0.114 |
+| DeepLog LSTM, log-prob (3 seeds) | 0.347 | 0.176 | 0.244 |
+
+- **On later data, a one-line rule beats every model.** Flagging any window that contains a FATAL or FAILURE line scores F1 **0.854** on 1-hour windows and **0.622** on 20-line windows; no model gets close on either.
+- **The failures change over time.** On the 20-line split, two kernel error types (KERNDTLB and KERNSTOR) are **93%** of the training period's alert lines and almost vanish afterwards (14 lines in the whole test period). The test period's anomalies are mostly application and other kernel failures, and **41.7%** of test-period alert lines belong to categories that never occur in training at all. A supervised model learns what failures used to look like; the FATAL rule survives because most alerts, whatever their kind, are logged at FATAL level.
+- **So does the vocabulary.** A parser fitted on the 20-line scheme's training period cannot name **69%** of test-period lines (41% on the 1-hour scheme, whose training period ends later). In the test period, 69.7% of lines belong to ground-truth templates that never occur in training. The parser is accurate on what it has seen: grouping accuracy against Loghub-2.0's ground truth is **90%** on its training period, and almost every known line is grouped correctly later on; what collapses is coverage.
+- **The LSTM flags almost everything.** An unknown event is always outside the LSTM's top predictions, so on honest 20-line windows it flags nearly every test window (recall about 1.0, precision 0.10, near the 7.5% base rate), for F1 **0.176**.
+- **The benchmark recipe turns 0.114 into 0.993.** The same LightGBM on the same 20-line windows scores **0.114** on a time-ordered split, **0.830** on a random split, and **0.993** on a random split with the parser fitted on the whole log, which is the setup most published BGL results use. For the LSTM the same recipe gives **0.977** against an honest **0.176** to **0.244**: a gap of about **73 points**, against under 1 point for PCA on HDFS.
+- **The random-split gap is far larger than on HDFS.** After correcting for the anomaly rate, a random split adds about **20 points** of F1 to the LSTM on both BGL schemes, against about 4 on HDFS, because shuffled windows let the model train on the very failures it is later tested on.
+
 ---
 
 ## Features
@@ -168,13 +187,20 @@ Intervals are 95% bootstrap intervals over 1,000 resamples of the chronological 
 - Every learned template with its line count, the sessions containing it and their anomaly rate, plus the pipeline's row counts and checks.
 - Light and dark themes, keyboard-reachable tooltips, a table view under the leaderboard, and a layout that reflows to one column on a phone.
 
+### Logs without sessions (BGL)
+
+- One bronze log, several windowing schemes: fixed 1-hour windows and fixed 20-line windows, each behaving as its own dataset from the split stage on, with a check that every line lands in exactly one window.
+- One parser per scheme, fitted only on that scheme's training period, with its threshold chosen on that scheme's validation period against Loghub-2.0's ground truth (matched to the raw log on timestamp, node and message, 97.5% of lines).
+- A deliberate third scheme with the parser fitted on the whole log, to measure what that common benchmark habit is worth.
+- A drift report: alert categories by period, the share of test alerts in categories unseen in training, and the share of lines the parser cannot name, per period.
+
 ### Exploratory analysis
 
 - Lines per hour by level, level mix, lines and non-INFO lines per component, blocks named per line, and the label balance.
 
 ### Planned stages
 
-- **Generalization and scale:** BGL with time windows, and the full Thunderbird log.
+- **Scale:** the full 211M-line Thunderbird log through ingest and parsing, with a scaling curve.
 
 ---
 
@@ -183,9 +209,9 @@ Intervals are 95% bootstrap intervals over 1,000 resamples of the chronological 
 | Source | Type | What It Provides |
 |--------|------|------------------|
 | [LogHub HDFS_v1](https://github.com/logpai/loghub) | Raw log, labels and ground truth ([Zenodo](https://zenodo.org/records/8196385)) | 11,175,629 lines from a 200+ node Hadoop cluster, a Normal/Anomaly label for each of 575,061 blocks, 29 ground-truth templates and the published event sequence of every block |
-| [LogHub BGL](https://github.com/logpai/loghub) | Raw log, labelled per line | 4,747,963 lines from a Blue Gene/L supercomputer (generalization run, planned) |
+| [LogHub BGL](https://github.com/logpai/loghub) | Raw log, labelled per line | 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, each tagged with an alert category or "-" |
 | [LogHub Thunderbird](https://github.com/logpai/loghub) | Raw log, labelled per line | 211,212,192 lines (scale run, planned) |
-| [Loghub-2.0](https://github.com/logpai/loghub-2.0) | Annotated templates | Ground-truth templates for the BGL and Thunderbird runs (planned) |
+| [Loghub-2.0](https://github.com/logpai/loghub-2.0) | Annotated templates ([Zenodo](https://zenodo.org/records/8275861)) | A ground-truth template for 4,631,261 BGL lines (320 templates), used to choose and score the BGL parsers |
 
 **How the data is cleaned and joined:**
 
@@ -195,7 +221,9 @@ Intervals are 95% bootstrap intervals over 1,000 resamples of the chronological 
 4. **Sessions and labels:** block IDs are extracted from each message and de-duplicated within the line (a line can repeat its block ID), each block's first event fixes its place in the chronological split, and labels are joined on block ID.
 5. **Mask and template:** IPs, paths, block IDs and numbers are masked, and each line is tagged with a template learned on the training period only.
 6. **Sessionize:** events are grouped by block and ordered by timestamp, then file position, into a sequence and a count vector per session.
-7. **Reconcile:** row counts are checked against the raw file and LogHub's published totals at every stage.
+7. **Windows (BGL):** lines are cut into 1-hour or 20-line windows; a window's label is whether any of its lines carries an alert tag.
+8. **Ground truth (BGL):** Loghub-2.0's annotated copy leaves out 116,702 raw lines (empty messages, NULL nodes, register dumps); the rest are matched to bronze on timestamp to the microsecond, node and message.
+9. **Reconcile:** row counts are checked against the raw file and LogHub's published totals at every stage (for BGL, also the 348,460 alert lines).
 
 ---
 
@@ -243,6 +271,7 @@ docker compose run --rm loglens make lstm          # 3 LSTM variants x 2 protoco
 docker compose run --rm loglens make evaluate      # intervals, alerts per hour, latency, errors (about 6 min)
 docker compose run --rm loglens make ablation      # training-size ablation (about 30 min, resumable)
 python scripts/build_dashboard.py                  # docs/index.html from data/dashboard/*.json (standard library only)
+docker compose run --rm loglens make bgl           # the whole BGL run: download, windows, parsers, models (about 2.5 h, resumable)
 docker compose run --rm loglens make test
 docker compose run --rm --service-ports loglens make mlflow-ui   # http://localhost:5000
 ```
@@ -287,7 +316,8 @@ LogLens/
 │   ├── baselines.py              # Five baselines, two protocols, duplication analysis, MLflow
 │   ├── lstm.py                   # DeepLog-style LSTM, END-event variant, tuning, checkpoints
 │   ├── evaluate.py               # Intervals, operations, timeout and latency, errors, drill-down
-│   └── ablation.py               # Training-size ablation
+│   ├── ablation.py               # Training-size ablation
+│   └── drift.py                  # Alert categories and vocabulary by period (BGL)
 │
 ├── tests/
 │   ├── test_ingest_regex.py
@@ -318,7 +348,7 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **The training cutoff is computed once.** The split stage records the first event of the first validation and test sessions; every later stage that fits anything reads those cutoffs from the run log, so no stage can quietly fit on the future.
 - **Matching runs in the JVM.** Templates are compiled to Java regexes and matched in a single Spark SQL `CASE WHEN`, which avoids moving 11M rows through Python. The pandas UDF and lookup-join versions stay in the code as the benchmark and as a cross-check.
 - **Run log.** Every stage writes `data/runlog/<dataset>_<stage>.json`. These feed the dashboard's pipeline-health panel.
-- **The dashboard never reads raw data.** `scripts/build_dashboard.py` reads only the small aggregates in `data/dashboard/` (about 240 KB in all) and writes one self-contained `docs/index.html`, which GitHub Pages serves as a static file. Charts are HTML rows and inline SVG, so the page has no build step and no framework; line charts are drawn at two widths so their text stays readable on a phone.
+- **The dashboard never reads raw data.** `scripts/build_dashboard.py` reads only the small aggregates in `data/dashboard/` (under 2 MB in all) and writes one self-contained `docs/index.html`, which GitHub Pages serves as a static file. Charts are HTML rows and inline SVG, so the page has no build step and no framework; line charts are drawn at two widths so their text stays readable on a phone.
 - **Colour follows the model family everywhere.** Count models are blue, sequence models orange, the supervised reference aqua and rules grey, checked with a colour-vision-deficiency validator in both themes; every mark also carries a text label, so colour is never the only cue.
 - **Execution.** Spark runs in local mode inside one container. Bronze ingest takes about 4 minutes, the split about 1.3 minutes, the parse about 1.5 minutes (plus 4.7 for the benchmark) and the gold layer about 2 minutes, mostly spent reading through the Windows bind mount. All five baselines under both protocols fit and score in under a minute; each LSTM run trains in 2 to 4 minutes on the CPU and scores all 575,061 sessions in about 7 seconds (about 83,000 windows per second, thanks to scoring each distinct sequence once).
 
@@ -326,7 +356,9 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 
 ## Testing and Validation
 
-**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label). 27 tests in all.
+**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label); and BGL (node IDs and both hex styles masked, words with digits left alone, and window schemes inheriting their log's settings). 30 tests in all.
+
+**BGL pipeline checks:** 4,747,963 lines with none quarantined; 348,460 alert lines, matching LogHub; every line in exactly one window under both schemes; every window labelled; Loghub-2.0's ground truth matched for 97.5% of lines (exactly the lines it keeps); no training-period line left unnamed by its own parser.
 
 **Reproducibility:** rerunning the LSTM after the code changes reproduced every chronological-split result for the published settings to the last digit (same seeds, same data), and retraining the seed-0 models to export their per-event scores reproduced their recorded F1 exactly for all three variants, so the runs are deterministic on CPU. The evaluation stage recomputes each model's F1 from the saved scores and stops if it differs from the training run's own result; that check exists because an earlier export rounded the scores and quietly moved a block of identical sessions across the threshold.
 
@@ -344,7 +376,10 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **Validation thresholds maximise F1.** A real deployment would more likely fix an alert budget; alerts per hour are not reported yet.
 - **The random protocol reuses the chronological parser.** Templates were fitted on the chronological training period for both protocols. With only 15 unseen lines, this has a negligible effect, but it is not a fully separate pipeline.
 - **LightGBM sees labels; the other models do not.** It is shown as a supervised reference, not as a like-for-like competitor.
-- **One benchmark, one era.** HDFS_v1 is a 2008 Hadoop log with block-level labels from its original authors; results may not carry over to modern systems, which is why BGL is planned as a second dataset.
+- **Two benchmarks, both old.** HDFS_v1 (2008) and BGL (2005) are the standard public logs, with labels from their original authors; results may not carry over to modern systems.
+- **BGL windows are a modelling choice.** A window is anomalous if any line in it is; hours without any log line produce no window; and 1-hour and 20-line windows give different answers, which is why both are shown.
+- **No intervals for BGL.** BGL results are single fits for the baselines and 3-seed means for the LSTM; the HDFS bootstrap was not repeated for BGL. The gaps reported there (tens of F1 points) are far larger than any sampling noise seen on HDFS.
+- **BGL random-split LSTM runs reached the 60-epoch cap.** Their scores could rise slightly with longer training, which would only widen the random-split gap.
 - **Labels are taken as given.** No relabelling or label-noise analysis is done.
 - **The parser threshold was chosen with ground-truth templates.** The sweep uses LogHub's template labels (not the anomaly labels) on the validation period. A real deployment would not have those, so the 0.4 result shows what an untuned parser would have done.
 - **Ground-truth tags come from LogHub's template patterns.** Each line's reference event is assigned by matching LogHub's 29 templates; this is validated against LogHub's published traces (an exact match for every block), but it is not a separate human annotation.

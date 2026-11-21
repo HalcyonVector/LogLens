@@ -201,7 +201,7 @@ def build_ctx(dataset: str) -> dict:
     enc = encoder(vocab + ["END"])
     df = pd.read_parquet(
         config.GOLD / f"{dataset}_sessions",
-        columns=["block_id", "events", "seq_hash", "split", "label", "order"],
+        columns=[config.session_col(dataset), "events", "seq_hash", "split", "label", "order"],
     ).sort_values("order").reset_index(drop=True)
     first = df.drop_duplicates("seq_hash")  # distinct sequences, encoded once
     return {
@@ -436,7 +436,10 @@ def run_variant(variant: str, cfg: dict, ctx: dict) -> dict:
 def run(dataset: str) -> None:
     # PyTorch defaults to one thread per physical core, which beats using hyperthreads too.
     ctx = build_ctx(dataset)
-    variants = dict(VARIANTS)
+    # The END event marks where a session finishes; a window boundary is arbitrary, so
+    # windowed logs (BGL) get the published variant only.
+    natural_sessions = config.settings(dataset)["session"]["kind"] == "block"
+    variants = dict(VARIANTS) if natural_sessions else {"deeplog": VARIANTS["deeplog"]}
     tuned = tuned_config(dataset)
     if tuned and tuned != PUBLISHED:
         variants["deeplog_end_tuned"] = {"end": True, **tuned}

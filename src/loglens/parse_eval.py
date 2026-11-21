@@ -22,7 +22,7 @@ import json
 import sys
 from collections import defaultdict
 
-from pyspark.sql import Column, functions as F
+from pyspark.sql import Column, DataFrame, Window, functions as F
 
 from drain3 import TemplateMiner
 
@@ -33,6 +33,48 @@ from loglens.spark import get_spark
 from loglens.split import load_cutoffs, period
 
 GT_DIR = config.RAW / "HDFS_v1" / "preprocessed"
+
+
+def gt_templates(spark, dataset: str) -> list[tuple[str, str]]:
+    if config.parent(dataset) == "hdfs":
+        path = GT_DIR / "HDFS.log_templates.csv"
+    else:
+        path = config.settings(dataset)["ground_truth"] / "BGL" / "BGL_full.log_templates.csv"
+    return [(r["EventId"], r["EventTemplate"]) for r in spark.read.csv(str(path), header=True, escape='"').collect()]
+
+
+def gt_lines(spark, dataset: str) -> DataFrame:
+    """(line_id, ts, gt) for every bronze line that has a ground-truth event.
+
+    HDFS: each line is tagged with LogHub's 29 template patterns.
+    BGL: Loghub-2.0 annotates its own copy of the log, which leaves out 2.5% of the
+    raw lines (empty messages, NULL nodes, register dumps). Its lines are matched to
+    bronze on (timestamp to the microsecond, node, message); unmatched lines are left out.
+    """
+    cfg = config.settings(dataset)
+    bronze = spark.read.parquet(str(config.BRONZE / config.parent(dataset)))
+    if config.parent(dataset) == "hdfs":
+        return bronze.select("line_id", "ts", gt_column(gt_templates(spark, dataset)).alias("gt"))
+    gt_dir = cfg["ground_truth"] / "BGL"
+    pattern, fields = cfg["regex"], cfg["fields"]
+    full = spark.read.text(str(gt_dir / "BGL_full.log")).withColumn("_m", F.monotonically_increasing_id())
+    full = full.withColumn("LineId", F.row_number().over(Window.orderBy("_m")))
+
+    def get(name: str) -> Column:
+        return F.regexp_extract("value", pattern, fields.index(name) + 1)
+
+    full = full.select(
+        "LineId",
+        F.to_timestamp(get("time"), cfg["ts"]["format"]).alias("ts"),
+        get("node").alias("node"),
+        get("message").alias("message"),
+    )
+    structured = spark.read.csv(str(gt_dir / "BGL_full.log_structured.csv"), header=True, escape='"').select(
+        F.col("LineId").cast("int").alias("LineId"), F.col("EventId").alias("gt")
+    )
+    key = full.join(structured, "LineId").select("ts", "node", "message", "gt").dropDuplicates(["ts", "node", "message"])
+    lines = bronze.select("line_id", "ts", "node", "message")
+    return lines.join(key, ["ts", "node", "message"]).select("line_id", "ts", "gt")
 
 
 def gt_regex(template: str) -> str:
@@ -80,12 +122,10 @@ def run(dataset: str) -> None:
     timings: dict = {}
 
     with runlog.timer(timings, "total_s"):
-        gt_templates = [
-            (r["EventId"], r["EventTemplate"])
-            for r in spark.read.csv(str(GT_DIR / "HDFS.log_templates.csv"), header=True).collect()
-        ]
-        bronze = spark.read.parquet(str(config.BRONZE / dataset)).select("line_id", "message")
-        gt = bronze.select("line_id", gt_column(gt_templates).alias("gt")).cache()
+        templates_gt = gt_templates(spark, dataset)
+        gt = gt_lines(spark, dataset).select("line_id", "gt").cache()
+        bronze_lines = spark.read.parquet(str(config.BRONZE / config.parent(dataset))).count()
+        gt_coverage = gt.count() / bronze_lines
 
         silver = spark.read.parquet(str(config.SILVER / f"{dataset}_events"))
         cutoffs = load_cutoffs(dataset)
@@ -99,25 +139,27 @@ def run(dataset: str) -> None:
             for r in lines.groupBy("event_id", "gt", "period").agg(F.count("*").alias("n")).collect()
         ]
 
-        # Validate the ground-truth tagging against LogHub's published traces.
-        traces = spark.read.csv(str(GT_DIR / "Event_traces.csv"), header=True).select(
-            F.col("BlockId").alias("block_id"),
-            F.split(F.regexp_replace("Features", r"[\[\]]", ""), ",").alias("published"),
-        )
-        ours = (
-            silver.join(gt, "line_id")
-            .groupBy("block_id")
-            .agg(F.sort_array(F.collect_list(F.struct("ts", "line_id", "gt"))).alias("s"))
-            .select("block_id", F.col("s.gt").alias("ours"))
-        )
-        compared = traces.join(ours, "block_id", "full_outer")
-        trace_check = compared.agg(
-            F.count("*").alias("blocks"),
-            F.sum((F.col("ours") == F.col("published")).cast("int")).alias("exact"),
-            F.sum((F.sort_array("ours") == F.sort_array("published")).cast("int")).alias("same_events"),
-            F.sum(F.col("ours").isNull().cast("int")).alias("missing_ours"),
-            F.sum(F.col("published").isNull().cast("int")).alias("missing_published"),
-        ).first().asDict()
+        trace_check = None
+        if dataset == "hdfs":
+            # Validate the ground-truth tagging against LogHub's published traces.
+            traces = spark.read.csv(str(GT_DIR / "Event_traces.csv"), header=True).select(
+                F.col("BlockId").alias("block_id"),
+                F.split(F.regexp_replace("Features", r"[\[\]]", ""), ",").alias("published"),
+            )
+            ours = (
+                silver.join(gt, "line_id")
+                .groupBy("block_id")
+                .agg(F.sort_array(F.collect_list(F.struct("ts", "line_id", "gt"))).alias("s"))
+                .select("block_id", F.col("s.gt").alias("ours"))
+            )
+            compared = traces.join(ours, "block_id", "full_outer")
+            trace_check = compared.agg(
+                F.count("*").alias("blocks"),
+                F.sum((F.col("ours") == F.col("published")).cast("int")).alias("exact"),
+                F.sum((F.sort_array("ours") == F.sort_array("published")).cast("int")).alias("same_events"),
+                F.sum(F.col("ours").isNull().cast("int")).alias("missing_ours"),
+                F.sum(F.col("published").isNull().cast("int")).alias("missing_published"),
+            ).first().asDict()
         unmatched_gt = sum(n for _, g, _, n in contingency if g == "NONE")
 
     overall = grouping_accuracy([(p, g, n) for p, g, _, n in contingency])
@@ -134,20 +176,23 @@ def run(dataset: str) -> None:
         "overall": overall,
         "by_period": by_period,
         "lines_without_gt_template": unmatched_gt,
-        "trace_check": trace_check,
-        "trace_exact_share": round(trace_check["exact"] / trace_check["blocks"], 6),
-        "trace_same_events_share": round(trace_check["same_events"] / trace_check["blocks"], 6),
+        "gt_coverage": round(gt_coverage, 6),
     }
-    checks = {
-        "gt_tags_every_line": unmatched_gt == 0,
-        "gt_reproduces_published_events": result["trace_same_events_share"] > 0.999,
-    }
+    checks = {"gt_tags_every_line": unmatched_gt == 0}
+    if trace_check is not None:
+        result["trace_check"] = trace_check
+        result["trace_exact_share"] = round(trace_check["exact"] / trace_check["blocks"], 6)
+        result["trace_same_events_share"] = round(trace_check["same_events"] / trace_check["blocks"], 6)
+        checks["gt_reproduces_published_events"] = result["trace_same_events_share"] > 0.999
+    else:
+        # Loghub-2.0 leaves out 2.5% of BGL's raw lines; every one of its own lines should match.
+        checks["gt_covers_expected_share"] = gt_coverage > 0.97
     runlog.write(dataset, "parse_eval", {**result, "checks": checks, "timings": timings})
     (config.DASHBOARD / f"{dataset}_parse_eval.json").write_text(
         json.dumps(
             {
                 **result,
-                "gt_templates": dict(gt_templates),
+                "gt_templates": dict(templates_gt),
                 "contingency": [{"event_id": p, "gt": g, "lines": n} for (p, g), n in sorted(cells.items())],
             },
             indent=2,
@@ -163,18 +208,15 @@ SWEEP = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 def sweep(dataset: str) -> None:
     spark = get_spark(f"loglens-parse-sweep-{dataset}")
-    gt_templates = [
-        (r["EventId"], r["EventTemplate"])
-        for r in spark.read.csv(str(GT_DIR / "HDFS.log_templates.csv"), header=True).collect()
-    ]
     cutoffs = load_cutoffs(dataset)
-    bronze = spark.read.parquet(str(config.BRONZE / dataset))
+    bronze = spark.read.parquet(str(config.BRONZE / config.parent(dataset))).select("line_id", "message")
+    tagged = gt_lines(spark, dataset).select("line_id", "ts", "gt").join(bronze, "line_id")
     cells = (
-        bronze.select(
+        tagged.select(
             "line_id",
             period(cutoffs).alias("period"),
-            mask_col("message").alias("masked"),
-            gt_column(gt_templates).alias("gt"),
+            mask_col("message", dataset).alias("masked"),
+            "gt",
         )
         .groupBy("period", "masked", "gt")
         .agg(F.min("line_id").alias("first"), F.count("*").alias("n"))
@@ -190,7 +232,7 @@ def sweep(dataset: str) -> None:
 
     results = []
     for th in SWEEP:
-        miner = TemplateMiner(config=miner_config(th))
+        miner = TemplateMiner(config=miner_config(th, dataset))
         for msg in train_msgs:
             miner.add_log_message(msg)
         assign: dict[str, str] = {}

@@ -15,8 +15,9 @@ GOLD = DATA / "gold"
 RUNLOG = DATA / "runlog"
 DASHBOARD = DATA / "dashboard"
 
-# Raw file per dataset, and the regex that splits one line into fields.
-# Lines that do not match go to a quarantine table instead of being dropped.
+# One entry per raw log. Lines that do not match `regex` go to a quarantine
+# table instead of being dropped. `ts` names the field(s) that hold the
+# timestamp and their format; `keep` lists extra fields carried into bronze.
 DATASETS = {
     "hdfs": {
         "raw": RAW / "HDFS_v1" / "HDFS.log",
@@ -24,11 +25,66 @@ DATASETS = {
         # 081109 203615 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_38865049064139660 terminating
         "regex": r"^(\d{6}) (\d{6}) (\d+) ([A-Z]+) ([^:\s]+): (.*)$",
         "fields": ["date", "time", "pid", "level", "component", "message"],
-        "ts_format": "yyMMddHHmmss",
+        "ts": {"cols": ["date", "time"], "format": "yyMMddHHmmss"},
+        "keep": ["pid"],
         "partition": "hour",
         "expected_lines": 11_175_629,
+        "masks": "hdfs",
+        # Sessions are HDFS blocks, named in the message; labels come from a file.
+        "session": {"kind": "block"},
+        "session_col": "block_id",
+        "alarm_levels": ["WARN"],
         # Drain3 similarity threshold, chosen by `parse_eval --sweep` on
         # validation-period grouping accuracy (never on test).
         "drain_sim_th": 0.9,
     },
+    "bgl": {
+        "raw": RAW / "BGL" / "BGL.log",
+        # - 1117838570 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.50.675872 R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected
+        # The first field is the alert tag ("-" for a normal line); the message can be empty.
+        "regex": r"^(\S+) (\d+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+)(?: (.*))?$",
+        "fields": ["alert", "epoch", "date", "node", "time", "node_repeat", "type", "component", "level", "message"],
+        "ts": {"cols": ["time"], "format": "yyyy-MM-dd-HH.mm.ss.SSSSSS"},
+        "keep": ["alert", "node"],
+        "partition": "day",
+        "expected_lines": 4_747_963,
+        "expected_alerts": 348_460,
+        "masks": "bgl",
+        "ground_truth": RAW / "BGL_loghub2",
+        "alarm_levels": ["FATAL", "FAILURE"],
+        # BGL has no natural sessions: each windowing scheme below is its own
+        # gold table and model run, sharing this dataset's bronze and silver.
+        "schemes": ["bgl_1h", "bgl_20ev", "bgl_20ev_allfit"],
+    },
 }
+
+# Windowing schemes for logs without natural sessions. Each behaves like a
+# dataset from the split stage on; `parent` names the log it windows.
+SCHEMES = {
+    # drain_sim_th: chosen per scheme by `parse_eval <scheme> --sweep` on validation grouping accuracy.
+    "bgl_1h": {"parent": "bgl", "session": {"kind": "time", "seconds": 3600}, "session_col": "session_id", "drain_sim_th": 0.8},
+    "bgl_20ev": {"parent": "bgl", "session": {"kind": "count", "size": 20}, "session_col": "session_id", "drain_sim_th": 0.7},
+    # Same windows and split as bgl_20ev, but the parser is fitted on the whole log,
+    # as log benchmarks usually do: measures how much that flatters the results.
+    "bgl_20ev_allfit": {
+        "parent": "bgl", "session": {"kind": "count", "size": 20}, "session_col": "session_id",
+        "parser_fit": "all", "drain_sim_th": 0.7,
+    },
+}
+
+
+def settings(name: str) -> dict:
+    """Settings for a dataset or a windowing scheme (merged with its parent's)."""
+    if name in DATASETS:
+        return DATASETS[name]
+    scheme = SCHEMES[name]
+    return {**DATASETS[scheme["parent"]], **scheme, "name": name}
+
+
+def parent(name: str) -> str:
+    """The raw log a dataset or scheme reads from (its own name for a dataset)."""
+    return SCHEMES[name]["parent"] if name in SCHEMES else name
+
+
+def session_col(name: str) -> str:
+    return settings(name)["session_col"]

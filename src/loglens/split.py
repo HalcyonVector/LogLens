@@ -1,12 +1,23 @@
 """Chronological train/validation/test split by session start.
 
-Sessions (HDFS blocks) are ordered by their first event, using (ts, line_id) so
-events in the same second keep file order. The first 60% are train, the next
-10% validation and the last 30% test. The first event of the first validation
-session is the training cutoff: anything fitted on "training data" (Drain3
-templates, scalers, thresholds) may only see lines before it.
+Sessions are ordered by their first event, using (ts, line_id) so events in the
+same second keep file order. The first 60% are train, the next 10% validation
+and the last 30% test. The first event of the first validation session is the
+training cutoff: anything fitted on "training data" (Drain3 templates,
+scalers, thresholds) may only see lines before it.
 
-Usage: python -m loglens.split hdfs
+What a session is depends on the log:
+  block  HDFS: every block ID a line names (labels from LogHub's file)
+  time   fixed, non-overlapping time windows (a window is anomalous if any
+         line in it carries an alert tag)
+  count  fixed, non-overlapping windows of N consecutive lines
+
+For a log with several windowing schemes (BGL), each scheme gets its own
+split and its own parser fitted on exactly that scheme's training period:
+60% of 1-hour windows and 60% of 20-line windows end months apart, because the
+log's volume varies so much from hour to hour.
+
+Usage: python -m loglens.split hdfs | bgl_1h | bgl_20ev
 """
 
 from __future__ import annotations
@@ -14,7 +25,7 @@ from __future__ import annotations
 import json
 import sys
 
-from pyspark.sql import Column, Window, functions as F
+from pyspark.sql import Column, DataFrame, Window, functions as F
 
 from loglens import config, runlog
 from loglens.masking import block_ids
@@ -42,19 +53,49 @@ def period(cutoffs: dict) -> Column:
     )
 
 
+def assign_sessions(lines: DataFrame, name: str) -> DataFrame:
+    """Add the session column for `name` (one row per line, or per line and block for HDFS)."""
+    cfg = config.settings(name)
+    col = cfg["session_col"]
+    kind = cfg["session"]["kind"]
+    if kind == "block":
+        return lines.withColumn(col, F.explode(block_ids("message")))
+    if kind == "time":
+        t0 = lines.agg(F.min(F.col("ts").cast("double"))).first()[0]
+        width = float(cfg["session"]["seconds"])
+        return lines.withColumn(col, F.floor((F.col("ts").cast("double") - F.lit(t0)) / width).cast("long"))
+    if kind == "count":
+        # One global ordering of 4.7M lines; Spark runs it in a single partition, which is fine at this size.
+        rank = F.row_number().over(Window.orderBy("ts", "line_id")) - 1
+        return lines.withColumn(col, F.floor(rank / F.lit(cfg["session"]["size"])).cast("long"))
+    raise ValueError(kind)
+
+
+def session_labels(spark, name: str, events: DataFrame) -> DataFrame:
+    cfg = config.settings(name)
+    col = cfg["session_col"]
+    if cfg["session"]["kind"] == "block":
+        return spark.read.csv(str(cfg["labels"]), header=True).select(
+            F.col("BlockId").alias(col), (F.col("Label") == "Anomaly").cast("int").alias("label")
+        )
+    return events.groupBy(col).agg(F.max((F.col("alert") != "-").cast("int")).alias("label"))
+
+
 def run(dataset: str) -> None:
-    cfg = config.DATASETS[dataset]
+    cfg = config.settings(dataset)
+    col = cfg["session_col"]
     spark = get_spark(f"loglens-split-{dataset}")
     timings: dict = {}
 
     with runlog.timer(timings, "total_s"):
-        bronze = spark.read.parquet(str(config.BRONZE / dataset))
-        events = bronze.select("line_id", "ts", F.explode(block_ids("message")).alias("block_id"))
-        first = events.groupBy("block_id").agg(
+        bronze = spark.read.parquet(str(config.BRONZE / config.parent(dataset)))
+        cols = ["line_id", "ts", "message"] + (["alert"] if "alert" in cfg["fields"] else [])
+        events = assign_sessions(bronze.select(*cols), dataset).cache()
+        first = events.groupBy(col).agg(
             F.min(F.struct("ts", "line_id")).alias("f"), F.count("*").alias("n_events")
         )
         first = first.select(
-            "block_id",
+            col,
             F.col("f.ts").alias("first_ts"),
             F.col("f.line_id").alias("first_line_id"),
             "n_events",
@@ -72,14 +113,7 @@ def run(dataset: str) -> None:
             .otherwise("test"),
         )
 
-        labels = (
-            spark.read.csv(str(cfg["labels"]), header=True)
-            .select(
-                F.col("BlockId").alias("block_id"),
-                (F.col("Label") == "Anomaly").cast("int").alias("label"),
-            )
-        )
-        joined = ranked.join(labels, "block_id", "full_outer")
+        joined = ranked.join(session_labels(spark, dataset, events), col, "full_outer")
         out = config.GOLD / f"{dataset}_split"
         joined.write.mode("overwrite").parquet(str(out))
 
@@ -93,6 +127,7 @@ def run(dataset: str) -> None:
                 "anomaly_rate": round(r["anomalies"] / r["sessions"], 5),
                 "first_start": r["first_start"].isoformat(),
                 "last_start": r["last_start"].isoformat(),
+                "mean_events": round(r["mean_events"], 1),
             }
             for r in split.filter(F.col("split").isNotNull())
             .groupBy("split")
@@ -101,6 +136,7 @@ def run(dataset: str) -> None:
                 F.sum("label").alias("anomalies"),
                 F.min("first_ts").alias("first_start"),
                 F.max("first_ts").alias("last_start"),
+                F.mean("n_events").alias("mean_events"),
             )
             .collect()
         }
@@ -110,22 +146,30 @@ def run(dataset: str) -> None:
             return {"ts": r["first_ts"].isoformat(), "line_id": r["first_line_id"]}
 
         cutoffs = {"val_start": boundary(n_train + 1), "test_start": boundary(n_train + n_val + 1)}
+        lines_in_sessions = split.agg(F.sum("n_events")).first()[0]
+        bronze_lines = bronze.count()
 
     checks = {
-        "every_block_labelled": missing_label == 0,
-        "every_label_has_block": missing_block == 0,
-        "session_count_matches": n == 575_061 if dataset == "hdfs" else True,
+        "every_session_labelled": missing_label == 0,
+        "every_label_has_session": missing_block == 0,
     }
+    if dataset == "hdfs":
+        checks["session_count_matches"] = n == 575_061
+    if cfg["session"]["kind"] != "block":
+        # Windows partition the log: every bronze line lands in exactly one window.
+        checks["every_line_in_one_window"] = lines_in_sessions == bronze_lines
     runlog.write(
         dataset,
         "split",
         {
             "sessions": n,
+            "session": cfg["session"],
             "fractions": FRACTIONS,
             "per_split": per_split,
             "cutoffs": cutoffs,
-            "blocks_without_label": missing_label,
-            "labels_without_block": missing_block,
+            "sessions_without_label": missing_label,
+            "labels_without_session": missing_block,
+            "lines_in_sessions": lines_in_sessions,
             "checks": checks,
             "timings": timings,
         },

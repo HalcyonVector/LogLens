@@ -448,6 +448,158 @@ def hero_tape() -> str:
             f'<p class="tape-cap mono">{esc(s["block_id"])} · labelled anomalous · PCA missed it · the LSTM fired at event {s["trigger"] + 1} of {len(s["events"])}</p>')
 
 
+
+# ---------------------------------------------------------------- BGL --------
+
+BGL_SCHEMES = {
+    "bgl_1h": "1-hour windows",
+    "bgl_20ev": "20-line windows",
+    "bgl_20ev_allfit": "20-line windows, parser fitted on the whole log",
+}
+
+
+def load_any(name: str) -> dict | None:
+    path = DATA / f"{name}.json"
+    return json.loads(path.read_text()) if path.exists() else None
+
+
+BGL = {s: {k: load_any(f"{s}_{k}") for k in ("baselines", "lstm", "parsing", "parse_eval")} for s in BGL_SCHEMES}
+BGL_DRIFT = load_any("bgl_drift")
+BGL_MODELS = [
+    ("warn_rule", "Any FATAL or FAILURE line", "naive"),
+    ("pca", "PCA, Xu et al. 2009", "count"),
+    ("iforest", "Isolation Forest", "count"),
+    ("lightgbm", "LightGBM (sees labels)", "supervised"),
+    ("deeplog", "DeepLog LSTM, log-prob", "sequence"),
+]
+
+
+def bgl_scores(scheme: str, model: str) -> tuple[float, float] | None:
+    """(chronological F1, random-split F1) for one model on one scheme."""
+    d = BGL[scheme]
+    if model == "deeplog":
+        if not d["lstm"] or "deeplog" not in d["lstm"]:
+            return None
+        r = d["lstm"]["deeplog"]["results"]
+        return r["chrono"]["summary"]["nll_f1"]["mean"], r["random"]["summary"]["nll_f1"]["mean"]
+    if not d["baselines"]:
+        return None
+    r = d["baselines"]["results"]
+    return r["chrono"][model]["f1"], r["random"][model]["f1"]
+
+
+def bgl_grid() -> str:
+    head = "".join(f'<div class="bg-h">{esc(BGL_SCHEMES[s])}</div>' for s in BGL_SCHEMES)
+    rows = []
+    for key, name, fam in BGL_MODELS:
+        cells = []
+        for s in BGL_SCHEMES:
+            sc = bgl_scores(s, key)
+            if sc is None:
+                cells.append(f'<div class="bg-c" data-scheme="{esc(BGL_SCHEMES[s])}"><span class="muted">not run</span></div>')
+                continue
+            c, r = sc
+            lo, hi = 100 * min(c, r), 100 * max(c, r)
+            t = tip(f"{name}, {BGL_SCHEMES[s]}", [("F1, time-ordered split", f"{c:.3f}"), ("F1, random split", f"{r:.3f}"), ("Random minus time-ordered", f"{(r - c) * 100:+.1f} points")])
+            cells.append(
+                f'<div class="bg-c" tabindex="0" data-scheme="{esc(BGL_SCHEMES[s])}" data-tip="{t}"><div class="bg-track">'
+                f'<span class="db-line" style="left:{lo:.1f}%;width:{hi - lo:.1f}%"></span>'
+                f'<span class="db-all" style="left:{100 * r:.1f}%"></span>'
+                f'<span class="lb-dot fam-{fam}" style="left:{100 * c:.1f}%"></span></div>'
+                f'<span class="num bg-v">{c:.3f}</span></div>'
+            )
+        rows.append(f'<div class="bg-n"><span class="key fam-{fam}"></span>{esc(name)}</div>{"".join(cells)}')
+    ticks = "".join(f'<span style="left:{v * 100:.0f}%">{v:.1f}</span>' for v in (0, 0.5, 1.0))
+    axis = '<div class="bg-n"></div>' + "".join(f'<div class="bg-c"><div class="lb-ticks">{ticks}</div></div>' for _ in BGL_SCHEMES)
+    return (f'<div class="bg"><div class="bg-n"></div>{head}{"".join(rows)}{axis}</div>'
+            '<ul class="legend inline"><li><span class="sw dot"></span>F1 on a time-ordered split</li><li><span class="sw ring"></span>F1 on a random split</li></ul>')
+
+
+def bgl_categories() -> str:
+    if not BGL_DRIFT:
+        return ""
+    d = BGL_DRIFT["bgl_20ev"]
+    cats = [c for c in d["categories"]][:10]
+    tot = d["alert_lines"]
+    head = "<tr><th>Alert category</th><th>Training period</th><th>Validation</th><th>Test period</th></tr>"
+    body = []
+    for c in cats:
+        cells = []
+        for p in ("train", "val", "test"):
+            share = c[p] / max(1, tot[p])
+            cells.append(f'<td><div class="mini rate"><span style="width:{100 * share:.1f}%"></span></div><span class="num">{pct(share, 0) if c[p] else "none"}</span></td>')
+        flag = ' <span class="tag">new after training</span>' if c["train"] == 0 and c["test"] > 0 else ""
+        body.append(f'<tr><td class="mono">{esc(c["alert"])}{flag}</td>{"".join(cells)}</tr>')
+    return f'<div class="tbl"><table>{head}<tbody>{"".join(body)}</tbody></table></div>'
+
+
+def bgl_unk() -> str:
+    if not BGL_DRIFT:
+        return ""
+    out = []
+    for s in ("bgl_1h", "bgl_20ev"):
+        u = BGL_DRIFT[s]["unk_rate_by_period"]
+        pe = BGL[s]["parse_eval"]
+        for p, label in (("train", "training"), ("val", "validation"), ("test", "test")):
+            v = u.get(p, 0)
+            ga = pe["by_period"][p]["grouping_accuracy"] if pe else None
+            t = tip(f"{BGL_SCHEMES[s]}, {label} period", [("Lines the parser cannot name", pct(v)), ("Grouping accuracy vs Loghub-2.0", pct(ga) if ga is not None else "n/a")])
+            out.append(
+                f'<div class="lb-row" tabindex="0" data-tip="{t}"><div class="lb-name">{esc(BGL_SCHEMES[s])} <span class="muted">· {label}</span></div>'
+                f'<div class="st-track"><span class="st-true fam-neutral" style="width:{max(0.4, 100 * v):.1f}%"></span></div>'
+                f'<div class="lb-val num">{pct(v, 0)}</div></div>'
+            )
+    return f'<div class="lb">{"".join(out)}</div>'
+
+
+def bgl_recipe() -> str:
+    """LightGBM on 20-line windows, from the honest setup to the benchmark recipe."""
+    try:
+        steps = [
+            ("Parser fitted on training data, time-ordered split", BGL["bgl_20ev"]["baselines"]["results"]["chrono"]["lightgbm"]["f1"]),
+            ("Parser fitted on training data, random split", BGL["bgl_20ev"]["baselines"]["results"]["random"]["lightgbm"]["f1"]),
+            ("Parser fitted on the whole log, random split", BGL["bgl_20ev_allfit"]["baselines"]["results"]["random"]["lightgbm"]["f1"]),
+        ]
+    except (TypeError, KeyError):
+        return ""
+    out = "".join(
+        f'<div class="lb-row" tabindex="0" data-tip="{tip(label, [("LightGBM test F1", f"{v:.3f}")])}"><div class="lb-name">{esc(label)}</div>'
+        f'<div class="st-track"><span class="st-true fam-supervised" style="width:{100 * v:.1f}%"></span></div>'
+        f'<div class="lb-val num">{v:.3f}</div></div>'
+        for label, v in steps
+    )
+    return f'<div class="lb recipe">{out}</div>'
+
+
+def bgl_section() -> str:
+    if not BGL_DRIFT or not BGL["bgl_20ev"]["baselines"]:
+        return ""
+    d20 = BGL_DRIFT["bgl_20ev"]
+    lgb = BGL["bgl_20ev"]["baselines"]["results"]
+    allfit_r = BGL["bgl_20ev_allfit"]["baselines"]["results"]["random"]["lightgbm"]["f1"] if BGL["bgl_20ev_allfit"]["baselines"] else None
+    warn = lgb["chrono"]["warn_rule"]["f1"]
+    top_train = d20["categories"][0]
+    return f"""
+<section id="bgl" class="sec">
+  <div class="sec-head"><span class="idx mono">06</span><h2>Does it hold on another system?</h2>
+  <p>Not on BGL, 4.7M lines from a Blue Gene/L supercomputer over 215 days, and the reason is time rather than any model. The failures change: {pct(d20['test_alert_share_unseen_categories'], 0)} of test-period alert lines belong to categories that never occur in training. Under a time-ordered split, a one-line rule (flag any FATAL or FAILURE line) beats every model.</p></div>
+  <div class="sec-body">
+    <h3>Every model, both ways of cutting the log into windows</h3>
+    {bgl_grid()}
+    <p class="note">BGL has no natural sessions, so the log is cut into 1-hour windows or 20-line windows; a window is anomalous if any line in it carries an alert tag. Each scheme has its own split and its own parser, fitted only on its training period. LSTM rows are 3-seed means. On 20-line windows the rule scores {warn:.3f}; every model falls below it once the test data comes from later months.</p>
+    <h3>The benchmark recipe, one step at a time</h3>
+    {bgl_recipe()}
+    <p class="note">The same supervised model on the same 20-line windows. Shuffling the windows lets it train on the failures it will be tested on; fitting the parser on the whole log also hands it the test period's vocabulary.{f" Together they turn {lgb['chrono']['lightgbm']['f1']:.3f} into {allfit_r:.3f}, the kind of number published BGL results report." if allfit_r else ""}</p>
+    <h3>The failures change</h3>
+    {bgl_categories()}
+    <p class="note">Share of each period's alert lines, on the 20-line scheme's split. {esc(top_train['alert'])} alone is {pct(top_train['train'] / max(1, d20['alert_lines']['train']), 0)} of the training period's alerts and almost disappears afterwards.</p>
+    <h3>So does the vocabulary</h3>
+    {bgl_unk()}
+    <p class="note">Share of lines that match no template learned on the training period. On its own training period the 20-line parser's grouping accuracy against Loghub-2.0's ground truth is {pct(BGL['bgl_20ev']['parse_eval']['by_period']['train']['grouping_accuracy'], 0)}; on the test period it is {pct(BGL['bgl_20ev']['parse_eval']['by_period']['test']['grouping_accuracy'], 0)}, because whole new kinds of message appear later in the log and an unknown line can never be grouped correctly.</p>
+  </div>
+</section>"""
+
+
 # --------------------------------------------------------------------- page --
 
 
@@ -475,7 +627,7 @@ def page() -> str:
 <body>
 <header class="top">
   <a class="brand mono" href="#top">LogLens<span>/hdfs</span></a>
-  <nav class="mono"><a href="#verdict">Verdict</a><a href="#split">Split</a><a href="#misses">Misses</a><a href="#operate">Operate</a><a href="#data">Data</a><a href="#sessions">Sessions</a></nav>
+  <nav class="mono"><a href="#verdict">Verdict</a><a href="#split">Split</a><a href="#misses">Misses</a><a href="#operate">Operate</a><a href="#data">Data</a><a href="#bgl">BGL</a><a href="#sessions">Sessions</a></nav>
   <button class="theme" type="button" aria-label="Switch light or dark theme"><span aria-hidden="true"></span></button>
 </header>
 
@@ -556,8 +708,10 @@ def page() -> str:
   </div>
 </section>
 
+{bgl_section()}
+
 <section id="sessions" class="sec">
-  <div class="sec-head"><span class="idx mono">06</span><h2>Read the sessions yourself</h2>
+  <div class="sec-head"><span class="idx mono">07</span><h2>Read the sessions yourself</h2>
   <p>Real test sessions, as event sequences. Each event is shaded by how surprised the LSTM was to see it; the outlined event is where it fired. Hover an event for its log template.</p></div>
   <div class="sec-body">
     <div class="toggle groups" role="tablist" aria-label="Session group">
@@ -757,6 +911,16 @@ h3{font-size:14px;font-weight:600;margin:34px 0 14px;color:var(--ink)}
 .cz-a,.sw.cz-a{background:var(--axis)} .cz-b,.sw.cz-b{background:var(--ink)}
 .cz-val{font-size:13px;text-align:right;white-space:nowrap} .cz-val span{color:var(--muted)}
 .waffles h3{margin-top:0}
+.bg{display:grid;grid-template-columns:220px repeat(3,minmax(0,1fr));gap:6px 18px;align-items:center}
+.bg-h{font-size:12.5px;color:var(--ink-2);font-weight:600;padding-bottom:4px}
+.bg-n{font-size:14px;display:flex;align-items:center;gap:9px}
+.bg-c{display:grid;grid-template-columns:1fr 46px;gap:8px;align-items:center;padding:6px 4px;border-radius:8px;outline:none}
+.bg-c:hover,.bg-c:focus-visible{background:var(--surface)}
+.bg-track{position:relative;height:22px}
+.bg-track::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--grid)}
+.bg-v{font-size:13px;text-align:right}
+.tag{display:inline-block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.02em;padding:2px 7px;border-radius:999px;background:var(--sequence-wash);color:var(--ink);margin-left:6px;vertical-align:1px}
+.recipe .lb-row{grid-template-columns:360px 1fr 64px}
 .lat{padding-top:26px}
 .lat-timeout{position:absolute;top:0;bottom:22px;left:calc(252px + (100% - 338px) * var(--x) / 100);border-left:1px solid var(--ink-2);pointer-events:none}
 .lat-timeout span{position:absolute;top:0;left:6px;font-size:11.5px;color:var(--ink-2);white-space:nowrap}
@@ -828,6 +992,9 @@ details .tbl{margin-top:10px}
   .lb.small .lb-row{grid-template-columns:1fr 56px}
   .lat-timeout{left:calc(8px + (100% - 16px) * var(--x) / 100)}
   .two{grid-template-columns:minmax(0,1fr)}
+  .bg{grid-template-columns:minmax(0,1fr)} .bg>.bg-h,.bg>.bg-n:first-child{display:none} .bg-n{margin-top:10px}
+  .bg-c::before{content:attr(data-scheme);font-size:11.5px;color:var(--muted);grid-column:1/-1}
+  .recipe .lb-row{grid-template-columns:1fr 56px}
   .chart.desk{display:none} .chart.mob{display:block}
   .cz-row{grid-template-columns:1fr 96px;grid-template-areas:"n v" "b b";row-gap:4px} .cz-row .lb-name{grid-area:n} .cz-row .cz-val{grid-area:v} .cz-row .cz-bars{grid-area:b}
   .drill{grid-template-columns:minmax(0,1fr)}

@@ -63,3 +63,23 @@ def test_grouping_accuracy_merge_split_and_unk_are_wrong():
     assert r["lines"] == 33
     assert r["templates_mixing_gt"] == 1
     assert r["gt_split_across_templates"] == 1
+
+
+def test_bgl_masks_node_ids_and_both_hex_styles():
+    out = mask_text("iar 00106210 dear 0244c20c at R02-M1-N0-C:J12-U11 addr 0x00004ed8 count 7", "bgl")
+    assert out == "iar <HEX> dear <HEX> at <NODE> addr <HEX> count <NUM>"
+
+
+def test_bgl_masks_keep_words_with_digits():
+    out = mask_text("ciod: Received signal 15, code=0, errno=0", "bgl")
+    assert out == "ciod: Received signal <NUM>, code=<NUM>, errno=<NUM>"
+
+
+def test_scheme_settings_inherit_from_their_log():
+    from loglens.config import parent, session_col, settings
+
+    s = settings("bgl_20ev")
+    assert parent("bgl_20ev") == "bgl" and parent("hdfs") == "hdfs"
+    assert s["session"] == {"kind": "count", "size": 20}
+    assert s["masks"] == "bgl" and s["expected_lines"] == 4_747_963
+    assert session_col("bgl_1h") == "session_id" and session_col("hdfs") == "block_id"

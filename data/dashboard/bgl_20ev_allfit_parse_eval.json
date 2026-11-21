@@ -1,0 +1,2456 @@
+{
+  "overall": {
+    "lines": 4631261,
+    "correct": 3659982,
+    "grouping_accuracy": 0.790278,
+    "predicted_templates": 400,
+    "ground_truth_templates": 320,
+    "gt_split_across_templates": 23,
+    "templates_mixing_gt": 14
+  },
+  "by_period": {
+    "train": {
+      "lines": 2799029,
+      "correct": 2523058,
+      "grouping_accuracy": 0.901405,
+      "predicted_templates": 208,
+      "ground_truth_templates": 200,
+      "gt_split_across_templates": 11,
+      "templates_mixing_gt": 8
+    },
+    "val": {
+      "lines": 454528,
+      "correct": 361273,
+      "grouping_accuracy": 0.794831,
+      "predicted_templates": 202,
+      "ground_truth_templates": 177,
+      "gt_split_across_templates": 7,
+      "templates_mixing_gt": 6
+    },
+    "test": {
+      "lines": 1377704,
+      "correct": 983492,
+      "grouping_accuracy": 0.713863,
+      "predicted_templates": 313,
+      "ground_truth_templates": 279,
+      "gt_split_across_templates": 14,
+      "templates_mixing_gt": 13
+    }
+  },
+  "lines_without_gt_template": 0,
+  "gt_coverage": 0.975421,
+  "gt_templates": {
+    "E208": "instruction cache parity error corrected",
+    "E93": "MidplaneSwitchController performing bit sparing on <*> bit <*>",
+    "E310": "generating core.<*>",
+    "E94": "<*> ddr errors(s) detected and corrected on rank <*>, symbol <*> bit <*>",
+    "E218": "<*> L3 <*> error(s) (dcr <*>) detected and corrected",
+    "E314": "CE sym <*>, at <*>, mask <*>",
+    "E191": "total of <*> ddr error(s) detected and corrected",
+    "E95": "ddr: activating redundant bit steering: rank=<*> symbol=<*>",
+    "E86": "ddr: excessive soft failures, consider replacing the card",
+    "E35": "ciod: Error loading <*>: invalid or missing program image, No such file or directory",
+    "E237": "<*> double-hummer alignment exceptions",
+    "E99": "<*> tree receiver <*> in re-synch state event(s) (dcr <*>) detected",
+    "E98": "idoproxydb has been started: $Name: <*> $ Input parameters: <*>",
+    "E280": "ciodb has been restarted.",
+    "E118": "ciod: LOGIN chdir(<*>) failed: No such file or directory",
+    "E285": "data TLB error interrupt",
+    "E301": "instruction address: <*>",
+    "E286": "machine check interrupt",
+    "E265": "machine check status register: <*>",
+    "E220": "summary...........................<*>",
+    "E234": "instruction plb error.............<*>",
+    "E248": "data read plb error...............<*>",
+    "E246": "data write plb error..............<*>",
+    "E227": "tlb error.........................<*>",
+    "E238": "i-cache parity error..............<*>",
+    "E249": "d-cache search parity error.......<*>",
+    "E255": "d-cache flush parity error.......<*>",
+    "E243": "imprecise machine check...........<*>",
+    "E294": "machine state register: <*>",
+    "E235": "wait state enable.................<*>",
+    "E251": "critical input interrupt enable...<*>",
+    "E250": "external input interrupt enable...<*>",
+    "E256": "problem state (<*>=sup,<*>=usr).......<*>",
+    "E247": "floating point instr. enabled.....<*>",
+    "E239": "machine check enable..............<*>",
+    "E262": "floating pt ex mode <*> enable......<*>",
+    "E241": "debug wait enable.................<*>",
+    "E236": "debug interrupt enable............<*>",
+    "E233": "instruction address space.........<*>",
+    "E242": "data address space................<*>",
+    "E267": "core configuration register: <*>",
+    "E174": "disable store gathering..................<*>",
+    "E197": "disable apu instruction broadcast........<*>",
+    "E171": "disable trace broadcast..................<*>",
+    "E203": "guaranteed instruction cache block touch.<*>",
+    "E205": "guaranteed data cache block touch........<*>",
+    "E183": "force load/store alignment...............<*>",
+    "E169": "icache prefetch depth....................<*>",
+    "E269": "general purpose registers:",
+    "E273": "special purpose registers:",
+    "E313": "lr:<*> cr:<*> xer:<*> ctr:<*>",
+    "E264": "rts panic! - stopping execution",
+    "E70": "<*> torus receiver <*> input pipe error(s) (dcr <*>) detected and corrected",
+    "E306": "rts internal error",
+    "E279": "ciod: Message code <*> is not <*> or <*>",
+    "E80": "ciod: pollControlDescriptors: Detected the debugger died.",
+    "E104": "ciod: for node <*> read continuation request but ioState is <*>",
+    "E145": "ciod: cpu <*> at treeaddr <*> sent unrecognized message <*>",
+    "E159": "ciod: LOGIN chdir(<*>) failed: Permission denied",
+    "E97": "machine check interrupt (bit=<*>): L3 major internal error",
+    "E274": "L3 global control register: <*>",
+    "E158": "start initialization.....................<*>",
+    "E161": "start retagging..........................<*>",
+    "E154": "start flushing...........................<*>",
+    "E160": "start prefetching........................<*>",
+    "E177": "disable speculative access...............<*>",
+    "E215": "close EDRAM pages as soon as possible....<*>",
+    "E200": "size of scratchpad portion of L3.........<*> (<*>)",
+    "E210": "disable all access to cache directory....<*>",
+    "E198": "write buffer commit threshold............<*>",
+    "E199": "size of DDR we are caching...............<*> (<*>)",
+    "E212": "prefetch depth for core <*>................<*>",
+    "E202": "max number of outstanding prefetches.....<*>",
+    "E193": "turn on hidden refreshes.................<*>",
+    "E217": "disable write lines <*>..................<*>",
+    "E293": "L3 ecc control register: <*>",
+    "E114": "disable flagging of DDR UE's as major internal error.<*>",
+    "E300": "L3 ecc status register: <*>",
+    "E214": "correctable error detected in directory <*>",
+    "E143": "uncorrectable error detected in directory <*>....<*>",
+    "E216": "correctable error detected in EDRAM bank <*>",
+    "E164": "uncorrectable error detected in EDRAM bank <*>...<*>",
+    "E132": "parity error in bank <*>.........................<*>",
+    "E126": "uncorrectable error detected in external DDR...<*>",
+    "E144": "parity error in read queue <*>...................<*>",
+    "E83": "number of correctable errors detected in L3 directories...<*>",
+    "E292": "interrupt threshold...<*>",
+    "E82": "number of correctable errors detected in L3 EDRAMs........<*>",
+    "E90": "number of lines with parity errors written to L3 EDRAMs...<*>",
+    "E275": "DDR machine check register: <*> <*>",
+    "E109": "memory and bus summary...........................<*>",
+    "E105": "command manager unit summary.....................<*>",
+    "E106": "memory manager uncorrectable error...............<*>",
+    "E107": "memory manager strobe gate.......................<*>",
+    "E117": "memory manager address parity error..............<*>",
+    "E102": "memory manager miscompare........................<*>",
+    "E110": "memory manager address error.....................<*>",
+    "E115": "memory manager store buffer parity...............<*>",
+    "E116": "memory manager RMW buffer parity.................<*>",
+    "E113": "memory manager refresh counter timeout...........<*>",
+    "E108": "memory manager refresh contention................<*>",
+    "E96": "state machine....................................<*>",
+    "E122": "memory manager / command manager address parity..<*>",
+    "E103": "regctl scancom interface.........................<*>",
+    "E287": "capture valid.........<*>",
+    "E282": "symbol................<*>",
+    "E281": "mask..................<*>",
+    "E283": "miscompare............<*>",
+    "E299": "address parity error..<*>",
+    "E290": "correctable error.....<*>",
+    "E289": "qw trapped............<*>",
+    "E288": "chip select...........<*>",
+    "E46": "PrepareForService shutting down NodeCard(<*>, <*>, <*>, <*>, <*>) as part of Service Action <*>",
+    "E30": "EndServiceAction is restarting the NodeCards in midplane <*> as part of Service Action <*>",
+    "E252": "EndServiceAction <*> performed upon <*> by <*>",
+    "E259": "Node card is not fully functional",
+    "E167": "Can not get assembly information for node card",
+    "E45": "Node card VPD check: <*> node in processor card slot <*> do not match. VPD ecid <*>, found <*>",
+    "E129": "machine check interrupt (bit=<*>): L2 DCU read error",
+    "E63": "<*> torus sender <*> retransmission error(s) (dcr <*>) detected and corrected",
+    "E131": "L3 correctable errors exceeds threshold (iar <*> lr <*>)",
+    "E272": "Starting SystemController",
+    "E291": "Controlling BG/L rows [ <*> ]",
+    "E266": "Running as background command",
+    "E296": "data storage interrupt",
+    "E268": "exception syndrome register: <*>",
+    "E130": "machine check: i-fetch......................<*>",
+    "E140": "program interrupt: illegal instruction......<*>",
+    "E135": "program interrupt: privileged instruction...<*>",
+    "E138": "program interrupt: trap instruction.........<*>",
+    "E128": "floating point operation....................<*>",
+    "E123": "store operation.............................<*>",
+    "E176": "data store interrupt caused by dcbf.........<*>",
+    "E178": "data store interrupt caused by icbi.........<*>",
+    "E124": "auxiliary processor.........................<*>",
+    "E142": "program interrupt: unimplemented operation..<*>",
+    "E127": "byte ordering exception.....................<*>",
+    "E139": "program interrupt: imprecise exception......<*>",
+    "E156": "program interrupt: fp cr update.............<*>",
+    "E137": "program interrupt: fp compare...............<*>",
+    "E170": "program interrupt: fp cr field .............<*>",
+    "E56": "<*> torus processor sram reception error(s) (dcr <*>) detected and corrected",
+    "E27": "external input interrupt (unit=<*> bit=<*>): torus sender <*> retransmission error was corrected",
+    "E24": "external input interrupt (unit=<*> bit=<*>): number of corrected SRAM errors has exceeded threshold",
+    "E188": "suppressing further interrupts of same type",
+    "E219": "Ido chip status changed: <*> ip=<*> v=<*> t=<*> status=<*> <*>",
+    "E32": "BGLMaster has been started: ./BGLMaster --consoleip <*> --consoleport <*> --configfile <*>",
+    "E133": "BglIdoChip table has <*> IDOs with the same IP address <*>",
+    "E230": "SerialNumber(<*>) IpAddress(<*>) Status(<*>)",
+    "E297": "NodeCard VPD is corrupt",
+    "E207": "ciod: Unexpected eof at line <*> of node map file <*>",
+    "E87": "ciod: Error creating node map from file <*>: No child processes",
+    "E189": "rror threshold, consider replacing the card",
+    "E17": "ddr: Unable to steer rank=<*>, symbol=<*> - rank is already steering symbol <*>. Due to multiple symbols being over the correctable",
+    "E166": "error threshold, consider replacing the card",
+    "E201": "ciod: Error loading <*>: program image too big, <*> > <*>",
+    "E81": "critical input interrupt (unit=<*> bit=<*>): warning for tree <*> wire",
+    "E278": "job <*> timed out. Block freed.",
+    "E308": "program interrupt",
+    "E64": "ciod: <*> coordinate <*> exceeds physical dimension <*> at line <*> of node map file <*>",
+    "E240": "<*> floating point alignment exceptions",
+    "E120": "NodeCard temperature sensor chip <*> is not accessible",
+    "E221": "NodeCard power module <*> is not accessible",
+    "E253": "NodeCard VPD chip is not accessible",
+    "E3": "Node card status: <*> is (are) active. Clock Mode is <*>. Clock Select is <*>. Phy JTAG Reset is <*>. ASIC JTAG Reset is <*>. TEMPERATURE MASK IS ACTIVE. No temperature error. Temperature Limit Error Latch is clear. PGOOD is <*>. PGOOD error latch is clear. MPGOOD is <*>. MPGOOD error latch is clear. The <*> volt rail is <*>. The <*> volt rail is <*>.",
+    "E311": "Target=<*> Message=<*>",
+    "E284": "Target=<*> Message=<*> JtagId = <*>",
+    "E55": "MailboxMonitor::serviceMailboxes() lib_ido_error: <*> socket closed",
+    "E73": "MidplaneSwitchController::sendTrain() port disconnected: <*>",
+    "E79": "critical input interrupt (unit=<*> bit=<*>): warning for torus <*> wire",
+    "E84": "ciod: Error creating node map from file <*>: Bad file descriptor",
+    "E119": "<*> torus non-crc error(s) (dcr <*>) detected and corrected",
+    "E305": "shutdown complete",
+    "E89": "machine check interrupt (bit=<*>): Torus/Tree/GI read error <*>",
+    "E31": "EndServiceAction is restarting the LinkCards in midplane <*> as part of Service Action <*>",
+    "E223": "LinkCard power module <*> is not accessible",
+    "E261": "NodeCard is not fully functional",
+    "E260": "LinkCard is not fully functional",
+    "E232": "this link card is not fully functional",
+    "E312": "no ethernet link",
+    "E258": "rts: kernel terminated for reason <*>",
+    "E71": "ciod: In packet from node <*> (<*>), message code <*> is not <*> or <*> (softheader=<*>)",
+    "E111": "ciod: Missing or invalid fields on line <*> of node map file <*>",
+    "E304": "Power deactivated: <*>",
+    "E1": "Problem reading the ethernet arl entries fro the service card: <*>: while executing I2C Operation caught <*>: Communication error: (<*> is in state = <*>, sequenceNumberIsOk = <*>, ExpectedSequenceNumber = <*>, Reply Sequence Number = <*>, timedOut = <*>, retries = <*>, timeout = <*>, Expected Op Command = <*>, Actual Op Reply = <*>, Expected Sync Command = <*>, Actual Sync Reply = <*>)",
+    "E303": "parity error.......<*>",
+    "E146": "New ido chip inserted into the database: <*> ip=<*> v=<*> t=<*>",
+    "E57": "MidplaneSwitchController::parityAlignment() pap failed: <*> status=<*>",
+    "E38": "ciod: duplicate canonical-rank <*> to logical-rank <*> mapping at line <*> of node map file <*>",
+    "E74": "ciod: Error creating node map from file <*>: Device or resource busy",
+    "E77": "ciod: Error creating node map from file <*>: Block device required",
+    "E88": "ciod: Error creating node map from file <*>: Permission denied",
+    "E318": "<*>, max=<*>",
+    "E65": "external input interrupt (unit=<*> bit=<*>): uncorrectable torus error",
+    "E209": "Torus non-recoverable error DCRs follow.",
+    "E319": "ax=<*>",
+    "E50": "ciod: Error loading <*>: invalid or missing program image, Exec format error",
+    "E320": "x=<*>",
+    "E245": "ciodb exited normally with exit code <*>",
+    "E307": "Ido packet timeout",
+    "E85": "Node card VPD check: missing <*>, VPD ecid <*> in processor card slot <*>",
+    "E41": "DeclareServiceNetworkCharacteristics has been run but the DB is not empty",
+    "E23": "DeclareServiceNetworkCharacteristics has been run with the force option but the DB is not empty",
+    "E263": "Added <*> subnets and <*> addresses to DB",
+    "E22": "BGLMaster has been started: ./BGLMaster --consoleip <*> --consoleport <*> --configfile <*> --autorestart <*>",
+    "E121": "Found invalid node ecid in processor card slot <*>, ecid <*>",
+    "E2": "Node card status: <*> is (are) active. Clock Mode is <*>. Clock Select is <*>. Phy JTAG Reset is <*>. ASIC JTAG Reset is <*>. Temperature Mask is not active. No temperature error. Temperature Limit Error Latch is clear. PGOOD is <*>. PGOOD error latch is clear. MPGOOD is <*>. MPGOOD error latch is clear. The <*> volt rail is <*>. The <*> volt rail is <*>.",
+    "E224": "idoproxy exited normally with exit code <*>",
+    "E16": "Problem communicating with service card, ido chip: <*>. java.io.IOException: Could not find EthernetSwitch on port:address <*>",
+    "E100": "Bad cable going into LinkCard (<*>) Jtag (<*>) Port (<*>) - <*> bad wires",
+    "E52": "Missing reverse cable: Cable <*> is present BUT the reverse cable <*> is missing",
+    "E257": "Error: unable to mount filesystem",
+    "E211": "Lustre mount FAILED : <*> : block_id : location",
+    "E26": "idoproxydb hit ASSERT condition: ASSERT expression=<*> Source file=<*> Source line=<*> Function=<*>",
+    "E298": "Microloader Assertion",
+    "E21": "ciod: Error reading message prefix after LOAD_MESSAGE on CioStream socket to <*>: Link has been severed",
+    "E61": "MidplaneSwitchController::receiveTrain() iap failed: <*>, status=<*>",
+    "E125": "rts tree/torus link training failed: wanted: <*> got: <*>",
+    "E8": "ddr: Unable to steer rank=<*>, symbol=<*> - rank is already steering symbol <*>. Due to multiple symbols being over the correctable error threshold, consider replacing the card",
+    "E226": "ciodb exited abnormally due to signal: <*>",
+    "E48": "ciod: Error loading <*>: invalid or missing program image, Permission denied",
+    "E228": "ciod: generated <*> core files for program <*>",
+    "E47": "rts: bad message header: cpu <*> invalid (softheader=<*>) PSR0=<*> PSR1=<*> PRXF=<*> PIXF=<*>",
+    "E28": "rts: bad message header: index <*> greater than total <*> (softheader=<*>) PSR0=<*> PSR1=<*> PRXF=<*> PIXF=<*>",
+    "E25": "rts: bad message header: expecting type <*> instead of type <*> (softheader=<*>) PSR0=<*> PSR1=<*> PRXF=<*> PIXF=<*>",
+    "E315": "kernel panic",
+    "E53": "external input interrupt (unit=<*> bit=<*>): 1M tree receiver <*> in resynch mode",
+    "E14": "mmcs_db_server has been started: ./mmcs_db_server --useDatabase <*> --dbproperties <*> --iolog <*> --reconnect-blocks <*> --shutdown-timeout <*>",
+    "E317": "iar <*> dear <*>",
+    "E165": "NFS Mount failed on <*>, slept <*> seconds, retrying (<*>)",
+    "E276": "Lustre mount FAILED : <*> : point <*>",
+    "E49": "external input interrupt (unit=<*> bit=<*>): tree header with no target waiting",
+    "E54": "power module status fault detected on node card. status registers are: <*>",
+    "E316": "program",
+    "E78": "<*> torus receiver sram ecc error(s) (dcr <*>) detected and corrected",
+    "E4": "Node card status: no ALERTs are active. Clock Mode is <*>. Clock Select is <*>. Phy JTAG Reset is <*>. ASIC JTAG Reset is <*>. Temperature Mask is <*>. No temperature error. Temperature Limit Error Latch is clear. PGOOD IS <*>. PGOOD ERROR LATCH IS <*>. MPGOOD IS <*>. MPGOOD ERROR LATCH IS <*>. The <*> volt rail is <*>. THE <*> VOLT RAIL IS <*>.",
+    "E58": "Error sending packet on tree network, packet at address <*> is not aligned",
+    "E75": "data cache flush parity error detected. attempting to correct",
+    "E72": "data cache search parity error detected. attempting to correct",
+    "E295": "L3 major internal error",
+    "E18": "Error receiving packet on tree network, expecting type <*> instead of type <*> (softheader=<*> <*> <*> <*>) PSR0=<*> PSR1=<*> PRXF=<*> PIXF=<*>",
+    "E42": "ddr: activating redundant bit steering for next allocation: rank=<*> symbol=<*>",
+    "E44": "L1 DCACHE summary averages: #ofDirtyLines: <*> out of <*> #ofDirtyDblWord: <*> out of <*>",
+    "E225": "No power module <*> found found on link card",
+    "E254": "Temperature Over Limit on link card",
+    "E244": "Link PGOOD error latched on link card",
+    "E15": "BGLMaster has been started: ./BGLMaster --consoleip <*> --consoleport <*> --configfile <*> --autorestart <*> --db2profile <*> --dbproperties <*>",
+    "E19": "critical input interrupt (unit=<*> bit=<*>): warning for torus <*> wire, suppressing further interrupts of same type",
+    "E20": "critical input interrupt (unit=<*> bit=<*>): warning for tree <*> wire, suppressing further interrupts of same type",
+    "E59": "<*> tree receiver <*> in re-synch state event(s) (dcr <*>) detected over <*> seconds",
+    "E40": "<*> torus receiver <*> input pipe error(s) (dcr <*>) detected and corrected over <*> seconds",
+    "E68": "<*> ddr error(s) detected and corrected on rank <*>, symbol <*> over <*> seconds",
+    "E92": "total of <*> ddr error(s) detected and corrected over <*> seconds",
+    "E112": "<*> L3 <*> error(s) (dcr <*>) detected and corrected over <*> seconds",
+    "E134": "idoproxy communication failure: socket closed",
+    "E270": "General Purpose Registers:",
+    "E271": "Special Purpose Registers:",
+    "E302": "msr=<*> dear=<*> esr=<*> fpscr=<*>",
+    "E309": "dbcr0=<*> dbsr=<*> ccr0=<*>",
+    "E196": "Floating Point Status and Control Register: <*>",
+    "E155": "exception summary........................<*>",
+    "E185": "enabled exception summary................<*>",
+    "E190": "invalid operation exception summary......<*>",
+    "E150": "underflow exception......................<*>",
+    "E153": "divide-by-zero exception.................<*>",
+    "E163": "inexact exception........................<*>",
+    "E229": "invalid (<*>)........................<*>",
+    "E157": "fraction rounded.........................<*>",
+    "E162": "fraction inexact.........................<*>",
+    "E206": "quiet <*>................................<*>",
+    "E149": "minus inf................................<*>",
+    "E182": "minus normalized number..................<*>",
+    "E186": "minus denormalized number................<*>",
+    "E148": "plus zero................................<*>",
+    "E180": "plus denormalized number.................<*>",
+    "E179": "plus normalized number...................<*>",
+    "E151": "plus infinity............................<*>",
+    "E141": "reserved.................................<*>",
+    "E194": "invalid operation exception (software)...<*>",
+    "E195": "invalid operation exception (sqrt).......<*>",
+    "E204": "invalid operation exception (int cnvt)...<*>",
+    "E192": "enable invalid operation exceptions......<*>",
+    "E173": "enable overflow exceptions...............<*>",
+    "E175": "enable underflow exceptions..............<*>",
+    "E172": "enable divide-by-zero exceptions.........<*>",
+    "E187": "enable inexact exceptions................<*>",
+    "E181": "enable non-IEEE mode.....................<*>",
+    "E152": "round nearest............................<*>",
+    "E222": "round toward zero...................<*>",
+    "E184": "round toward +infinity...................<*>",
+    "E168": "round toward -infinity...................<*>",
+    "E277": "Floating Point Registers:",
+    "E147": "ciod: Received signal <*>, code=<*>, errno=<*>, address=<*>",
+    "E101": "PrepareForService is being done on this Midplane (<*>, <*>, <*>) by <*>",
+    "E66": "Power Good signal deactivated: <*>. A service action may be required.",
+    "E34": "<*> torus sender <*> retransmission error(s) (dcr <*>) detected and corrected over <*> seconds",
+    "E36": "ciod: Error reading message prefix on CioStream socket to <*>, Link has been severed",
+    "E39": "EndServiceAction is restarting the <*> cards in Midplane <*> as part of Service Action <*>",
+    "E29": "ciod: Error reading message prefix on CioStream socket to <*>, Connection reset by peer",
+    "E7": "<*> with VPD of <*>: IBM Part Number: <*>, Vendor: <*>, Vendor Serial Number: <*>, Assembly Revision: <*>, Code Revision: <*>, Manufacture Date: <*>, Manufacture Location: <*> is usable but not a supported version",
+    "E62": "monitor caught <*>: while executing <*> caught <*>: Broken pipe and is stopping",
+    "E231": "MACHINE CHECK PLB write IRQ (mc=<*> iar <*> lr <*>)",
+    "E213": "MACHINE CHECK DCR read timeout (mc=<*> iar <*> lr <*>)",
+    "E37": "ciod: Error reading message prefix on CioStream socket to <*>, Connection timed out",
+    "E51": "machine check interrupt (bit=<*>): L2 dcache unit read return parity error",
+    "E60": "MidplaneSwitchController::clearPort() bll_clear_port failed: <*>",
+    "E69": "ciod: Error creating node map from file <*>: No such file or directory",
+    "E76": "ciod: Error creating node map from file <*>: Argument list too long",
+    "E43": "<*> torus receiver sram ecc error(s) (dcr <*>) detected and corrected over <*> seconds",
+    "E13": "<*> microseconds spent in the rbs signal handler during <*> calls. <*> microseconds was the maximum time for a single instance of a correctable ddr.",
+    "E10": "<*> total interrupts. <*> critical input interrupts. <*> microseconds total spent on critical input interrupts, <*> microseconds max time in a critical input interrupt.",
+    "E6": "instance of a correctable ddr. RAS KERNEL INFO <*> microseconds spent in the rbs signal handler during <*> calls. <*> microseconds was the maximum time for a single instance of a correctable ddr.",
+    "E5": "max time in a cr RAS KERNEL INFO <*> total interrupts. <*> critical input interrupts. <*> microseconds total spent on critical input interrupts, <*> microseconds max time in a critical input interrupt.",
+    "E11": "external input interrupt (unit=<*> bit=<*>): number of corrected SRAM errors has exceeded threshold, suppressing further interrupts of same type",
+    "E12": "Kernel detected <*> integer alignment exceptions (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*>",
+    "E9": "dear <*> (<*> RAS KERNEL INFO Kernel detected <*> integer alignment exceptions (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*> (<*>) iar <*>, dear <*>",
+    "E33": "<*> torus processor sram injection error(s) (dcr <*>) detected and corrected over <*> seconds",
+    "E136": "ciod: LOGIN chdir(<*>) failed: Input/output error",
+    "E91": "ciod: for node <*>, incomplete data written to core file core.<*>",
+    "E67": "<*> torus non-crc error(s) (dcr <*>) detected and corrected over <*> seconds"
+  },
+  "contingency": [
+    {
+      "event_id": "T001",
+      "gt": "E310",
+      "lines": 1706751
+    },
+    {
+      "event_id": "T002",
+      "gt": "E317",
+      "lines": 442966
+    },
+    {
+      "event_id": "T003",
+      "gt": "E237",
+      "lines": 259370
+    },
+    {
+      "event_id": "T004",
+      "gt": "E240",
+      "lines": 257317
+    },
+    {
+      "event_id": "T005",
+      "gt": "E314",
+      "lines": 201206
+    },
+    {
+      "event_id": "T006",
+      "gt": "E285",
+      "lines": 152734
+    },
+    {
+      "event_id": "T007",
+      "gt": "E13",
+      "lines": 135092
+    },
+    {
+      "event_id": "T008",
+      "gt": "E10",
+      "lines": 135091
+    },
+    {
+      "event_id": "T009",
+      "gt": "E208",
+      "lines": 105924
+    },
+    {
+      "event_id": "T010",
+      "gt": "E26",
+      "lines": 84168
+    },
+    {
+      "event_id": "T011",
+      "gt": "E296",
+      "lines": 63493
+    },
+    {
+      "event_id": "T012",
+      "gt": "E228",
+      "lines": 62484
+    },
+    {
+      "event_id": "T013",
+      "gt": "E301",
+      "lines": 51227
+    },
+    {
+      "event_id": "T014",
+      "gt": "E35",
+      "lines": 46416
+    },
+    {
+      "event_id": "T015",
+      "gt": "E118",
+      "lines": 43647
+    },
+    {
+      "event_id": "T016",
+      "gt": "E48",
+      "lines": 43040
+    },
+    {
+      "event_id": "T017",
+      "gt": "E147",
+      "lines": 39457
+    },
+    {
+      "event_id": "T018",
+      "gt": "E237",
+      "lines": 36394
+    },
+    {
+      "event_id": "T020",
+      "gt": "E94",
+      "lines": 33939
+    },
+    {
+      "event_id": "T021",
+      "gt": "E29",
+      "lines": 2256
+    },
+    {
+      "event_id": "T021",
+      "gt": "E36",
+      "lines": 26546
+    },
+    {
+      "event_id": "T022",
+      "gt": "E191",
+      "lines": 28485
+    },
+    {
+      "event_id": "T023",
+      "gt": "E276",
+      "lines": 26426
+    },
+    {
+      "event_id": "T024",
+      "gt": "E21",
+      "lines": 15273
+    },
+    {
+      "event_id": "T025",
+      "gt": "E12",
+      "lines": 22175
+    },
+    {
+      "event_id": "T026",
+      "gt": "E50",
+      "lines": 22032
+    },
+    {
+      "event_id": "T027",
+      "gt": "E45",
+      "lines": 21356
+    },
+    {
+      "event_id": "T028",
+      "gt": "E176",
+      "lines": 9823
+    },
+    {
+      "event_id": "T028",
+      "gt": "E178",
+      "lines": 9823
+    },
+    {
+      "event_id": "T029",
+      "gt": "E258",
+      "lines": 18587
+    },
+    {
+      "event_id": "T031",
+      "gt": "E130",
+      "lines": 18017
+    },
+    {
+      "event_id": "T032",
+      "gt": "E268",
+      "lines": 18013
+    },
+    {
+      "event_id": "T033",
+      "gt": "E259",
+      "lines": 17364
+    },
+    {
+      "event_id": "T034",
+      "gt": "E167",
+      "lines": 17305
+    },
+    {
+      "event_id": "T037",
+      "gt": "E213",
+      "lines": 14481
+    },
+    {
+      "event_id": "T038",
+      "gt": "E72",
+      "lines": 13941
+    },
+    {
+      "event_id": "T038",
+      "gt": "E75",
+      "lines": 65
+    },
+    {
+      "event_id": "T039",
+      "gt": "E140",
+      "lines": 13920
+    },
+    {
+      "event_id": "T040",
+      "gt": "E262",
+      "lines": 13044
+    },
+    {
+      "event_id": "T041",
+      "gt": "E219",
+      "lines": 11904
+    },
+    {
+      "event_id": "T042",
+      "gt": "E70",
+      "lines": 10480
+    },
+    {
+      "event_id": "T043",
+      "gt": "E68",
+      "lines": 10435
+    },
+    {
+      "event_id": "T044",
+      "gt": "E92",
+      "lines": 10415
+    },
+    {
+      "event_id": "T045",
+      "gt": "E240",
+      "lines": 10408
+    },
+    {
+      "event_id": "T046",
+      "gt": "E135",
+      "lines": 9824
+    },
+    {
+      "event_id": "T047",
+      "gt": "E138",
+      "lines": 9824
+    },
+    {
+      "event_id": "T048",
+      "gt": "E128",
+      "lines": 9824
+    },
+    {
+      "event_id": "T049",
+      "gt": "E123",
+      "lines": 9824
+    },
+    {
+      "event_id": "T050",
+      "gt": "E294",
+      "lines": 8454
+    },
+    {
+      "event_id": "T051",
+      "gt": "E124",
+      "lines": 8419
+    },
+    {
+      "event_id": "T052",
+      "gt": "E142",
+      "lines": 8102
+    },
+    {
+      "event_id": "T053",
+      "gt": "E127",
+      "lines": 8102
+    },
+    {
+      "event_id": "T054",
+      "gt": "E139",
+      "lines": 8102
+    },
+    {
+      "event_id": "T055",
+      "gt": "E156",
+      "lines": 8102
+    },
+    {
+      "event_id": "T056",
+      "gt": "E137",
+      "lines": 8102
+    },
+    {
+      "event_id": "T057",
+      "gt": "E170",
+      "lines": 8102
+    },
+    {
+      "event_id": "T058",
+      "gt": "E99",
+      "lines": 7847
+    },
+    {
+      "event_id": "T059",
+      "gt": "E188",
+      "lines": 7694
+    },
+    {
+      "event_id": "T060",
+      "gt": "E79",
+      "lines": 5437
+    },
+    {
+      "event_id": "T060",
+      "gt": "E81",
+      "lines": 2245
+    },
+    {
+      "event_id": "T061",
+      "gt": "E235",
+      "lines": 6745
+    },
+    {
+      "event_id": "T062",
+      "gt": "E251",
+      "lines": 6559
+    },
+    {
+      "event_id": "T063",
+      "gt": "E250",
+      "lines": 6556
+    },
+    {
+      "event_id": "T064",
+      "gt": "E256",
+      "lines": 6546
+    },
+    {
+      "event_id": "T065",
+      "gt": "E247",
+      "lines": 6541
+    },
+    {
+      "event_id": "T066",
+      "gt": "E239",
+      "lines": 6538
+    },
+    {
+      "event_id": "T067",
+      "gt": "E241",
+      "lines": 6524
+    },
+    {
+      "event_id": "T068",
+      "gt": "E236",
+      "lines": 6521
+    },
+    {
+      "event_id": "T069",
+      "gt": "E233",
+      "lines": 6506
+    },
+    {
+      "event_id": "T070",
+      "gt": "E242",
+      "lines": 6503
+    },
+    {
+      "event_id": "T071",
+      "gt": "E174",
+      "lines": 6495
+    },
+    {
+      "event_id": "T072",
+      "gt": "E80",
+      "lines": 6443
+    },
+    {
+      "event_id": "T073",
+      "gt": "E267",
+      "lines": 6431
+    },
+    {
+      "event_id": "T074",
+      "gt": "E18",
+      "lines": 6144
+    },
+    {
+      "event_id": "T076",
+      "gt": "E121",
+      "lines": 5558
+    },
+    {
+      "event_id": "T077",
+      "gt": "E211",
+      "lines": 5105
+    },
+    {
+      "event_id": "T078",
+      "gt": "E77",
+      "lines": 1016
+    },
+    {
+      "event_id": "T078",
+      "gt": "E84",
+      "lines": 1544
+    },
+    {
+      "event_id": "T078",
+      "gt": "E87",
+      "lines": 256
+    },
+    {
+      "event_id": "T079",
+      "gt": "E119",
+      "lines": 62
+    },
+    {
+      "event_id": "T079",
+      "gt": "E218",
+      "lines": 4789
+    },
+    {
+      "event_id": "T080",
+      "gt": "E307",
+      "lines": 4276
+    },
+    {
+      "event_id": "T081",
+      "gt": "E264",
+      "lines": 3983
+    },
+    {
+      "event_id": "T082",
+      "gt": "E308",
+      "lines": 3667
+    },
+    {
+      "event_id": "T083",
+      "gt": "E19",
+      "lines": 2314
+    },
+    {
+      "event_id": "T083",
+      "gt": "E20",
+      "lines": 1232
+    },
+    {
+      "event_id": "T084",
+      "gt": "E64",
+      "lines": 3512
+    },
+    {
+      "event_id": "T085",
+      "gt": "E40",
+      "lines": 3512
+    },
+    {
+      "event_id": "T086",
+      "gt": "E146",
+      "lines": 3455
+    },
+    {
+      "event_id": "T087",
+      "gt": "E258",
+      "lines": 3334
+    },
+    {
+      "event_id": "T088",
+      "gt": "E44",
+      "lines": 3149
+    },
+    {
+      "event_id": "T089",
+      "gt": "E59",
+      "lines": 3148
+    },
+    {
+      "event_id": "T090",
+      "gt": "E165",
+      "lines": 2670
+    },
+    {
+      "event_id": "T091",
+      "gt": "E145",
+      "lines": 2569
+    },
+    {
+      "event_id": "T092",
+      "gt": "E197",
+      "lines": 2396
+    },
+    {
+      "event_id": "T093",
+      "gt": "E171",
+      "lines": 2393
+    },
+    {
+      "event_id": "T094",
+      "gt": "E203",
+      "lines": 2390
+    },
+    {
+      "event_id": "T095",
+      "gt": "E205",
+      "lines": 2389
+    },
+    {
+      "event_id": "T096",
+      "gt": "E183",
+      "lines": 2389
+    },
+    {
+      "event_id": "T097",
+      "gt": "E169",
+      "lines": 2389
+    },
+    {
+      "event_id": "T099",
+      "gt": "E88",
+      "lines": 1272
+    },
+    {
+      "event_id": "T100",
+      "gt": "E269",
+      "lines": 2318
+    },
+    {
+      "event_id": "T101",
+      "gt": "E273",
+      "lines": 2316
+    },
+    {
+      "event_id": "T102",
+      "gt": "E313",
+      "lines": 2316
+    },
+    {
+      "event_id": "T103",
+      "gt": "E46",
+      "lines": 1522
+    },
+    {
+      "event_id": "T104",
+      "gt": "E279",
+      "lines": 2278
+    },
+    {
+      "event_id": "T105",
+      "gt": "E306",
+      "lines": 2187
+    },
+    {
+      "event_id": "T107",
+      "gt": "E111",
+      "lines": 2048
+    },
+    {
+      "event_id": "T108",
+      "gt": "E37",
+      "lines": 1991
+    },
+    {
+      "event_id": "T110",
+      "gt": "E201",
+      "lines": 1512
+    },
+    {
+      "event_id": "T111",
+      "gt": "E298",
+      "lines": 1504
+    },
+    {
+      "event_id": "T112",
+      "gt": "E112",
+      "lines": 1499
+    },
+    {
+      "event_id": "T112",
+      "gt": "E67",
+      "lines": 1
+    },
+    {
+      "event_id": "T113",
+      "gt": "E27",
+      "lines": 1322
+    },
+    {
+      "event_id": "T114",
+      "gt": "E95",
+      "lines": 1314
+    },
+    {
+      "event_id": "T115",
+      "gt": "E25",
+      "lines": 1146
+    },
+    {
+      "event_id": "T116",
+      "gt": "E56",
+      "lines": 66
+    },
+    {
+      "event_id": "T116",
+      "gt": "E63",
+      "lines": 1145
+    },
+    {
+      "event_id": "T116",
+      "gt": "E78",
+      "lines": 5
+    },
+    {
+      "event_id": "T117",
+      "gt": "E258",
+      "lines": 1139
+    },
+    {
+      "event_id": "T118",
+      "gt": "E35",
+      "lines": 1024
+    },
+    {
+      "event_id": "T120",
+      "gt": "E254",
+      "lines": 972
+    },
+    {
+      "event_id": "T121",
+      "gt": "E93",
+      "lines": 964
+    },
+    {
+      "event_id": "T122",
+      "gt": "E85",
+      "lines": 887
+    },
+    {
+      "event_id": "T124",
+      "gt": "E136",
+      "lines": 816
+    },
+    {
+      "event_id": "T125",
+      "gt": "E257",
+      "lines": 720
+    },
+    {
+      "event_id": "T127",
+      "gt": "E47",
+      "lines": 619
+    },
+    {
+      "event_id": "T128",
+      "gt": "E34",
+      "lines": 571
+    },
+    {
+      "event_id": "T130",
+      "gt": "E30",
+      "lines": 338
+    },
+    {
+      "event_id": "T130",
+      "gt": "E31",
+      "lines": 199
+    },
+    {
+      "event_id": "T131",
+      "gt": "E52",
+      "lines": 522
+    },
+    {
+      "event_id": "T133",
+      "gt": "E38",
+      "lines": 512
+    },
+    {
+      "event_id": "T134",
+      "gt": "E74",
+      "lines": 512
+    },
+    {
+      "event_id": "T135",
+      "gt": "E42",
+      "lines": 492
+    },
+    {
+      "event_id": "T136",
+      "gt": "E33",
+      "lines": 1
+    },
+    {
+      "event_id": "T136",
+      "gt": "E34",
+      "lines": 463
+    },
+    {
+      "event_id": "T136",
+      "gt": "E43",
+      "lines": 1
+    },
+    {
+      "event_id": "T137",
+      "gt": "E159",
+      "lines": 440
+    },
+    {
+      "event_id": "T138",
+      "gt": "E104",
+      "lines": 395
+    },
+    {
+      "event_id": "T139",
+      "gt": "E84",
+      "lines": 392
+    },
+    {
+      "event_id": "T140",
+      "gt": "E244",
+      "lines": 349
+    },
+    {
+      "event_id": "T141",
+      "gt": "E207",
+      "lines": 328
+    },
+    {
+      "event_id": "T142",
+      "gt": "E223",
+      "lines": 319
+    },
+    {
+      "event_id": "T143",
+      "gt": "E278",
+      "lines": 306
+    },
+    {
+      "event_id": "T145",
+      "gt": "E234",
+      "lines": 298
+    },
+    {
+      "event_id": "T146",
+      "gt": "E248",
+      "lines": 297
+    },
+    {
+      "event_id": "T147",
+      "gt": "E246",
+      "lines": 296
+    },
+    {
+      "event_id": "T148",
+      "gt": "E227",
+      "lines": 296
+    },
+    {
+      "event_id": "T149",
+      "gt": "E238",
+      "lines": 296
+    },
+    {
+      "event_id": "T150",
+      "gt": "E249",
+      "lines": 294
+    },
+    {
+      "event_id": "T151",
+      "gt": "E255",
+      "lines": 294
+    },
+    {
+      "event_id": "T152",
+      "gt": "E243",
+      "lines": 289
+    },
+    {
+      "event_id": "T153",
+      "gt": "E258",
+      "lines": 250
+    },
+    {
+      "event_id": "T154",
+      "gt": "E101",
+      "lines": 48
+    },
+    {
+      "event_id": "T155",
+      "gt": "E260",
+      "lines": 248
+    },
+    {
+      "event_id": "T156",
+      "gt": "E265",
+      "lines": 246
+    },
+    {
+      "event_id": "T157",
+      "gt": "E220",
+      "lines": 244
+    },
+    {
+      "event_id": "T158",
+      "gt": "E28",
+      "lines": 238
+    },
+    {
+      "event_id": "T159",
+      "gt": "E252",
+      "lines": 233
+    },
+    {
+      "event_id": "T160",
+      "gt": "E100",
+      "lines": 232
+    },
+    {
+      "event_id": "T161",
+      "gt": "E221",
+      "lines": 230
+    },
+    {
+      "event_id": "T163",
+      "gt": "E190",
+      "lines": 68
+    },
+    {
+      "event_id": "T163",
+      "gt": "E194",
+      "lines": 68
+    },
+    {
+      "event_id": "T163",
+      "gt": "E195",
+      "lines": 68
+    },
+    {
+      "event_id": "T165",
+      "gt": "E8",
+      "lines": 197
+    },
+    {
+      "event_id": "T166",
+      "gt": "E304",
+      "lines": 192
+    },
+    {
+      "event_id": "T167",
+      "gt": "E62",
+      "lines": 190
+    },
+    {
+      "event_id": "T168",
+      "gt": "E218",
+      "lines": 189
+    },
+    {
+      "event_id": "T169",
+      "gt": "E71",
+      "lines": 176
+    },
+    {
+      "event_id": "T170",
+      "gt": "E2",
+      "lines": 171
+    },
+    {
+      "event_id": "T171",
+      "gt": "E125",
+      "lines": 171
+    },
+    {
+      "event_id": "T172",
+      "gt": "E55",
+      "lines": 168
+    },
+    {
+      "event_id": "T173",
+      "gt": "E16",
+      "lines": 166
+    },
+    {
+      "event_id": "T174",
+      "gt": "E61",
+      "lines": 166
+    },
+    {
+      "event_id": "T175",
+      "gt": "E286",
+      "lines": 161
+    },
+    {
+      "event_id": "T176",
+      "gt": "E125",
+      "lines": 144
+    },
+    {
+      "event_id": "T178",
+      "gt": "E144",
+      "lines": 94
+    },
+    {
+      "event_id": "T183",
+      "gt": "E280",
+      "lines": 129
+    },
+    {
+      "event_id": "T185",
+      "gt": "E98",
+      "lines": 114
+    },
+    {
+      "event_id": "T187",
+      "gt": "E318",
+      "lines": 103
+    },
+    {
+      "event_id": "T188",
+      "gt": "E305",
+      "lines": 99
+    },
+    {
+      "event_id": "T189",
+      "gt": "E274",
+      "lines": 48
+    },
+    {
+      "event_id": "T189",
+      "gt": "E293",
+      "lines": 48
+    },
+    {
+      "event_id": "T190",
+      "gt": "E212",
+      "lines": 96
+    },
+    {
+      "event_id": "T192",
+      "gt": "E214",
+      "lines": 94
+    },
+    {
+      "event_id": "T193",
+      "gt": "E143",
+      "lines": 94
+    },
+    {
+      "event_id": "T194",
+      "gt": "E216",
+      "lines": 94
+    },
+    {
+      "event_id": "T195",
+      "gt": "E164",
+      "lines": 94
+    },
+    {
+      "event_id": "T196",
+      "gt": "E132",
+      "lines": 94
+    },
+    {
+      "event_id": "T197",
+      "gt": "E82",
+      "lines": 47
+    },
+    {
+      "event_id": "T197",
+      "gt": "E83",
+      "lines": 47
+    },
+    {
+      "event_id": "T198",
+      "gt": "E292",
+      "lines": 94
+    },
+    {
+      "event_id": "T199",
+      "gt": "E66",
+      "lines": 94
+    },
+    {
+      "event_id": "T200",
+      "gt": "E125",
+      "lines": 82
+    },
+    {
+      "event_id": "T201",
+      "gt": "E26",
+      "lines": 82
+    },
+    {
+      "event_id": "T203",
+      "gt": "E14",
+      "lines": 72
+    },
+    {
+      "event_id": "T204",
+      "gt": "E272",
+      "lines": 71
+    },
+    {
+      "event_id": "T205",
+      "gt": "E266",
+      "lines": 70
+    },
+    {
+      "event_id": "T206",
+      "gt": "E125",
+      "lines": 70
+    },
+    {
+      "event_id": "T209",
+      "gt": "E270",
+      "lines": 69
+    },
+    {
+      "event_id": "T218",
+      "gt": "E271",
+      "lines": 68
+    },
+    {
+      "event_id": "T220",
+      "gt": "E302",
+      "lines": 68
+    },
+    {
+      "event_id": "T221",
+      "gt": "E309",
+      "lines": 68
+    },
+    {
+      "event_id": "T222",
+      "gt": "E196",
+      "lines": 68
+    },
+    {
+      "event_id": "T223",
+      "gt": "E155",
+      "lines": 68
+    },
+    {
+      "event_id": "T224",
+      "gt": "E185",
+      "lines": 68
+    },
+    {
+      "event_id": "T226",
+      "gt": "E150",
+      "lines": 68
+    },
+    {
+      "event_id": "T227",
+      "gt": "E153",
+      "lines": 68
+    },
+    {
+      "event_id": "T228",
+      "gt": "E163",
+      "lines": 68
+    },
+    {
+      "event_id": "T229",
+      "gt": "E229",
+      "lines": 68
+    },
+    {
+      "event_id": "T230",
+      "gt": "E229",
+      "lines": 68
+    },
+    {
+      "event_id": "T231",
+      "gt": "E229",
+      "lines": 68
+    },
+    {
+      "event_id": "T234",
+      "gt": "E229",
+      "lines": 68
+    },
+    {
+      "event_id": "T235",
+      "gt": "E157",
+      "lines": 68
+    },
+    {
+      "event_id": "T236",
+      "gt": "E162",
+      "lines": 68
+    },
+    {
+      "event_id": "T237",
+      "gt": "E206",
+      "lines": 68
+    },
+    {
+      "event_id": "T238",
+      "gt": "E149",
+      "lines": 68
+    },
+    {
+      "event_id": "T239",
+      "gt": "E182",
+      "lines": 68
+    },
+    {
+      "event_id": "T240",
+      "gt": "E186",
+      "lines": 68
+    },
+    {
+      "event_id": "T242",
+      "gt": "E148",
+      "lines": 68
+    },
+    {
+      "event_id": "T243",
+      "gt": "E180",
+      "lines": 68
+    },
+    {
+      "event_id": "T244",
+      "gt": "E179",
+      "lines": 68
+    },
+    {
+      "event_id": "T245",
+      "gt": "E151",
+      "lines": 68
+    },
+    {
+      "event_id": "T246",
+      "gt": "E141",
+      "lines": 68
+    },
+    {
+      "event_id": "T247",
+      "gt": "E204",
+      "lines": 68
+    },
+    {
+      "event_id": "T248",
+      "gt": "E192",
+      "lines": 68
+    },
+    {
+      "event_id": "T249",
+      "gt": "E173",
+      "lines": 68
+    },
+    {
+      "event_id": "T250",
+      "gt": "E175",
+      "lines": 68
+    },
+    {
+      "event_id": "T251",
+      "gt": "E172",
+      "lines": 68
+    },
+    {
+      "event_id": "T252",
+      "gt": "E187",
+      "lines": 68
+    },
+    {
+      "event_id": "T253",
+      "gt": "E181",
+      "lines": 68
+    },
+    {
+      "event_id": "T254",
+      "gt": "E152",
+      "lines": 68
+    },
+    {
+      "event_id": "T255",
+      "gt": "E222",
+      "lines": 68
+    },
+    {
+      "event_id": "T256",
+      "gt": "E184",
+      "lines": 68
+    },
+    {
+      "event_id": "T257",
+      "gt": "E168",
+      "lines": 68
+    },
+    {
+      "event_id": "T258",
+      "gt": "E277",
+      "lines": 68
+    },
+    {
+      "event_id": "T259",
+      "gt": "E35",
+      "lines": 64
+    },
+    {
+      "event_id": "T260",
+      "gt": "E87",
+      "lines": 64
+    },
+    {
+      "event_id": "T262",
+      "gt": "E284",
+      "lines": 63
+    },
+    {
+      "event_id": "T263",
+      "gt": "E261",
+      "lines": 60
+    },
+    {
+      "event_id": "T264",
+      "gt": "E22",
+      "lines": 59
+    },
+    {
+      "event_id": "T265",
+      "gt": "E97",
+      "lines": 57
+    },
+    {
+      "event_id": "T266",
+      "gt": "E11",
+      "lines": 57
+    },
+    {
+      "event_id": "T269",
+      "gt": "E125",
+      "lines": 54
+    },
+    {
+      "event_id": "T270",
+      "gt": "E39",
+      "lines": 51
+    },
+    {
+      "event_id": "T271",
+      "gt": "E291",
+      "lines": 50
+    },
+    {
+      "event_id": "T275",
+      "gt": "E158",
+      "lines": 48
+    },
+    {
+      "event_id": "T276",
+      "gt": "E161",
+      "lines": 48
+    },
+    {
+      "event_id": "T277",
+      "gt": "E154",
+      "lines": 48
+    },
+    {
+      "event_id": "T278",
+      "gt": "E160",
+      "lines": 48
+    },
+    {
+      "event_id": "T279",
+      "gt": "E177",
+      "lines": 48
+    },
+    {
+      "event_id": "T280",
+      "gt": "E215",
+      "lines": 48
+    },
+    {
+      "event_id": "T281",
+      "gt": "E200",
+      "lines": 48
+    },
+    {
+      "event_id": "T282",
+      "gt": "E210",
+      "lines": 48
+    },
+    {
+      "event_id": "T283",
+      "gt": "E198",
+      "lines": 48
+    },
+    {
+      "event_id": "T284",
+      "gt": "E199",
+      "lines": 48
+    },
+    {
+      "event_id": "T286",
+      "gt": "E202",
+      "lines": 48
+    },
+    {
+      "event_id": "T287",
+      "gt": "E193",
+      "lines": 48
+    },
+    {
+      "event_id": "T288",
+      "gt": "E217",
+      "lines": 48
+    },
+    {
+      "event_id": "T290",
+      "gt": "E114",
+      "lines": 47
+    },
+    {
+      "event_id": "T291",
+      "gt": "E300",
+      "lines": 47
+    },
+    {
+      "event_id": "T292",
+      "gt": "E126",
+      "lines": 47
+    },
+    {
+      "event_id": "T294",
+      "gt": "E90",
+      "lines": 47
+    },
+    {
+      "event_id": "T295",
+      "gt": "E275",
+      "lines": 47
+    },
+    {
+      "event_id": "T296",
+      "gt": "E109",
+      "lines": 47
+    },
+    {
+      "event_id": "T297",
+      "gt": "E105",
+      "lines": 47
+    },
+    {
+      "event_id": "T298",
+      "gt": "E106",
+      "lines": 47
+    },
+    {
+      "event_id": "T299",
+      "gt": "E107",
+      "lines": 47
+    },
+    {
+      "event_id": "T300",
+      "gt": "E117",
+      "lines": 47
+    },
+    {
+      "event_id": "T301",
+      "gt": "E102",
+      "lines": 47
+    },
+    {
+      "event_id": "T302",
+      "gt": "E110",
+      "lines": 47
+    },
+    {
+      "event_id": "T303",
+      "gt": "E115",
+      "lines": 47
+    },
+    {
+      "event_id": "T304",
+      "gt": "E116",
+      "lines": 47
+    },
+    {
+      "event_id": "T306",
+      "gt": "E113",
+      "lines": 47
+    },
+    {
+      "event_id": "T307",
+      "gt": "E108",
+      "lines": 47
+    },
+    {
+      "event_id": "T308",
+      "gt": "E96",
+      "lines": 47
+    },
+    {
+      "event_id": "T309",
+      "gt": "E122",
+      "lines": 47
+    },
+    {
+      "event_id": "T310",
+      "gt": "E103",
+      "lines": 47
+    },
+    {
+      "event_id": "T311",
+      "gt": "E287",
+      "lines": 47
+    },
+    {
+      "event_id": "T312",
+      "gt": "E282",
+      "lines": 47
+    },
+    {
+      "event_id": "T313",
+      "gt": "E281",
+      "lines": 47
+    },
+    {
+      "event_id": "T314",
+      "gt": "E283",
+      "lines": 47
+    },
+    {
+      "event_id": "T316",
+      "gt": "E299",
+      "lines": 47
+    },
+    {
+      "event_id": "T317",
+      "gt": "E290",
+      "lines": 47
+    },
+    {
+      "event_id": "T318",
+      "gt": "E289",
+      "lines": 47
+    },
+    {
+      "event_id": "T319",
+      "gt": "E288",
+      "lines": 47
+    },
+    {
+      "event_id": "T322",
+      "gt": "E86",
+      "lines": 41
+    },
+    {
+      "event_id": "T323",
+      "gt": "E134",
+      "lines": 41
+    },
+    {
+      "event_id": "T324",
+      "gt": "E24",
+      "lines": 39
+    },
+    {
+      "event_id": "T325",
+      "gt": "E91",
+      "lines": 38
+    },
+    {
+      "event_id": "T327",
+      "gt": "E15",
+      "lines": 31
+    },
+    {
+      "event_id": "T330",
+      "gt": "E258",
+      "lines": 28
+    },
+    {
+      "event_id": "T331",
+      "gt": "E125",
+      "lines": 28
+    },
+    {
+      "event_id": "T332",
+      "gt": "E131",
+      "lines": 20
+    },
+    {
+      "event_id": "T333",
+      "gt": "E17",
+      "lines": 23
+    },
+    {
+      "event_id": "T334",
+      "gt": "E73",
+      "lines": 24
+    },
+    {
+      "event_id": "T335",
+      "gt": "E69",
+      "lines": 24
+    },
+    {
+      "event_id": "T336",
+      "gt": "E166",
+      "lines": 23
+    },
+    {
+      "event_id": "T337",
+      "gt": "E226",
+      "lines": 23
+    },
+    {
+      "event_id": "T338",
+      "gt": "E51",
+      "lines": 8
+    },
+    {
+      "event_id": "T340",
+      "gt": "E189",
+      "lines": 22
+    },
+    {
+      "event_id": "T341",
+      "gt": "E232",
+      "lines": 22
+    },
+    {
+      "event_id": "T343",
+      "gt": "E291",
+      "lines": 20
+    },
+    {
+      "event_id": "T345",
+      "gt": "E125",
+      "lines": 18
+    },
+    {
+      "event_id": "T346",
+      "gt": "E125",
+      "lines": 18
+    },
+    {
+      "event_id": "T347",
+      "gt": "E315",
+      "lines": 18
+    },
+    {
+      "event_id": "T348",
+      "gt": "E14",
+      "lines": 18
+    },
+    {
+      "event_id": "T349",
+      "gt": "E112",
+      "lines": 15
+    },
+    {
+      "event_id": "T350",
+      "gt": "E312",
+      "lines": 14
+    },
+    {
+      "event_id": "T351",
+      "gt": "E57",
+      "lines": 14
+    },
+    {
+      "event_id": "T353",
+      "gt": "E319",
+      "lines": 13
+    },
+    {
+      "event_id": "T354",
+      "gt": "E318",
+      "lines": 13
+    },
+    {
+      "event_id": "T357",
+      "gt": "E297",
+      "lines": 10
+    },
+    {
+      "event_id": "T359",
+      "gt": "E65",
+      "lines": 10
+    },
+    {
+      "event_id": "T360",
+      "gt": "E209",
+      "lines": 10
+    },
+    {
+      "event_id": "T361",
+      "gt": "E125",
+      "lines": 10
+    },
+    {
+      "event_id": "T362",
+      "gt": "E133",
+      "lines": 9
+    },
+    {
+      "event_id": "T366",
+      "gt": "E125",
+      "lines": 8
+    },
+    {
+      "event_id": "T374",
+      "gt": "E76",
+      "lines": 8
+    },
+    {
+      "event_id": "T375",
+      "gt": "E70",
+      "lines": 7
+    },
+    {
+      "event_id": "T378",
+      "gt": "E32",
+      "lines": 6
+    },
+    {
+      "event_id": "T380",
+      "gt": "E225",
+      "lines": 6
+    },
+    {
+      "event_id": "T382",
+      "gt": "E120",
+      "lines": 5
+    },
+    {
+      "event_id": "T383",
+      "gt": "E294",
+      "lines": 5
+    },
+    {
+      "event_id": "T386",
+      "gt": "E58",
+      "lines": 5
+    },
+    {
+      "event_id": "T389",
+      "gt": "E1",
+      "lines": 4
+    },
+    {
+      "event_id": "T390",
+      "gt": "E311",
+      "lines": 4
+    },
+    {
+      "event_id": "T391",
+      "gt": "E252",
+      "lines": 4
+    },
+    {
+      "event_id": "T392",
+      "gt": "E54",
+      "lines": 4
+    },
+    {
+      "event_id": "T394",
+      "gt": "E7",
+      "lines": 4
+    },
+    {
+      "event_id": "T397",
+      "gt": "E6",
+      "lines": 4
+    },
+    {
+      "event_id": "T398",
+      "gt": "E5",
+      "lines": 4
+    },
+    {
+      "event_id": "T400",
+      "gt": "E129",
+      "lines": 3
+    },
+    {
+      "event_id": "T401",
+      "gt": "E311",
+      "lines": 3
+    },
+    {
+      "event_id": "T404",
+      "gt": "E4",
+      "lines": 3
+    },
+    {
+      "event_id": "T405",
+      "gt": "E295",
+      "lines": 3
+    },
+    {
+      "event_id": "T408",
+      "gt": "E230",
+      "lines": 2
+    },
+    {
+      "event_id": "T409",
+      "gt": "E230",
+      "lines": 2
+    },
+    {
+      "event_id": "T410",
+      "gt": "E230",
+      "lines": 2
+    },
+    {
+      "event_id": "T411",
+      "gt": "E230",
+      "lines": 2
+    },
+    {
+      "event_id": "T412",
+      "gt": "E230",
+      "lines": 2
+    },
+    {
+      "event_id": "T413",
+      "gt": "E230",
+      "lines": 2
+    },
+    {
+      "event_id": "T414",
+      "gt": "E311",
+      "lines": 2
+    },
+    {
+      "event_id": "T415",
+      "gt": "E89",
+      "lines": 2
+    },
+    {
+      "event_id": "T416",
+      "gt": "E320",
+      "lines": 2
+    },
+    {
+      "event_id": "T417",
+      "gt": "E245",
+      "lines": 2
+    },
+    {
+      "event_id": "T421",
+      "gt": "E26",
+      "lines": 2
+    },
+    {
+      "event_id": "T422",
+      "gt": "E125",
+      "lines": 2
+    },
+    {
+      "event_id": "T425",
+      "gt": "E284",
+      "lines": 2
+    },
+    {
+      "event_id": "T428",
+      "gt": "E60",
+      "lines": 2
+    },
+    {
+      "event_id": "T429",
+      "gt": "E9",
+      "lines": 2
+    },
+    {
+      "event_id": "T430",
+      "gt": "E253",
+      "lines": 1
+    },
+    {
+      "event_id": "T432",
+      "gt": "E3",
+      "lines": 1
+    },
+    {
+      "event_id": "T434",
+      "gt": "E303",
+      "lines": 1
+    },
+    {
+      "event_id": "T437",
+      "gt": "E41",
+      "lines": 1
+    },
+    {
+      "event_id": "T438",
+      "gt": "E23",
+      "lines": 1
+    },
+    {
+      "event_id": "T439",
+      "gt": "E263",
+      "lines": 1
+    },
+    {
+      "event_id": "T440",
+      "gt": "E224",
+      "lines": 1
+    },
+    {
+      "event_id": "T441",
+      "gt": "E26",
+      "lines": 1
+    },
+    {
+      "event_id": "T442",
+      "gt": "E53",
+      "lines": 1
+    },
+    {
+      "event_id": "T443",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T444",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T445",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T446",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T447",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T448",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T449",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T450",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T451",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T452",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T453",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T454",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T455",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T456",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T457",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T458",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T459",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T460",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T461",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T462",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T463",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T464",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T465",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T466",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T467",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T468",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T469",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T470",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T471",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T472",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T473",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T474",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T475",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T476",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T477",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T478",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T479",
+      "gt": "E49",
+      "lines": 1
+    },
+    {
+      "event_id": "T481",
+      "gt": "E316",
+      "lines": 1
+    },
+    {
+      "event_id": "T484",
+      "gt": "E311",
+      "lines": 1
+    },
+    {
+      "event_id": "T485",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T486",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T487",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T488",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T489",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T490",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T491",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T492",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T493",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T494",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T495",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T496",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T497",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T498",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T499",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T500",
+      "gt": "E230",
+      "lines": 1
+    },
+    {
+      "event_id": "T504",
+      "gt": "E231",
+      "lines": 1
+    },
+    {
+      "event_id": "T505",
+      "gt": "E68",
+      "lines": 1
+    },
+    {
+      "event_id": "T506",
+      "gt": "E10",
+      "lines": 1
+    }
+  ]
+}

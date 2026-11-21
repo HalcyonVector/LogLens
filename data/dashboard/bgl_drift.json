@@ -1,0 +1,836 @@
+{
+  "bgl_1h": {
+    "cutoffs": {
+      "val_start": {
+        "ts": "2005-10-11T08:18:38.680729",
+        "line_id": 94489332084
+      },
+      "test_start": {
+        "ts": "2005-10-30T08:00:28.248114",
+        "line_id": 94489433000
+      }
+    },
+    "lines": {
+      "train": 3570598,
+      "test": 1076449,
+      "val": 100916
+    },
+    "alert_lines": {
+      "train": 297583,
+      "val": 4580,
+      "test": 46297
+    },
+    "categories": [
+      {
+        "alert": "KERNDTLB",
+        "train": 152723,
+        "val": 0,
+        "test": 11
+      },
+      {
+        "alert": "KERNSTOR",
+        "train": 63488,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "APPSEV",
+        "train": 20672,
+        "val": 901,
+        "test": 28078
+      },
+      {
+        "alert": "KERNMNTF",
+        "train": 27552,
+        "val": 1539,
+        "test": 2440
+      },
+      {
+        "alert": "KERNTERM",
+        "train": 17187,
+        "val": 1031,
+        "test": 5120
+      },
+      {
+        "alert": "KERNREC",
+        "train": 0,
+        "val": 1024,
+        "test": 5121
+      },
+      {
+        "alert": "APPREAD",
+        "train": 5983,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNRTSP",
+        "train": 3855,
+        "val": 33,
+        "test": 95
+      },
+      {
+        "alert": "APPRES",
+        "train": 114,
+        "val": 0,
+        "test": 2256
+      },
+      {
+        "alert": "APPUNAV",
+        "train": 2048,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "APPTO",
+        "train": 0,
+        "val": 0,
+        "test": 1991
+      },
+      {
+        "alert": "KERNMICRO",
+        "train": 1502,
+        "val": 1,
+        "test": 0
+      },
+      {
+        "alert": "APPOUT",
+        "train": 0,
+        "val": 0,
+        "test": 816
+      },
+      {
+        "alert": "KERNMNT",
+        "train": 720,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "APPBUSY",
+        "train": 512,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNMC",
+        "train": 217,
+        "val": 32,
+        "test": 93
+      },
+      {
+        "alert": "APPCHILD",
+        "train": 288,
+        "val": 0,
+        "test": 32
+      },
+      {
+        "alert": "KERNSOCK",
+        "train": 117,
+        "val": 5,
+        "test": 87
+      },
+      {
+        "alert": "KERNPOW",
+        "train": 192,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "LINKIAP",
+        "train": 158,
+        "val": 0,
+        "test": 8
+      },
+      {
+        "alert": "APPALLOC",
+        "train": 144,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNSERV",
+        "train": 0,
+        "val": 0,
+        "test": 94
+      },
+      {
+        "alert": "MASABNORM",
+        "train": 18,
+        "val": 0,
+        "test": 19
+      },
+      {
+        "alert": "LINKDISC",
+        "train": 24,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNPAN",
+        "train": 12,
+        "val": 3,
+        "test": 3
+      },
+      {
+        "alert": "KERNCON",
+        "train": 12,
+        "val": 2,
+        "test": 2
+      },
+      {
+        "alert": "LINKPAP",
+        "train": 14,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNNOETH",
+        "train": 9,
+        "val": 3,
+        "test": 2
+      },
+      {
+        "alert": "MONPOW",
+        "train": 3,
+        "val": 0,
+        "test": 9
+      },
+      {
+        "alert": "APPTORUS",
+        "train": 2,
+        "val": 0,
+        "test": 8
+      },
+      {
+        "alert": "MASNORM",
+        "train": 9,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNPROG",
+        "train": 3,
+        "val": 2,
+        "test": 0
+      },
+      {
+        "alert": "MMCS",
+        "train": 0,
+        "val": 1,
+        "test": 2
+      },
+      {
+        "alert": "KERNFLOAT",
+        "train": 2,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNRTSA",
+        "train": 0,
+        "val": 2,
+        "test": 1
+      },
+      {
+        "alert": "LINKBLL",
+        "train": 0,
+        "val": 0,
+        "test": 2
+      },
+      {
+        "alert": "MONNULL",
+        "train": 2,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNTLBE",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "MONILL",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNEXT",
+        "train": 1,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNBIT",
+        "train": 0,
+        "val": 1,
+        "test": 0
+      }
+    ],
+    "test_alert_lines_in_categories_unseen_in_train": 8029,
+    "test_alert_share_unseen_categories": 0.1734,
+    "unk_rate_by_period": {
+      "val": 0.153534,
+      "train": 0.0,
+      "test": 0.413362
+    },
+    "parser_fit": "train"
+  },
+  "bgl_20ev": {
+    "cutoffs": {
+      "val_start": {
+        "ts": "2005-07-28T12:16:21.241558",
+        "line_id": 68719617041
+      },
+      "test_start": {
+        "ts": "2005-09-02T13:50:47.088694",
+        "line_id": 85899379666
+      }
+    },
+    "lines": {
+      "train": 2848780,
+      "test": 1424403,
+      "val": 474780
+    },
+    "alert_lines": {
+      "train": 231879,
+      "val": 30534,
+      "test": 86047
+    },
+    "categories": [
+      {
+        "alert": "KERNDTLB",
+        "train": 152690,
+        "val": 33,
+        "test": 11
+      },
+      {
+        "alert": "KERNSTOR",
+        "train": 63488,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "APPSEV",
+        "train": 6,
+        "val": 7808,
+        "test": 41837
+      },
+      {
+        "alert": "KERNMNTF",
+        "train": 0,
+        "val": 7086,
+        "test": 24445
+      },
+      {
+        "alert": "KERNTERM",
+        "train": 4751,
+        "val": 11349,
+        "test": 7238
+      },
+      {
+        "alert": "KERNREC",
+        "train": 0,
+        "val": 0,
+        "test": 6145
+      },
+      {
+        "alert": "APPREAD",
+        "train": 5983,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNRTSP",
+        "train": 2786,
+        "val": 587,
+        "test": 610
+      },
+      {
+        "alert": "APPRES",
+        "train": 0,
+        "val": 109,
+        "test": 2261
+      },
+      {
+        "alert": "APPUNAV",
+        "train": 1024,
+        "val": 1024,
+        "test": 0
+      },
+      {
+        "alert": "APPTO",
+        "train": 0,
+        "val": 0,
+        "test": 1991
+      },
+      {
+        "alert": "KERNMICRO",
+        "train": 0,
+        "val": 1486,
+        "test": 17
+      },
+      {
+        "alert": "APPOUT",
+        "train": 0,
+        "val": 0,
+        "test": 816
+      },
+      {
+        "alert": "KERNMNT",
+        "train": 0,
+        "val": 720,
+        "test": 0
+      },
+      {
+        "alert": "APPBUSY",
+        "train": 512,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNMC",
+        "train": 58,
+        "val": 71,
+        "test": 213
+      },
+      {
+        "alert": "APPCHILD",
+        "train": 288,
+        "val": 0,
+        "test": 32
+      },
+      {
+        "alert": "KERNSOCK",
+        "train": 11,
+        "val": 100,
+        "test": 98
+      },
+      {
+        "alert": "KERNPOW",
+        "train": 96,
+        "val": 0,
+        "test": 96
+      },
+      {
+        "alert": "LINKIAP",
+        "train": 0,
+        "val": 114,
+        "test": 52
+      },
+      {
+        "alert": "APPALLOC",
+        "train": 144,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNSERV",
+        "train": 0,
+        "val": 0,
+        "test": 94
+      },
+      {
+        "alert": "MASABNORM",
+        "train": 2,
+        "val": 16,
+        "test": 19
+      },
+      {
+        "alert": "LINKDISC",
+        "train": 24,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNPAN",
+        "train": 0,
+        "val": 10,
+        "test": 8
+      },
+      {
+        "alert": "KERNCON",
+        "train": 1,
+        "val": 5,
+        "test": 10
+      },
+      {
+        "alert": "LINKPAP",
+        "train": 6,
+        "val": 4,
+        "test": 4
+      },
+      {
+        "alert": "KERNNOETH",
+        "train": 5,
+        "val": 2,
+        "test": 7
+      },
+      {
+        "alert": "MONPOW",
+        "train": 0,
+        "val": 1,
+        "test": 11
+      },
+      {
+        "alert": "APPTORUS",
+        "train": 2,
+        "val": 0,
+        "test": 8
+      },
+      {
+        "alert": "MASNORM",
+        "train": 1,
+        "val": 8,
+        "test": 1
+      },
+      {
+        "alert": "KERNPROG",
+        "train": 1,
+        "val": 0,
+        "test": 4
+      },
+      {
+        "alert": "MMCS",
+        "train": 0,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "KERNFLOAT",
+        "train": 0,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "KERNRTSA",
+        "train": 0,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "LINKBLL",
+        "train": 0,
+        "val": 0,
+        "test": 2
+      },
+      {
+        "alert": "MONNULL",
+        "train": 0,
+        "val": 1,
+        "test": 1
+      },
+      {
+        "alert": "KERNTLBE",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "MONILL",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNEXT",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNBIT",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      }
+    ],
+    "test_alert_lines_in_categories_unseen_in_train": 35856,
+    "test_alert_share_unseen_categories": 0.4167,
+    "unk_rate_by_period": {
+      "val": 0.400261,
+      "train": 0.0,
+      "test": 0.691777
+    },
+    "parser_fit": "train"
+  },
+  "bgl_20ev_allfit": {
+    "cutoffs": {
+      "val_start": {
+        "ts": "2005-07-28T12:16:21.241558",
+        "line_id": 68719617041
+      },
+      "test_start": {
+        "ts": "2005-09-02T13:50:47.088694",
+        "line_id": 85899379666
+      }
+    },
+    "lines": {
+      "train": 2848780,
+      "test": 1424403,
+      "val": 474780
+    },
+    "alert_lines": {
+      "train": 231879,
+      "val": 30534,
+      "test": 86047
+    },
+    "categories": [
+      {
+        "alert": "KERNDTLB",
+        "train": 152690,
+        "val": 33,
+        "test": 11
+      },
+      {
+        "alert": "KERNSTOR",
+        "train": 63488,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "APPSEV",
+        "train": 6,
+        "val": 7808,
+        "test": 41837
+      },
+      {
+        "alert": "KERNMNTF",
+        "train": 0,
+        "val": 7086,
+        "test": 24445
+      },
+      {
+        "alert": "KERNTERM",
+        "train": 4751,
+        "val": 11349,
+        "test": 7238
+      },
+      {
+        "alert": "KERNREC",
+        "train": 0,
+        "val": 0,
+        "test": 6145
+      },
+      {
+        "alert": "APPREAD",
+        "train": 5983,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNRTSP",
+        "train": 2786,
+        "val": 587,
+        "test": 610
+      },
+      {
+        "alert": "APPRES",
+        "train": 0,
+        "val": 109,
+        "test": 2261
+      },
+      {
+        "alert": "APPUNAV",
+        "train": 1024,
+        "val": 1024,
+        "test": 0
+      },
+      {
+        "alert": "APPTO",
+        "train": 0,
+        "val": 0,
+        "test": 1991
+      },
+      {
+        "alert": "KERNMICRO",
+        "train": 0,
+        "val": 1486,
+        "test": 17
+      },
+      {
+        "alert": "APPOUT",
+        "train": 0,
+        "val": 0,
+        "test": 816
+      },
+      {
+        "alert": "KERNMNT",
+        "train": 0,
+        "val": 720,
+        "test": 0
+      },
+      {
+        "alert": "APPBUSY",
+        "train": 512,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNMC",
+        "train": 58,
+        "val": 71,
+        "test": 213
+      },
+      {
+        "alert": "APPCHILD",
+        "train": 288,
+        "val": 0,
+        "test": 32
+      },
+      {
+        "alert": "KERNSOCK",
+        "train": 11,
+        "val": 100,
+        "test": 98
+      },
+      {
+        "alert": "KERNPOW",
+        "train": 96,
+        "val": 0,
+        "test": 96
+      },
+      {
+        "alert": "LINKIAP",
+        "train": 0,
+        "val": 114,
+        "test": 52
+      },
+      {
+        "alert": "APPALLOC",
+        "train": 144,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNSERV",
+        "train": 0,
+        "val": 0,
+        "test": 94
+      },
+      {
+        "alert": "MASABNORM",
+        "train": 2,
+        "val": 16,
+        "test": 19
+      },
+      {
+        "alert": "LINKDISC",
+        "train": 24,
+        "val": 0,
+        "test": 0
+      },
+      {
+        "alert": "KERNPAN",
+        "train": 0,
+        "val": 10,
+        "test": 8
+      },
+      {
+        "alert": "KERNCON",
+        "train": 1,
+        "val": 5,
+        "test": 10
+      },
+      {
+        "alert": "LINKPAP",
+        "train": 6,
+        "val": 4,
+        "test": 4
+      },
+      {
+        "alert": "KERNNOETH",
+        "train": 5,
+        "val": 2,
+        "test": 7
+      },
+      {
+        "alert": "MONPOW",
+        "train": 0,
+        "val": 1,
+        "test": 11
+      },
+      {
+        "alert": "APPTORUS",
+        "train": 2,
+        "val": 0,
+        "test": 8
+      },
+      {
+        "alert": "MASNORM",
+        "train": 1,
+        "val": 8,
+        "test": 1
+      },
+      {
+        "alert": "KERNPROG",
+        "train": 1,
+        "val": 0,
+        "test": 4
+      },
+      {
+        "alert": "MMCS",
+        "train": 0,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "KERNFLOAT",
+        "train": 0,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "KERNRTSA",
+        "train": 0,
+        "val": 0,
+        "test": 3
+      },
+      {
+        "alert": "LINKBLL",
+        "train": 0,
+        "val": 0,
+        "test": 2
+      },
+      {
+        "alert": "MONNULL",
+        "train": 0,
+        "val": 1,
+        "test": 1
+      },
+      {
+        "alert": "KERNTLBE",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "MONILL",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNEXT",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      },
+      {
+        "alert": "KERNBIT",
+        "train": 0,
+        "val": 0,
+        "test": 1
+      }
+    ],
+    "test_alert_lines_in_categories_unseen_in_train": 35856,
+    "test_alert_share_unseen_categories": 0.4167,
+    "unk_rate_by_period": {
+      "val": 0.0,
+      "train": 0.0,
+      "test": 0.0
+    },
+    "parser_fit": "all"
+  }
+}

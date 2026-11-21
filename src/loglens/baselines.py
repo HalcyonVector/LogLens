@@ -46,7 +46,7 @@ MODELS = ("warn_rule", "seq_lookup", "pca", "iforest", "lightgbm")
 def load(dataset: str) -> pd.DataFrame:
     df = pd.read_parquet(
         config.GOLD / f"{dataset}_sessions",
-        columns=["block_id", "counts", "n_events", "n_warn", "seq_hash", "count_hash", "split", "label", "order"],
+        columns=[config.session_col(dataset), "counts", "n_events", "n_warn", "seq_hash", "count_hash", "split", "label", "order"],
     )
     return df.sort_values("order").reset_index(drop=True)
 
@@ -259,7 +259,8 @@ def run(dataset: str) -> None:
         json.dumps({**summary, "pr_curves_chrono_test": curves}, indent=2)
     )
     # Per-session scores under the chronological protocol, for intervals and operational metrics.
-    pd.DataFrame({"block_id": df["block_id"], **chrono_scores}).to_parquet(
+    col = config.session_col(dataset)
+    pd.DataFrame({col: df[col], **chrono_scores}).to_parquet(
         config.GOLD / f"{dataset}_baseline_scores.parquet", index=False
     )
 

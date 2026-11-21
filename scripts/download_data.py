@@ -13,11 +13,14 @@ import zipfile
 from pathlib import Path
 
 ZENODO = "https://zenodo.org/records/8196385/files/{name}?download=1"
+# Loghub-2.0: full-size logs annotated with a ground-truth template per line.
+LOGHUB2 = "https://zenodo.org/records/8275861/files/{name}?download=1"
 
 DATASETS = {
     "HDFS_v1": {"file": "HDFS_v1.zip", "md5": "76a24b4d9a6164d543fb275f89773260"},
     "BGL": {"file": "BGL.zip", "md5": "4452953c470f2d95fcb32d5f6e733f7a"},
     "Thunderbird": {"file": "Thunderbird.tar.gz", "md5": "0891b048df2919dc78c99c4428686b44"},
+    "BGL_loghub2": {"file": "BGL.zip", "md5": "521ee643375bb6e9d0dd88636ff7ece1", "source": LOGHUB2, "archive": "BGL_loghub2.zip"},
 }
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
@@ -60,7 +63,7 @@ def extract(archive: Path, target: Path) -> None:
 
 def fetch(name: str) -> None:
     spec = DATASETS[name]
-    archive = RAW_DIR / spec["file"]
+    archive = RAW_DIR / spec.get("archive", spec["file"])
     target = RAW_DIR / name
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -68,7 +71,7 @@ def fetch(name: str) -> None:
         print(f"{name}: archive present, checksum ok")
     else:
         print(f"{name}: downloading {spec['file']}")
-        download(ZENODO.format(name=spec["file"]), archive)
+        download(spec.get("source", ZENODO).format(name=spec["file"]), archive)
         got = md5sum(archive)
         if got != spec["md5"]:
             raise SystemExit(f"{name}: checksum mismatch ({got} != {spec['md5']})")
