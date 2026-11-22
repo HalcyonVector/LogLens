@@ -1,6 +1,6 @@
 """Deeper evaluation on the chronological test period, and the dashboard's inputs.
 
-For each final model (the LSTM at seed 0, whose per-event scores are saved):
+For each final model (the LSTM and LogBERT at seed 0, whose per-event scores are saved):
   intervals    95% bootstrap intervals (1,000 resamples of test sessions) for
                precision, recall, F1 and PR-AUC, plus paired intervals for the
                differences that matter (PCA vs the best LSTM, LightGBM vs PCA)
@@ -49,9 +49,12 @@ MODELS = {
     "deeplog_end_topg": ("lstm", "deeplog_end", "rank"),
     "deeplog_end_logprob": ("lstm", "deeplog_end", "nll"),
     "deeplog_end_tuned_logprob": ("lstm", "deeplog_end_tuned", "nll"),
+    "logbert_topg": ("logbert", "logbert", "rank"),
+    "logbert_end_logprob": ("logbert", "logbert_end", "nll"),
 }
-# Detectors that judge a whole session can only decide once it is over.
-NEEDS_FINISHED_SESSION = {"warn_rule", "seq_lookup", "pca", "iforest", "lightgbm"}
+# Detectors that judge a whole session can only decide once it is over. LogBERT reads the
+# events on both sides of the one it judges, so it waits for the end of the session too.
+NEEDS_FINISHED_SESSION = {"warn_rule", "seq_lookup", "pca", "iforest", "lightgbm", "logbert_topg", "logbert_end_logprob"}
 
 
 # ---------------------------------------------------------------- loading ----
@@ -66,12 +69,13 @@ def load(dataset: str) -> dict:
     gold = gold.merge(base_scores, on="block_id", how="left")
     baselines = json.loads((config.DASHBOARD / f"{dataset}_baselines.json").read_text())
     lstm = json.loads((config.DASHBOARD / f"{dataset}_lstm.json").read_text())
+    logbert = json.loads((config.DASHBOARD / f"{dataset}_logbert.json").read_text())
     ranks = {
         v: json.loads((config.GOLD / f"{dataset}_{v}_ranks.json").read_text())
-        for v in {m[1] for m in MODELS.values() if m[0] == "lstm"}
+        for v in {m[1] for m in MODELS.values() if m[0] != "baseline"}
     }
     templates = json.loads((config.SILVER / f"{dataset}_templates.json").read_text())
-    return {"gold": gold, "baselines": baselines, "lstm": lstm, "ranks": ranks, "templates": templates}
+    return {"gold": gold, "baselines": baselines, "lstm": lstm, "logbert": logbert, "ranks": ranks, "templates": templates}
 
 
 def model_scores(data: dict) -> dict:
@@ -83,7 +87,7 @@ def model_scores(data: dict) -> dict:
             thr = data["baselines"]["results"]["chrono"][key]["threshold"]
             out[name] = {"scores": gold[key].to_numpy(), "threshold": thr, "events": None}
         else:
-            seed0 = data["lstm"][key]["results"]["chrono"]["seeds"]["0"]
+            seed0 = data[source][key]["results"]["chrono"]["seeds"]["0"]
             thr = seed0["threshold"] if kind == "rank" else seed0["nll_score"]["threshold"]
             per_seq = {h: np.asarray(v["ranks" if kind == "rank" else "nll"], dtype=float) for h, v in data["ranks"][key].items()}
             session_max = {h: float(v.max()) for h, v in per_seq.items()}
@@ -91,7 +95,7 @@ def model_scores(data: dict) -> dict:
                 "scores": hashes.map(session_max).to_numpy(),
                 "threshold": thr,
                 "events": per_seq,
-                "end_event": data["lstm"][key]["config"]["end"],
+                "end_event": data[source][key]["config"]["end"],
             }
     return out
 
@@ -399,7 +403,7 @@ def run(dataset: str) -> None:
         source, key, kind = MODELS[name]
         recorded = (
             data["baselines"]["results"]["chrono"][key]["f1"] if source == "baseline"
-            else (lambda s: s["f1"] if kind == "rank" else s["nll_score"]["f1"])(data["lstm"][key]["results"]["chrono"]["seeds"]["0"])
+            else (lambda s: s["f1"] if kind == "rank" else s["nll_score"]["f1"])(data[source][key]["results"]["chrono"]["seeds"]["0"])
         )
         if r["f1"] != recorded:
             raise SystemExit(f"{name}: F1 from saved scores {r['f1']} != recorded {recorded}")
@@ -408,7 +412,8 @@ def run(dataset: str) -> None:
         y[te],
         {k: m["scores"][te] for k, m in ms.items()},
         {k: m["threshold"] for k, m in ms.items()},
-        [("pca", BEST_LSTM), ("lightgbm", "pca"), ("deeplog_end_logprob", "deeplog_topg")],
+        [("pca", BEST_LSTM), ("lightgbm", "pca"), ("deeplog_end_logprob", "deeplog_topg"),
+         ("logbert_end_logprob", BEST_LSTM), ("pca", "logbert_end_logprob"), ("logbert_topg", "deeplog_topg")],
     )
     print("bootstrap done", json.dumps(paired), flush=True)
     tout = timeout_analysis(gold)
@@ -429,6 +434,8 @@ def run(dataset: str) -> None:
         "overlap": {
             "pca_vs_best_lstm": overlap(gold, te, ms, "pca", BEST_LSTM),
             "pca_vs_deeplog": overlap(gold, te, ms, "pca", "deeplog_topg"),
+            "pca_vs_logbert": overlap(gold, te, ms, "pca", "logbert_end_logprob"),
+            "lstm_vs_logbert": overlap(gold, te, ms, BEST_LSTM, "logbert_end_logprob"),
         },
         "templates": template_stats(gold, names),
         "best_lstm": BEST_LSTM,

@@ -18,7 +18,7 @@ Every line is parsed in PySpark into bronze (structured fields), silver (a Drain
 
 Sessions are ordered by their first event and split 60/10/30 into train, validation and test. The first validation event is the training cutoff: the template parser, every model and every threshold are fitted only on data before it, and thresholds are chosen on validation and applied unchanged to test. The same models are then run on a seeded random split with the same proportions, and the difference is corrected for the two test sets' different anomaly rates.
 
-Nine detectors are compared: a warning-line rule, a sequence lookup, PCA on event counts (Xu et al. 2009), Isolation Forest, supervised LightGBM, and four variants of a DeepLog-style LSTM, including one with an END event and a tuned one. Scores carry 95% bootstrap intervals, LSTM results are averaged over 3 seeds, and every run is logged to MLflow.
+Eleven detectors are compared: a warning-line rule, a sequence lookup, PCA on event counts (Xu et al. 2009), Isolation Forest, supervised LightGBM, four variants of a DeepLog-style LSTM (including one with an END event and a tuned one), and a small LogBERT-style masked transformer with and without an END event. Scores carry 95% bootstrap intervals, the neural models are averaged over 3 seeds, and every run is logged to MLflow. Finally the raw test-period log is replayed through Spark Structured Streaming, so each detector decides the way a live system would.
 
 ## What the data shows
 
@@ -30,19 +30,23 @@ Nine detectors are compared: a warning-line rule, a sequence lookup, PCA on even
 
 **4. Speed is the LSTM's real advantage.** A count model must wait until a session is over, and HDFS blocks can sit idle for hours, so a live PCA needs a 12.3-hour idle timeout and alerts a median **12.5 hours** after an anomaly starts. Published DeepLog fires on the surprising event itself, a median **6 seconds** in.
 
-**5. The time-ordered test set is also the end of the log.** Only 59.6% of test sessions reach their delete events, against 92.3% in training, because the log stops. Part of what every model is judged on is that cut-off, not behaviour.
+**5. A transformer does better than the LSTM, but not better than PCA.** LogBERT-lite, which predicts each hidden event from the events on both sides, scores F1 **0.828** as published (DeepLog: 0.610) and **0.895** with an END event (tuned LSTM: 0.873), still 7 points below PCA. Its seeds range from 0.864 to 0.926, it falls to 0.740 on never-seen sequences (PCA: 0.844), and because it reads ahead it has to wait for a session to end, like PCA.
 
-**6. On BGL, a one-line rule beats every model.** Flagging any window with a FATAL or FAILURE line scores F1 **0.854** on 1-hour windows; the best model reaches 0.657. The failures themselves change: 41.7% of test-period alert lines belong to categories never seen in training, and a parser fitted on the training period cannot name 69% of test lines. The common benchmark recipe (a random split plus a parser fitted on the whole log) turns LightGBM's honest **0.114** into **0.993**.
+**6. Live, the idle timeout decides everything.** Replaying the 3.1M raw test-period lines through Spark Structured Streaming (33 minutes, 9.5 times faster than real time) reproduces the offline verdicts at the end of the log. But with the 12.3-hour timeout, PCA raises none of its alerts before the 5.3-hour test period is over. A 2-hour timeout keeps F1 at **0.951** with under one false alarm an hour and catches **2,414** of the 3,723 anomalies before the log ends; shorter timeouts cut sessions short and miss almost half.
 
-**7. At scale, parsing is the pipeline.** All 211M Thunderbird lines go from raw text to hourly windows in **3.6 hours** on one laptop, but ten times the lines of the 10% run cost 27 times the time: the template vocabulary keeps growing (9,037 templates at 10%, 69,831 on the full log), and learning and matching templates take 94% of the run. On HDFS, Spark only beats a single pandas process past about a million lines.
+**7. The time-ordered test set is also the end of the log.** Only 59.6% of test sessions reach their delete events, against 92.3% in training, because the log stops. Part of what every model is judged on is that cut-off, not behaviour.
+
+**8. On BGL, a one-line rule beats every model.** Flagging any window with a FATAL or FAILURE line scores F1 **0.854** on 1-hour windows; the best model reaches 0.657. The failures themselves change: 41.7% of test-period alert lines belong to categories never seen in training, and a parser fitted on the training period cannot name 69% of test lines. The common benchmark recipe (a random split plus a parser fitted on the whole log) turns LightGBM's honest **0.114** into **0.993**.
+
+**9. At scale, parsing is the pipeline.** All 211M Thunderbird lines go from raw text to hourly windows in **3.6 hours** on one laptop, but ten times the lines of the 10% run cost 27 times the time: the template vocabulary keeps growing (9,037 templates at 10%, 69,831 on the full log), and learning and matching templates take 94% of the run. On HDFS, Spark only beats a single pandas process past about a million lines.
 
 ## What it means
 
 - Report detectors on a time-ordered split, with thresholds fixed on an earlier validation period. The gap to a random split is small on HDFS and tens of points on BGL, so a random-split score says little about either.
 - Report duplication. When almost every test sequence was seen in training, a high score measures memory, not detection.
-- Judge detectors on alerts per hour and time to alert, not F1 alone. PCA is more accurate; DeepLog is hours faster. A practical system would use both.
+- Judge detectors on alerts per hour and time to alert, not F1 alone. PCA is more accurate; DeepLog is hours faster. A practical system would use both, and would choose its idle timeout as carefully as its model: on HDFS a 2-hour timeout turns PCA from a detector that never alerts in time into one that catches most anomalies within hours.
 - Treat parsing as part of the model. A parser's untuned default threshold hid a failure signal on HDFS, an unseen vocabulary broke every model on BGL, and the parser's growing vocabulary set the cost on Thunderbird.
 
 ## Caveats
 
-These are public benchmark logs from 2005 to 2008 with labels from their original authors. The LSTM search was small, BGL results have no bootstrap intervals, the timings are single runs on one laptop, and the Thunderbird runs measure the data pipeline only, with no detector trained on them. The README's Honest Limitations section lists all of these in full.
+These are public benchmark logs from 2005 to 2008 with labels from their original authors. The LSTM search was small, LogBERT-lite is a scaled-down LogBERT, the streaming timeouts are a fixed grid rather than tuned on validation, BGL results have no bootstrap intervals, the timings are single runs on one laptop, and the Thunderbird runs measure the data pipeline only, with no detector trained on them. The README's Honest Limitations section lists all of these in full.

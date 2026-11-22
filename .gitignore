@@ -5,6 +5,7 @@ data/silver/
 data/gold/
 data/runlog/
 data/scale_bind/
+data/stream/
 mlruns/
 spark-warehouse/
 metastore_db/

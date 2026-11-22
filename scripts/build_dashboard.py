@@ -29,6 +29,7 @@ def load(name: str) -> dict:
 EV = load("evaluation")
 BASE = load("baselines")
 LSTM = load("lstm")
+LOGBERT = load("logbert")
 ABL = load("ablation")
 PIPE = load("pipeline")
 DRILL = load("drilldown")
@@ -48,6 +49,8 @@ META = {
     "deeplog_end_topg": ("LSTM + END, top-g", "sequence"),
     "deeplog_end_logprob": ("LSTM + END, log-prob", "sequence"),
     "deeplog_end_tuned_logprob": ("LSTM + END, tuned, log-prob", "sequence"),
+    "logbert_topg": ("LogBERT-lite, top-g", "sequence"),
+    "logbert_end_logprob": ("LogBERT-lite + END, log-prob", "sequence"),
 }
 FAMILY_LABEL = {"count": "Count model", "sequence": "Sequence model", "supervised": "Supervised reference", "naive": "Rule or lookup"}
 
@@ -96,6 +99,8 @@ lat = EV["latency"]
 
 
 def leaderboard() -> str:
+    seeds = [v["nll_score"]["f1"] for v in LOGBERT["logbert_end"]["results"]["chrono"]["seeds"].values()]
+    lb_lo, lb_hi = min(seeds), max(seeds)
     order = sorted(M, key=lambda k: -M[k]["f1"])
     rows = []
     for metric, lo, hi in (("f1", 0.5, 1.0), ("pr_auc", 0.4, 1.0)):
@@ -139,7 +144,7 @@ def leaderboard() -> str:
   <button role="tab" aria-selected="false" data-show="pr_auc">PR-AUC</button>
 </div>
 {"".join(rows)}
-<p class="note">Bars are 95% bootstrap intervals (1,000 resamples of the 172,519 test sessions). LSTM rows are seed 0, whose per-event scores are saved; the README gives 3-seed means. Scores below the axis start are pinned to its left edge.</p>
+<p class="note">Bars are 95% bootstrap intervals (1,000 resamples of the 172,519 test sessions). LSTM and LogBERT rows are seed 0, whose per-event scores are saved; the README gives 3-seed means, and LogBERT's seeds spread widely ({lb_lo:.3f} to {lb_hi:.3f} for its END variant). Scores below the axis start are pinned to its left edge.</p>
 <details><summary>Table</summary><div class="tbl"><table><thead><tr><th>Model</th><th>F1</th><th>95% interval</th><th>PR-AUC</th><th>Precision</th><th>Recall</th><th>False alarms</th></tr></thead><tbody>{table}</tbody></table></div></details>"""
 
 
@@ -185,8 +190,10 @@ def gap_bars() -> str:
         ("deeplog_end_topg", LSTM["deeplog_end"]["leakage_gap"]["adjusted_gap_points"]),
         ("deeplog_end_logprob", LSTM["deeplog_end"]["leakage_gap"]["nll"]["adjusted_gap_points"]),
         ("deeplog_end_tuned_logprob", LSTM["deeplog_end_tuned"]["leakage_gap"]["nll"]["adjusted_gap_points"]),
+        ("logbert_topg", LOGBERT["logbert"]["leakage_gap"]["adjusted_gap_points"]),
+        ("logbert_end_logprob", LOGBERT["logbert_end"]["leakage_gap"]["nll"]["adjusted_gap_points"]),
     ]
-    lo, hi = -2.0, 10.0
+    lo, hi = -6.0, 10.0
     zero = 100 * (0 - lo) / (hi - lo)
     out = []
     for k, g in rows:
@@ -200,7 +207,7 @@ def gap_bars() -> str:
             f'<span class="gb-bar fam-{fam}{" neg" if g < 0 else ""}" style="left:{left:.2f}%;width:{max(width, 0.5):.2f}%"></span></div>'
             f'<div class="lb-val num">{g:+.1f}</div></div>'
         )
-    ticks = "".join(f'<span style="left:{100 * (t - lo) / (hi - lo):.2f}%">{t:+d}</span>' for t in range(-2, 11, 2))
+    ticks = "".join(f'<span style="left:{100 * (t - lo) / (hi - lo):.2f}%">{t:+d}</span>' for t in range(-6, 11, 2))
     return f'<div class="gb">{"".join(out)}<div class="lb-axis"><div></div><div class="lb-ticks">{ticks}</div><div></div></div></div>'
 
 
@@ -213,6 +220,8 @@ def unseen_dumbbell() -> str:
         ("seq_lookup", b["seq_lookup"]["f1"], b["seq_lookup"]["unseen_only"]["f1"]),
         ("deeplog_topg", l["deeplog"]["results"]["chrono"]["summary"]["f1"]["mean"], l["deeplog"]["results"]["chrono"]["summary"]["unseen_f1"]["mean"]),
         ("deeplog_end_tuned_logprob", l["deeplog_end_tuned"]["results"]["chrono"]["summary"]["nll_f1"]["mean"], l["deeplog_end_tuned"]["results"]["chrono"]["summary"]["nll_unseen_f1"]["mean"]),
+        ("logbert_topg", LOGBERT["logbert"]["results"]["chrono"]["summary"]["f1"]["mean"], LOGBERT["logbert"]["results"]["chrono"]["summary"]["unseen_f1"]["mean"]),
+        ("logbert_end_logprob", LOGBERT["logbert_end"]["results"]["chrono"]["summary"]["nll_f1"]["mean"], LOGBERT["logbert_end"]["results"]["chrono"]["summary"]["nll_unseen_f1"]["mean"]),
     ]
     lo, hi = 0.5, 1.0
     x = lambda v: 100 * (max(lo, min(hi, v)) - lo) / (hi - lo)
@@ -299,7 +308,7 @@ def timeline(W: int = 816, H: int = 290, R: int = 140, cls: str = "desk", every:
 
 
 def latency_chart() -> str:
-    keys = ["pca", "lightgbm", "deeplog_topg", BEST]
+    keys = ["pca", "lightgbm", "logbert_end_logprob", "deeplog_topg", BEST]
     lo, hi = math.log10(1), math.log10(48 * 3600)
     x = lambda s: 100 * (math.log10(max(1, s)) - lo) / (hi - lo)
     out = []
@@ -581,6 +590,14 @@ def beyond() -> str:
     full = next((x for x in (SCALE["thunderbird_scale"] or {}).get("runs", []) if x["fraction"] == 1.0), None)
     if full:
         out.append(f'<a href="#scale"><span class="mono">07 / Scale</span>The whole pipeline runs on all <b class="num">{full["lines"] / 1e6:,.0f}M</b> Thunderbird lines ({human_bytes(full["input_bytes"])}) in {full["timings"]["total_s"] / 3600:.1f} hours on one laptop, and parsing is {pct((full["timings"]["fit_s"] + full["timings"]["silver_s"]) / full["timings"]["total_s"], 0)} of it.</a>')
+    live = load_any("hdfs_stream")
+    if live and all(live["checks"].values()):
+        rows = {(r["model"], r["timeout_s"]): r for r in live["results"]}
+        main = max(live["meta"]["timeouts_s"])
+        two_h = rows.get(("pca", 7200))
+        anomalies = rows[("pca", -1)]["tp"] + rows[("pca", -1)]["fn"]
+        if two_h:
+            out.append(f'<a href="#live"><span class="mono">08 / Live</span>Replayed live, PCA with its {dur(main)} idle timeout catches <b class="num">{n(rows[("pca", main)]["caught_before_log_end"])}</b> anomalies before the test period ends; a 2-hour timeout catches {pct(two_h["caught_before_log_end"] / anomalies, 0)} of anomalies in time at F1 {two_h["f1"]:.3f}.</a>')
     return f'<div class="beyond">{"".join(out)}</div>' if out else ""
 
 
@@ -612,6 +629,66 @@ def bgl_section() -> str:
   </div>
 </section>"""
 
+
+
+# -------------------------------------------------------------- stream -------
+
+STREAM_R = load_any("hdfs_stream")
+LIVE_NAV = '<a href="#live">Live</a>' if STREAM_R and all(STREAM_R["checks"].values()) else ""
+
+
+def t_label(t: int) -> str:
+    return {0: "every event", -1: "end of log"}.get(t, dur(t))
+
+
+def stream_table() -> str:
+    rows = {(r["model"], r["timeout_s"]): r for r in STREAM_R["results"]}
+    main = max(STREAM_R["meta"]["timeouts_s"])
+    anomalies = rows[("pca", -1)]["tp"] + rows[("pca", -1)]["fn"]
+    order = [("deeplog", 0)] + [(m, t) for m in ("deeplog_end", "pca") for t in STREAM_R["meta"]["timeouts_s"]]
+    names = {"deeplog": ("deeplog_topg", "DeepLog, top-g"), "deeplog_end": (BEST, "LSTM + END, tuned"), "pca": ("pca", "PCA")}
+    body = []
+    for m, t in order:
+        r = rows[(m, t)]
+        key, label = names[m]
+        fam = META[key][1]
+        early = r["caught_before_log_end"] / anomalies
+        med = r["latency_s"]["p50"] if r["latency_s"] else None
+        tp = tip(f"{label}, {t_label(t)}", [("F1", f"{r['f1']:.3f}"), ("Precision", f"{r['precision']:.3f}"), ("Recall", f"{r['recall']:.3f}"),
+                                             ("Anomalies caught before the log ended", f"{n(r['caught_before_log_end'])} of {n(anomalies)}"),
+                                             ("False alarms per hour", n(r["false_alarms_per_hour"], 1)),
+                                             ("Median time to alert", dur(med) if med is not None else "none")])
+        body.append(
+            f'<tr tabindex="0" data-tip="{tp}"{" class=is-main" if t in (0, main) else ""}><td><span class="key fam-{fam}"></span>{esc(label)}</td><td class="num">{t_label(t)}</td>'
+            f'<td class="num">{r["f1"]:.3f}</td>'
+            f'<td class="bar-cell"><span class="mini"><span class="fam-{fam}" style="width:{100 * early:.1f}%"></span></span><span class="num">{pct(early, 0)}</span></td>'
+            f'<td class="num">{dur(med) if med is not None else "none"}</td><td class="num">{n(r["false_alarms_per_hour"], 1)}</td></tr>'
+        )
+    return ('<div class="tbl"><table class="stream"><thead><tr><th>Detector</th><th class="num">Idle timeout</th><th class="num">F1</th>'
+            '<th>Caught before the log ended</th><th class="num">Median time to alert</th><th class="num">Live false alarms per hour</th></tr></thead><tbody>'
+            + "".join(body) + "</tbody></table></div>")
+
+
+def stream_section() -> str:
+    if not STREAM_R or not all(STREAM_R["checks"].values()):
+        return ""
+    pr = STREAM_R["processing"]
+    rows = {(r["model"], r["timeout_s"]): r for r in STREAM_R["results"]}
+    main = max(STREAM_R["meta"]["timeouts_s"])
+    anomalies = rows[("pca", -1)]["tp"] + rows[("pca", -1)]["fn"]
+    dl, pca_main = rows[("deeplog", 0)], rows[("pca", main)]
+    best_short = max((rows[("pca", t)] for t in STREAM_R["meta"]["timeouts_s"] if t != main), key=lambda r: r["f1"])
+    return f"""
+<section id="live" class="sec">
+  <div class="sec-head"><span class="idx mono">08</span><h2>What happens when it runs live?</h2>
+  <p>The {n(pr['lines_replayed'])} raw lines of the {pr['log_hours']:.1f}-hour test period, replayed through Spark Structured Streaming with the same parser and templates, take {pr['wall_s'] / 60:.0f} minutes on the laptop, {pr['speedup_vs_real_time']:.1f} times faster than the log was written. At the end of the log every DeepLog and PCA verdict matches the offline run, and the END LSTM differs only on {STREAM_R['agreement_with_offline']['deeplog_end']['disagree']} sessions that sit exactly on its threshold. What changes is when the verdicts arrive: with the {dur(main)} idle timeout, PCA catches {n(pca_main['caught_before_log_end'])} of the {n(anomalies)} anomalies before the log ends; with a {dur(best_short['timeout_s'])} timeout it catches {n(best_short['caught_before_log_end'])} at F1 {best_short['f1']:.3f}.</p></div>
+  <div class="sec-body">
+    <h3>Every detector at every idle timeout, in log time</h3>
+    {stream_table()}
+    <p class="note">A block closes after its idle timeout of silence, and the count model and the END event judge it then; DeepLog judges each event as it arrives, so it needs no timeout. "Before the log ended" counts alerts dated before the last line of the test period. F1 is over all {n(rows[('pca', -1)]['sessions'])} test sessions; at short timeouts it covers each block as it stood when it first went quiet. DeepLog fires a median {dur(dl['latency_s']['p50'])} after an anomalous block's first event.</p>
+    <p class="note">Each micro-batch carries {pr['log_seconds_per_batch'] // 60} minutes of log and took a median {pr['batch_ms']['p50'] / 1000:.0f} s (90th percentile {pr['batch_ms']['p90'] / 1000:.0f} s) across {pr['batches']} batches, so the same job would keep up with the live log with room to spare. Per-block state (recent events, counts, verdicts so far) lives in Spark's state store, and an event-time watermark decides when a quiet block has timed out.</p>
+  </div>
+</section>"""
 
 
 # --------------------------------------------------------------- scale -------
@@ -770,7 +847,7 @@ def page() -> str:
 <body>
 <header class="top">
   <a class="brand mono" href="#top">LogLens<span>/hdfs</span></a>
-  <nav class="mono"><a href="#verdict">Verdict</a><a href="#split">Split</a><a href="#misses">Misses</a><a href="#operate">Operate</a><a href="#data">Data</a><a href="#bgl">BGL</a><a href="#scale">Scale</a><a href="#sessions">Sessions</a></nav>
+  <nav class="mono"><a href="#verdict">Verdict</a><a href="#split">Split</a><a href="#misses">Misses</a><a href="#operate">Operate</a><a href="#data">Data</a><a href="#bgl">BGL</a><a href="#scale">Scale</a>{LIVE_NAV}<a href="#sessions">Sessions</a></nav>
   <button class="theme" type="button" aria-label="Switch light or dark theme"><span aria-hidden="true"></span></button>
 </header>
 
@@ -791,7 +868,7 @@ def page() -> str:
 
 <section id="verdict" class="sec">
   <div class="sec-head"><span class="idx mono">01</span><h2>Which detector wins on future data?</h2>
-  <p>Nine detectors, one chronological test set of 172,519 sessions (3,723 labelled anomalous). Every threshold was chosen on the validation period and applied unchanged.</p></div>
+  <p>{({9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve"}).get(len(M), str(len(M)))} detectors, one chronological test set of 172,519 sessions (3,723 labelled anomalous). Every threshold was chosen on the validation period and applied unchanged. A small LogBERT-style transformer, which reads the events on both sides of the one it judges, does better than every LSTM and still trails PCA.</p></div>
   <div class="sec-body">{leaderboard()}
   <ul class="legend inline fams"><li><span class="key fam-count"></span>Count model</li><li><span class="key fam-sequence"></span>Sequence model</li><li><span class="key fam-supervised"></span>Supervised reference</li><li><span class="key fam-naive"></span>Rule or lookup</li></ul></div>
 </section>
@@ -802,7 +879,7 @@ def page() -> str:
   <div class="sec-body">
     <h3>Extra F1 from a random split, at the same anomaly rate</h3>
     {gap_bars()}
-    <p class="note">The random test set has more anomalies (2.94% against 2.16%), which lifts precision for any detector, so each random-split score is rescaled to the chronological rate before subtracting. LSTM rows are 3-seed means. The WARN rule and the lookup are left out: they get worse under a random split, because the noisiest warnings only occur early in the log.</p>
+    <p class="note">The random test set has more anomalies (2.94% against 2.16%), which lifts precision for any detector, so each random-split score is rescaled to the chronological rate before subtracting. LSTM and LogBERT rows are 3-seed means. The WARN rule and the lookup are left out: they get worse under a random split, because the noisiest warnings only occur early in the log.</p>
     <h3>The honest test: sequences never seen in training</h3>
     {unseen_dumbbell()}
     <h3>A time-ordered test set is also the end of the log</h3>
@@ -856,8 +933,10 @@ def page() -> str:
 
 {scale_section()}
 
+{stream_section()}
+
 <section id="sessions" class="sec">
-  <div class="sec-head"><span class="idx mono">08</span><h2>Read the sessions yourself</h2>
+  <div class="sec-head"><span class="idx mono">{"09" if stream_section() else "08"}</span><h2>Read the sessions yourself</h2>
   <p>Real test sessions, as event sequences. Each event is shaded by how surprised the LSTM was to see it; the outlined event is where it fired. Hover an event for its log template.</p></div>
   <div class="sec-body">
     <div class="toggle groups" role="tablist" aria-label="Session group">
@@ -873,7 +952,7 @@ def page() -> str:
 
 <footer class="foot">
   <div class="foot-grid">
-    <div><h4>About</h4><p>LogLens tests whether log anomaly detectors keep their published scores when evaluated on later data than they were trained on. The same method is repeated on BGL, and the pipeline is timed on all 211M Thunderbird lines. It is a research benchmark on public HDFS (2008), BGL and Thunderbird (2005 to 2006) logs, not a production detector.</p><p><a href="{REPO}" target="_blank" rel="noopener">Source code on GitHub</a></p></div>
+    <div><h4>About</h4><p>LogLens tests whether log anomaly detectors keep their published scores when evaluated on later data than they were trained on. It also tests a LogBERT-style transformer, replays the test period live through Spark Structured Streaming, repeats the method on BGL, and times the pipeline on all 211M Thunderbird lines. It is a research benchmark on public HDFS (2008), BGL and Thunderbird (2005 to 2006) logs, not a production detector.</p><p><a href="{REPO}" target="_blank" rel="noopener">Source code on GitHub</a></p></div>
     <div><h4>Data</h4><ul>
       <li><a href="https://github.com/logpai/loghub" target="_blank" rel="noopener">LogHub</a>: the HDFS_v1 log (11.2M lines), block labels, ground-truth templates and event traces</li>
       <li><a href="https://github.com/logpai/loghub" target="_blank" rel="noopener">LogHub</a>: the BGL log (4.7M lines) and the Thunderbird log (211M lines), with an alert tag on every line</li>
@@ -883,6 +962,8 @@ def page() -> str:
     <div><h4>References</h4><ul>
       <li><a href="https://doi.org/10.1145/1629575.1629587" target="_blank" rel="noopener">Xu et al., Detecting Large-Scale System Problems by Mining Console Logs (SOSP 2009)</a></li>
       <li><a href="https://doi.org/10.1145/3133956.3134015" target="_blank" rel="noopener">Du et al., DeepLog (CCS 2017)</a></li>
+      <li><a href="https://arxiv.org/abs/2103.04475" target="_blank" rel="noopener">Guo et al., LogBERT: Log Anomaly Detection via BERT (IJCNN 2021)</a></li>
+      <li><a href="https://doi.org/10.1145/3183713.3190664" target="_blank" rel="noopener">Armbrust et al., Structured Streaming (SIGMOD 2018)</a></li>
       <li><a href="https://doi.org/10.1109/ICWS.2017.13" target="_blank" rel="noopener">He et al., Drain (ICWS 2017)</a></li>
       <li><a href="https://doi.org/10.1109/ICDM.2008.17" target="_blank" rel="noopener">Liu et al., Isolation Forest (ICDM 2008)</a></li>
       <li><a href="https://arxiv.org/abs/2202.04301" target="_blank" rel="noopener">Le and Zhang, Log-based Anomaly Detection with Deep Learning: How Far Are We? (ICSE 2022)</a></li>
@@ -959,7 +1040,7 @@ h1{font-size:clamp(32px,5.2vw,60px);line-height:1.04;letter-spacing:-.025em;font
 h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--sequence-wash) 62%)}
 .lede{font-size:clamp(17px,1.6vw,19.5px);color:var(--ink-2);max-width:62ch;margin:26px 0 34px}
 .lede b{color:var(--ink)}
-.beyond{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:22px 0 0}
+.beyond{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px;margin:22px 0 0}
 .beyond a{display:block;padding:16px 18px;border:1px solid var(--grid);border-radius:12px;color:var(--ink-2);text-decoration:none;font-size:14.5px;line-height:1.5}
 .beyond a:hover,.beyond a:focus-visible{border-color:var(--axis);color:var(--ink)}
 .beyond .mono{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
@@ -1096,6 +1177,14 @@ h3{font-size:14px;font-weight:600;margin:34px 0 14px;color:var(--ink)}
 .ribbon .sub{font-size:12px;color:var(--ink-2)}
 .tbl{overflow-x:auto;border:1px solid var(--grid);border-radius:10px;background:var(--surface)}
 .tbl.tall{max-height:520px;overflow-y:auto}
+table.stream tr.is-main td{font-weight:600}
+table.stream td:first-child{white-space:nowrap}
+table.stream td .key{margin-right:8px}
+.bar-cell{min-width:130px;white-space:nowrap}
+table.stream th{white-space:normal;vertical-align:bottom;min-width:84px;max-width:150px}
+.bar-cell .mini{display:inline-block;vertical-align:middle;width:64px;height:8px;border-radius:4px;background:var(--grid);margin-right:10px;overflow:hidden}
+.bar-cell .mini>span{display:block;height:100%;border-radius:4px}
+.bar-cell .mini>.fam-count{background:var(--count)} .bar-cell .mini>.fam-sequence{background:var(--sequence)}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th{position:sticky;top:0;background:var(--surface);text-align:left;font-weight:600;color:var(--ink-2);padding:10px 12px;border-bottom:1px solid var(--grid);white-space:nowrap}
 td{padding:8px 12px;border-bottom:1px solid var(--grid);vertical-align:middle}

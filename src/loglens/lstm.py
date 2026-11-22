@@ -248,11 +248,13 @@ def fit_and_score(ctx: dict, distinct: dict, split: np.ndarray, cfg: dict, seed:
         "s_nll": pd.Series(seq_hash).map(max_nll).to_numpy(),
         "by_hash": by_hash,
         "info": info,
+        "model": model,
         "train_s": round(t_train, 1),
         "score_s": round(t_score, 2),
         "windows_scored_per_s": round(sum(len(s) for s in seqs) / t_score),
         "train_unique_windows": int(len(train_w[0])),
         "train_windows": int(train_w[2].sum()),
+        "params": {"embed": EMBED, "layers": LAYERS},
     }
 
 
@@ -322,7 +324,14 @@ def tuned_config(dataset: str) -> dict | None:
     return json.loads(path.read_text())["chosen"] if path.exists() else None
 
 
-def run_variant(variant: str, cfg: dict, ctx: dict) -> dict:
+def cfg_tag(cfg: dict) -> str:
+    return "_".join(f"{k}{int(v) if isinstance(v, bool) else v}" for k, v in sorted(cfg.items()))
+
+
+def run_variant(variant: str, cfg: dict, ctx: dict, fit=None) -> dict:
+    """Every protocol and seed for one variant. `fit` trains and scores one model (default: the
+    LSTM); any model that returns per-event ranks and -log p plugs in (see logbert.py)."""
+    fit = fit or fit_and_score
     y_all, seq_hash = ctx["y"], ctx["seq_hash"]
     distinct = sequences(ctx, cfg["end"])
 
@@ -335,7 +344,7 @@ def run_variant(variant: str, cfg: dict, ctx: dict) -> dict:
         results[proto] = {"seeds": {}}
 
         for seed in SEEDS:
-            key = f"run_{ctx['dataset']}_{variant}_{proto}_seed{seed}_h{cfg['h']}_hidden{cfg['hidden']}_end{int(cfg['end'])}"
+            key = f"run_{ctx['dataset']}_{variant}_{proto}_seed{seed}_{cfg_tag(cfg)}"
             saved = checkpoint_load(key)
             if saved is not None:
                 results[proto]["seeds"][seed] = saved["m"]
@@ -347,7 +356,7 @@ def run_variant(variant: str, cfg: dict, ctx: dict) -> dict:
                 print(f"{variant} {proto} seed={seed}: resumed from checkpoint", flush=True)
                 continue
 
-            r = fit_and_score(ctx, distinct, split, cfg, seed)
+            r = fit(ctx, distinct, split, cfg, seed)
             s_rank, s_nll, info = r["s_rank"], r["s_nll"], r["info"]
             results[proto]["train_unique_windows"] = r["train_unique_windows"]
             results[proto]["train_windows"] = r["train_windows"]
@@ -390,9 +399,8 @@ def run_variant(variant: str, cfg: dict, ctx: dict) -> dict:
             with mlflow.start_run(run_name=f"{variant}-{proto}-seed{seed}"):
                 mlflow.set_tags({"model": variant, "protocol": proto, "dataset": ctx["dataset"]})
                 mlflow.log_params(
-                    {"model": variant, "protocol": proto, "seed": seed, "h": cfg["h"], "hidden": cfg["hidden"],
-                     "g": m["g"], "end_event": cfg["end"], "embed": EMBED, "layers": LAYERS,
-                     "epochs": info["epochs"]}
+                    {"model": variant, "protocol": proto, "seed": seed, **cfg, **r.get("params", {}),
+                     "g": m["g"], "end_event": cfg["end"], "epochs": info["epochs"]}
                 )
                 mlflow.log_metrics(
                     {"test_precision": m["precision"], "test_recall": m["recall"], "test_f1": m["f1"],
@@ -464,10 +472,14 @@ def run(dataset: str) -> None:
     # Per-sequence ranks (chronological protocol, first seed) for latency analysis and the drill-down.
     for v, o in out.items():
         (config.GOLD / f"{dataset}_{v}_ranks.json").write_text(json.dumps(o["per_sequence"]))
-    checkpoint_clear(f"run_{dataset}_")
+    for v in variants:
+        checkpoint_clear(f"run_{dataset}_{v}_")
 
 
-def export_ranks(dataset: str) -> None:
+MODELS_DIR = config.GOLD / "models"
+
+
+def export_ranks(dataset: str, only: list[str] | None = None, save: bool = False) -> None:
     """Retrain only the chronological seed-0 models and rewrite their per-event scores.
 
     Training is deterministic on CPU, so this reproduces the full run's models
@@ -479,6 +491,8 @@ def export_ranks(dataset: str) -> None:
     split = ctx["protocols"]["chrono"]
     y, va, te = ctx["y"], split == "val", split == "test"
     for variant, cfg in recorded.items():
+        if only and variant not in only:
+            continue
         cfg = recorded[variant]["config"]
         r = fit_and_score(ctx, sequences(ctx, cfg["end"]), split, cfg, SEEDS[0])
         seed0 = recorded[variant]["results"]["chrono"]["seeds"]["0"]
@@ -489,6 +503,11 @@ def export_ranks(dataset: str) -> None:
               f"(recorded {seed0['nll_score']['f1']}) -> {'reproduced' if same else 'MISMATCH'}", flush=True)
         if not same:
             raise SystemExit(f"{variant} did not reproduce its recorded seed-0 result")
+        if save:  # weights for the streaming replay, which scores events one at a time
+            MODELS_DIR.mkdir(parents=True, exist_ok=True)
+            torch.save({"state": r["model"].state_dict(), "config": cfg, "n_classes": ctx["n_classes"],
+                        "threshold_rank": m_rank["threshold"], "threshold_nll": m_nll["threshold"]},
+                       MODELS_DIR / f"{dataset}_{variant}_seed0.pt")
         per_sequence = {
             str(h): {"ranks": v["ranks"].tolist(), "nll": v["nll"].tolist()}
             for h, v in r["by_hash"].items()
@@ -501,8 +520,9 @@ if __name__ == "__main__":
     ds = args[0] if args else "hdfs"
     if "--fresh" in sys.argv:
         checkpoint_clear()
-    if "--export-ranks" in sys.argv:
-        export_ranks(ds)
+    if "--export-ranks" in sys.argv or "--save-models" in sys.argv:
+        only = [a.split("=", 1)[1] for a in sys.argv if a.startswith("--only=")]
+        export_ranks(ds, only=only[0].split(",") if only else None, save="--save-models" in sys.argv)
     elif "--tune" in sys.argv:
         tune(ds)
     else:

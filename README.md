@@ -1,8 +1,8 @@
 # LogLens: Do Sequence Models Really Catch Anomalous Logs?
 
-Published log anomaly detectors report near-perfect scores on the HDFS benchmark, but most of those numbers come from random train/test splits that let a model see the future. LogLens asks what is left once the evaluation is honest about time. It takes the 11.2 million raw lines of the LogHub HDFS_v1 log, parses them in PySpark into bronze, silver and gold Parquet layers, groups them into 575,061 block-level sessions, and compares a DeepLog-style LSTM against PCA, Isolation Forest and a supervised LightGBM on a strict chronological split. It also measures how much a random split inflates each score, how many test sequences the model has already seen verbatim in training, and how many alerts per hour each model would raise. The method is then repeated on BGL (no natural sessions) and the pipeline is scaled to all 211 million Thunderbird lines.
+Published log anomaly detectors report near-perfect scores on the HDFS benchmark, but most of those numbers come from random train/test splits that let a model see the future. LogLens asks what is left once the evaluation is honest about time. It takes the 11.2 million raw lines of the LogHub HDFS_v1 log, parses them in PySpark into bronze, silver and gold Parquet layers, groups them into 575,061 block-level sessions, and compares a DeepLog-style LSTM against PCA, Isolation Forest and a supervised LightGBM on a strict chronological split. It also measures how much a random split inflates each score, how many test sequences the model has already seen verbatim in training, and how many alerts per hour each model would raise. It then tests a LogBERT-style transformer on the same split, replays the test period live through Spark Structured Streaming to see when each detector could really alert, repeats the method on BGL (no natural sessions) and scales the pipeline to all 211 million Thunderbird lines.
 
-Built with Python, PySpark (Parquet medallion layers), Drain3, scikit-learn, LightGBM, PyTorch and MLflow on the public LogHub datasets, run in Docker.
+Built with Python, PySpark (Parquet medallion layers and Structured Streaming), Drain3, scikit-learn, LightGBM, PyTorch and MLflow on the public LogHub datasets, run in Docker.
 
 > **What it's for:** checking whether a log anomaly detector's headline score survives a time-ordered evaluation, and seeing, session by session, which event in a sequence made the model raise an alert.
 
@@ -12,7 +12,7 @@ Built with Python, PySpark (Parquet medallion layers), Drain3, scikit-learn, Lig
 
 ![Each of the 3,723 anomalous test sessions as one square: published DeepLog and PCA miss almost disjoint sets, while the LSTM with an END event catches nearly everything PCA does](docs/screenshots/misses.png)
 
-**Status:** the HDFS study, the BGL generalization run and the Thunderbird scale benchmark are complete and on the dashboard.
+**Status:** the HDFS study, the LogBERT comparison, the streaming replay, the BGL generalization run and the Thunderbird scale benchmark are complete and on the dashboard.
 
 ---
 
@@ -113,6 +113,45 @@ BGL is 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, with an a
 - **The benchmark recipe turns 0.114 into 0.993.** The same LightGBM on the same 20-line windows scores **0.114** on a time-ordered split, **0.830** on a random split, and **0.993** on a random split with the parser fitted on the whole log, which is the setup most published BGL results use. For the LSTM the same recipe gives **0.977** against an honest **0.176** to **0.244**: a gap of about **73 points**, against under 1 point for PCA on HDFS.
 - **The random-split gap is far larger than on HDFS.** After correcting for the anomaly rate, a random split adds about **20 points** of F1 to the LSTM on both BGL schemes, against about 4 on HDFS, because shuffled windows let the model train on the very failures it is later tested on.
 
+### A bidirectional transformer (LogBERT-lite)
+
+LogBERT-lite is a small masked transformer after LogBERT (Guo et al. 2021), trained only on normal training sessions to predict hidden events from the events on both sides, and scored the same two ways as the LSTM. Rows are means of 3 seeds on the chronological test set; the main score is top-g for the published variants and log-probability for the END variants, as for the LSTM.
+
+| Model | F1 (top-g) | F1 (log-probability) | F1 on never-seen sequences, main score | Random-split gain, main score (points) |
+|-------|------------|----------------------|----------------------------|----------------------------|
+| DeepLog LSTM, as published | 0.610 ± 0.006 | 0.738 ± 0.035 | 0.758 | +3.4 |
+| LogBERT-lite, as published | **0.828 ± 0.019** | 0.809 ± 0.029 | 0.800 | -5.0 |
+| LSTM + END, tuned | 0.744 ± 0.005 | 0.873 ± 0.030 | 0.692 | +4.2 |
+| LogBERT-lite + END | 0.893 ± 0.041 | **0.895 ± 0.031** | 0.740 | +0.8 |
+| PCA, Xu et al. 2009 | | **0.964** | **0.844** | -0.9 |
+
+- **Seeing both sides of an event closes a third of the gap, not all of it.** As published, LogBERT-lite scores F1 **0.828** against DeepLog's 0.610; with an END event it reaches **0.895**, above the tuned LSTM's 0.873 but still 7 points below PCA's 0.964.
+- **One seed is not enough to judge it.** Across 3 seeds the END variant scores 0.864 to 0.926 (log-probability), a spread as wide as the tuned LSTM's (standard deviation 0.031 against 0.030), and its validation-chosen g moves from 3 to 10. One seed could make LogBERT look close to PCA, another no better than the LSTM; the 3-seed means put it 2 points above the LSTM and 7 below PCA.
+- **It does not win where it matters most.** On the 1,699 test sessions with never-seen sequences, the END variant falls to 0.740 and the published one to 0.800, both below PCA's 0.844.
+- **Its best seed still loses to PCA, and it misses differently.** Seed 0 of the END variant, whose scores feed the dashboard, reaches F1 **0.926 [0.920, 0.933]**; PCA is ahead by **+3.8 points [+3.1, +4.5]** in every resample. It beats the tuned LSTM on F1 by 5.6 points but ranks sessions worse (PR-AUC 0.873 against 0.927). It catches **247** anomalies that PCA misses, while PCA catches 23 it misses; together they would miss only 5 of the 3,723.
+- **It gives up the LSTM's one advantage.** Because it reads the events after the one it judges, LogBERT can only decide once a session is over, so a live LogBERT waits for the same idle timeout as PCA; DeepLog's 6-second alerts have no equivalent.
+- **It costs little on a laptop.** Each fit trains in 1 to 6 minutes, and scoring every one of the 524,827 events in the 18,375 distinct sequences, each hidden on its own, takes about 90 seconds.
+
+### Running it live: a streaming replay of the test period
+
+The offline evaluation judges finished sessions. A live system sees one line at a time and has to guess when a session is over. The raw test-period log was replayed through Spark Structured Streaming with the same parser and templates, and each detector decided the way a live system would.
+
+| Detector | Idle timeout | F1 | Anomalies caught before the log ended | Median time to alert | Live false alarms per hour |
+|----------|--------------|----|----------------------------------------|----------------------|----------------------------|
+| DeepLog, top-g | none (each event) | 0.609 | 1,883 (51%) | 6 s | 109.7 |
+| LSTM + END, tuned | 5 min | 0.656 | 2,287 (61%) | 24 s | 183.2 |
+| LSTM + END, tuned | 2 h | 0.858 | 3,202 (86%) | 1.2 h | 170.5 |
+| LSTM + END, tuned | 12.3 h | 0.870 | 2,881 (77%) | 1.2 h | 171.4 |
+| PCA | 5 min | 0.708 | 2,071 (56%) | 5 min | 10.3 |
+| PCA | 2 h | **0.951** | **2,414 (65%)** | 2.1 h | 0.6 |
+| PCA | 12.3 h | 0.964 | 0 (0%) | 12.5 h | 0.0 |
+
+- **The stream reproduces the offline run.** All 3,134,146 raw lines replay in **33 minutes** (9.5 times faster than the log was written), every one of the test sessions' events arrives exactly once, and at the end of the log every DeepLog and PCA verdict equals the offline one. The END LSTM differs on 2 of 172,519 sessions, both scoring exactly on its threshold, where the stream's per-block arithmetic rounds the other way.
+- **With the honest timeout, PCA never alerts in time.** At the 12.3-hour idle timeout chosen from training data, PCA's verdicts are as good as offline (F1 0.964), but none of them arrive before the 5.3-hour test period is over.
+- **A 2-hour timeout keeps almost all of PCA's accuracy.** Closing a block after 2 hours of silence costs 1.3 points of F1 (0.951) and still raises under one false alarm an hour, while catching **2,414** of the 3,723 anomalies before the log ends, a median 2.1 hours after their first event. Shorter timeouts cut too many sessions short: at 5 or 30 minutes PCA misses almost half the anomalies.
+- **The END event pays for its recall in false alarms.** The END LSTM catches 86% of anomalies before the log ends at a 2-hour timeout, but raises about 170 false alarms an hour at every timeout, against under 1 for PCA. DeepLog alone fires within seconds but catches only half the anomalies.
+- **The job keeps up with a live log.** Each micro-batch carries 5 minutes of log and took a median 18 s (90th percentile 49 s, 99th percentile 2.6 min), so the same job would keep pace with the cluster in real time.
+
 ### Scale: the same chain on 211 million lines
 
 The same Spark chain (read and split each line, learn templates, tag every line, group lines into sessions or hourly windows) was timed on the first 1%, 10% and 100% of two logs, writing Parquet at every stage so each one is really computed. HDFS reuses its tuned templates; Thunderbird learns its templates inside each run, on the first 60% of that input's lines. All runs are on one 16-core laptop.
@@ -182,6 +221,13 @@ The same Spark chain (read and split each line, learn templates, tag every line,
 - Identical (window, next event) pairs are merged and drawn in proportion to how often they occur, which matches training on all 7.1M windows; each of the 18,375 distinct sequences is scored once.
 - Per-event ranks are saved for every sequence, ready for detection-latency analysis and the dashboard's session drill-down.
 
+### Masked transformer (LogBERT-lite)
+
+- A small bidirectional transformer after LogBERT (Guo et al. 2021): 2 encoder layers of width 64 with 4 heads, a DIST token at the front of each session, trained only on normal training sessions to predict hidden events (15% per session) from every other event, with LogBERT's hypersphere loss on the DIST token as a regulariser.
+- Scored by hiding each event on its own and predicting it from the rest, which gives the same per-event rank and -log p as the LSTM, so it shares the LSTM's evaluation, thresholds, protocols, seeds and checkpoints unchanged.
+- Two variants, as published and with an END event; 3 seeds under both protocols, 12 fits in about an hour on the laptop CPU.
+- Treated as needing a finished session for latency, because it reads the events after the one it judges.
+
 ### Data quality checks
 
 - Each stage writes a JSON run log with its row counts, timings and pass/fail checks, and fails loudly when a check fails: raw = bronze + quarantine, every block has exactly one label, every line gets an event ID, no training-period line is UNK, every event lands in exactly one session and the count vectors add up to the event totals.
@@ -224,6 +270,16 @@ The same Spark chain (read and split each line, learn templates, tag every line,
 - Output sizes of every layer, to show how much columnar storage shrinks repetitive log text.
 - A downloader that resumes interrupted transfers with HTTP range requests and checks every archive's MD5.
 
+### Streaming replay (Spark Structured Streaming)
+
+- The raw test-period log (3,134,146 lines from the test cutoff to the end of the log, with their file position) is cut into one Parquet file per 5 minutes of log time and read one file per micro-batch.
+- The stream reuses the batch pipeline's line regex, masking and Spark SQL template matcher, sets an event-time watermark, and joins each line to the test blocks.
+- `applyInPandasWithState` keeps one state per block in Spark's state store (its last 10 events, its count vector and what has been decided) and uses event-time timeouts to notice silence.
+- DeepLog judges every event as it arrives; the tuned END LSTM judges every event and adds END when a block closes; PCA judges the count vector when a block closes. Each block closes separately after 5 minutes, 30 minutes, 2 hours and 12.3 hours of silence, and once more at the end of the log.
+- Every decision is dated in log time, so latency is what a live system would see; the run records batch durations and throughput.
+- Checks: every test-session event arrives exactly once, every test session gets a verdict, and the verdicts at the end of the log match the offline ones.
+- The per-block decision logic is a plain function, unit-tested without Spark.
+
 ---
 
 ## Data Source
@@ -257,7 +313,8 @@ The same Spark chain (read and split each line, learn templates, tag every line,
 | **Storage** | Parquet | Bronze/silver/gold layers on local disk |
 | **Parsing** | Drain3 | Template mining on the training period; templates compiled to Spark SQL regexes for matching |
 | **Models** | scikit-learn, LightGBM | PCA, Isolation Forest, gradient boosting; metrics and PR curves |
-| **Sequence model** | PyTorch (CPU build) | DeepLog-style LSTM; trains in about 2 to 15 minutes per run on a laptop CPU |
+| **Sequence models** | PyTorch (CPU build) | DeepLog-style LSTM and a LogBERT-style transformer; each fit trains in about 1 to 6 minutes on a laptop CPU |
+| **Streaming** | Spark Structured Streaming | File source, event-time watermark, `applyInPandasWithState` with event-time timeouts, Parquet sink |
 | **Tracking** | MLflow (local file store) | One run per model and protocol, compared in the MLflow UI |
 | **Dashboard** | Static HTML, CSS and inline SVG, a little vanilla JavaScript | Generated by `scripts/build_dashboard.py`; IBM Plex Sans and Mono; no framework |
 | **Hosting** | GitHub Pages | Serves `docs/index.html` from the main branch |
@@ -292,8 +349,10 @@ docker compose run --rm loglens make gold          # one row per session: sequen
 docker compose run --rm loglens make baselines     # five baselines, two protocols, logged to MLflow
 docker compose run --rm loglens make lstm-tune     # LSTM settings searched on validation only (about 30 min)
 docker compose run --rm loglens make lstm          # 3 LSTM variants x 2 protocols x 3 seeds (about 2 h, resumable)
+docker compose run --rm loglens make logbert       # LogBERT-lite, 2 variants x 2 protocols x 3 seeds (about 1 h, resumable)
 docker compose run --rm loglens make evaluate      # intervals, alerts per hour, latency, errors (about 6 min)
 docker compose run --rm loglens make ablation      # training-size ablation (about 30 min, resumable)
+docker compose run --rm loglens make stream        # streaming replay of the test period (about 40 min)
 python scripts/build_dashboard.py                  # docs/index.html from data/dashboard/*.json (standard library only)
 docker compose run --rm loglens make bgl           # the whole BGL run: download, windows, parsers, models (about 2.5 h, resumable)
 docker compose run --rm loglens make scale         # Spark vs pandas, volume vs bind mount, Thunderbird at 1/10/100%
@@ -341,6 +400,8 @@ LogLens/
 │   ├── metrics.py                # Validation-chosen thresholds, P/R/F1, PR-AUC, PR curves
 │   ├── baselines.py              # Five baselines, two protocols, duplication analysis, MLflow
 │   ├── lstm.py                   # DeepLog-style LSTM, END-event variant, tuning, checkpoints
+│   ├── logbert.py                # LogBERT-lite: masked transformer on the same evaluation
+│   ├── stream.py                 # Streaming replay of the test period, per-block state
 │   ├── evaluate.py               # Intervals, operations, timeout and latency, errors, drill-down
 │   ├── ablation.py               # Training-size ablation
 │   ├── drift.py                  # Alert categories and vocabulary by period (BGL)
@@ -351,7 +412,9 @@ LogLens/
 │   ├── test_ingest_regex.py
 │   ├── test_parsing.py
 │   ├── test_metrics.py
-│   └── test_lstm.py
+│   ├── test_lstm.py
+│   ├── test_logbert.py
+│   └── test_stream.py
 │
 └── data/
     ├── raw/                      # Downloaded archives (not tracked)
@@ -378,6 +441,7 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **Run log.** Every stage writes `data/runlog/<dataset>_<stage>.json`. These feed the dashboard's pipeline-health panel.
 - **The dashboard never reads raw data.** `scripts/build_dashboard.py` reads only the small aggregates in `data/dashboard/` (under 2 MB in all) and writes one self-contained `docs/index.html`, which GitHub Pages serves as a static file. Charts are HTML rows and inline SVG, so the page has no build step and no framework; line charts are drawn at two widths so their text stays readable on a phone.
 - **Colour follows the model family everywhere.** Count models are blue, sequence models orange, the supervised reference aqua and rules grey, checked with a colour-vision-deficiency validator in both themes; every mark also carries a text label, so colour is never the only cue.
+- **The stream keeps state per block.** `applyInPandasWithState` holds each block's last 10 events, its count vector and its verdicts in Spark's state store, and event-time timeouts wake a block once the watermark passes its last event plus a timeout. Two sentinel lines after the end of the log move the watermark far enough for every block to close; they name a block outside the test set, because Spark pushes the "has a block" filter below the watermark and would otherwise drop them before it saw them. The stateful stage runs on 8 partitions with one maths thread per Python worker, since each worker holds PyTorch and both LSTMs.
 - **The scale runs live on a Docker volume.** Thunderbird's 32 GB log sits on a Docker named volume (native Linux storage inside Docker's VM) rather than the Windows bind mount the rest of the pipeline reads through, and each scale stage writes its Parquet output there, then deletes it once its size has been recorded. Distinct masked messages are matched once each, in a `mapInPandas` stage across all 16 cores with the template tree broadcast to every worker, and joined back to every line.
 - **Execution.** Spark runs in local mode inside one container. Bronze ingest takes about 4 minutes, the split about 1.3 minutes, the parse about 1.5 minutes (plus 4.7 for the benchmark) and the gold layer about 2 minutes, mostly spent reading through the Windows bind mount. All five baselines under both protocols fit and score in under a minute; each LSTM run trains in 2 to 4 minutes on the CPU and scores all 575,061 sessions in about 7 seconds (about 83,000 windows per second, thanks to scoring each distinct sequence once).
 
@@ -385,7 +449,9 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 
 ## Testing and Validation
 
-**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label); and BGL (node IDs and both hex styles masked, words with digits left alone, and window schemes inheriting their log's settings); and Thunderbird (host names masked, ordinary words such as eth0 left alone). 31 tests in all.
+**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label); and BGL (node IDs and both hex styles masked, words with digits left alone, and window schemes inheriting their log's settings); and Thunderbird (host names masked, ordinary words such as eth0 left alone); LogBERT (masking hides only real events and at least one per session, the hidden event cannot be seen, a session's scores do not depend on what else is in its batch, padding is never predicted); and the streaming decisions (DeepLog fires on the surprising event, silence closes a block at last event plus timeout, events after a close do not count for that timeout, the end of the log closes everything and records DeepLog's negatives, unknown events always fire). 42 tests in all.
+
+**Streaming checks:** every one of the 172,519 test sessions gets a verdict; every test-session event arrives exactly once (the streamed event count equals the gold layer's); and at the end of the log DeepLog's and PCA's verdicts equal the offline ones for every session. The END LSTM differs on 2 sessions whose offline score sits exactly on the threshold; the check allows only disagreements within 1e-4 of the threshold and reports how many there were. Before the stream ran, both LSTMs were retrained and reproduced their recorded F1 to the last digit.
 
 **BGL pipeline checks:** 4,747,963 lines with none quarantined; 348,460 alert lines, matching LogHub; every line in exactly one window under both schemes; every window labelled; Loghub-2.0's ground truth matched for 97.5% of lines (exactly the lines it keeps); no training-period line left unnamed by its own parser.
 
@@ -409,6 +475,9 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **BGL windows are a modelling choice.** A window is anomalous if any line in it is; hours without any log line produce no window; and 1-hour and 20-line windows give different answers, which is why both are shown.
 - **No intervals for BGL.** BGL results are single fits for the baselines and 3-seed means for the LSTM; the HDFS bootstrap was not repeated for BGL. The gaps reported there (tens of F1 points) are far larger than any sampling noise seen on HDFS.
 - **Scale timings are single runs on one laptop.** The same stage varied by up to 3x between runs (Windows and Docker share the machine), so the curves show orders of magnitude and crossovers, not precise speeds. The Thunderbird runs measure the data pipeline only; no detector was trained on Thunderbird, and its parser threshold was not tuned against ground truth.
+- **LogBERT-lite is a scaled-down LogBERT.** Two layers of width 64 against the paper's four of width 256, a 15% mask rate and no search over its settings; one random-split fit reached the 60-epoch cap. A larger model might score higher, though the spread across seeds is already wider than the gap to the LSTM.
+- **The replay covers test sessions only.** Lines from blocks that started before the test period are read and parsed but not judged, as in the offline evaluation; the idle timeouts are a fixed grid, not chosen on validation; and it is one run on a shared laptop, so batch times are indicative.
+- **Short timeouts judge partial sessions against full-session labels.** A block closed after 5 minutes of silence is judged on what it had done so far, but its label describes the whole block; part of the short timeouts' lower F1 is that mismatch.
 - **BGL random-split LSTM runs reached the 60-epoch cap.** Their scores could rise slightly with longer training, which would only widen the random-split gap.
 - **Labels are taken as given.** No relabelling or label-noise analysis is done.
 - **The parser threshold was chosen with ground-truth templates.** The sweep uses LogHub's template labels (not the anomaly labels) on the validation period. A real deployment would not have those, so the 0.4 result shows what an untuned parser would have done.
@@ -423,7 +492,7 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **A combined detector.** Published DeepLog and PCA miss almost disjoint sets of anomalies, and DeepLog fires within seconds while PCA has to wait for a session to finish, so DeepLog as an early warning backed by PCA's verdict (with the combination tuned on validation) is the obvious next experiment.
 - **An uncensored test period.** Ending the test period 12 hours before the end of the log, so every test session has time to finish, would separate model errors from the cut-off sessions.
 - **A semantic event model** (sentence embeddings of templates) so unseen templates in later periods are handled without retraining.
-- **A streaming replay** of the test period with Spark Structured Streaming, to measure real time-to-alert.
+- **A combined live detector:** DeepLog's per-event alerts with PCA's verdict at a 2-hour timeout, both already running in the streaming replay, tuned together on validation.
 - **More LogHub systems**, such as Hadoop and OpenStack, to widen the generalization check.
 - **A faster matcher for large vocabularies.** On Thunderbird, checking each unmatched message against every template of the same length dominates the run; an exact lookup for messages seen in training, and a Thunderbird parser threshold tuned against Loghub-2.0's ground truth, should both cut the vocabulary and the time.
 

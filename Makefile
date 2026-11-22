@@ -1,7 +1,7 @@
 # Run inside the container: docker compose run --rm loglens make <target>
 PY := python
 
-.PHONY: download bronze eda split parse-sweep parse parse-eval gold baselines lstm-tune lstm evaluate ablation mlflow-ui test all
+.PHONY: download bronze eda split parse-sweep parse parse-eval gold baselines lstm-tune lstm logbert evaluate stream ablation mlflow-ui test all
 
 download:
 	$(PY) scripts/download_data.py HDFS_v1
@@ -15,7 +15,7 @@ eda:
 test:
 	$(PY) -m pytest -q tests
 
-all: download bronze eda split parse-sweep parse parse-eval gold baselines lstm-tune lstm evaluate ablation
+all: download bronze eda split parse-sweep parse parse-eval gold baselines lstm-tune lstm logbert evaluate ablation stream
 
 split:
 	$(PY) -m loglens.split hdfs
@@ -40,6 +40,15 @@ lstm-tune:
 
 lstm:
 	$(PY) -m loglens.lstm hdfs
+
+logbert:
+	$(PY) -m loglens.logbert hdfs
+
+# Streaming replay: save the seed-0 LSTM weights (retrained, checked against the
+# recorded results), then replay the test period through Structured Streaming.
+stream:
+	$(PY) -m loglens.lstm hdfs --save-models --only=deeplog,deeplog_end_tuned
+	$(PY) -m loglens.stream hdfs
 
 evaluate:
 	$(PY) -m loglens.evaluate hdfs

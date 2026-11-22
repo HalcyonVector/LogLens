@@ -1,0 +1,273 @@
+{
+  "meta": {
+    "test_start": "2008-11-11T06:00:46",
+    "log_end": "2008-11-11T11:16:28",
+    "flush": "2008-11-12T00:35:21",
+    "lines": 3134146,
+    "files": 66,
+    "timeouts_s": [
+      300,
+      1800,
+      7200,
+      44334
+    ]
+  },
+  "processing": {
+    "wall_s": 1993.6,
+    "lines_replayed": 3134146,
+    "log_hours": 5.26,
+    "lines_per_s": 1572,
+    "speedup_vs_real_time": 9.5,
+    "batches": 67,
+    "batch_ms": {
+      "p50": 18488,
+      "p90": 48675,
+      "p99": 155312
+    },
+    "log_seconds_per_batch": 300
+  },
+  "results": [
+    {
+      "model": "deeplog",
+      "timeout_s": 0,
+      "sessions": 172519,
+      "precision": 0.765447,
+      "recall": 0.505775,
+      "f1": 0.609089,
+      "tp": 1883,
+      "fp": 577,
+      "fn": 1840,
+      "alerts_before_log_end": 2460,
+      "caught_before_log_end": 1883,
+      "false_alarms_per_hour": 109.66,
+      "latency_s": {
+        "p10": 3.0,
+        "p50": 6.0,
+        "p90": 5084.8
+      },
+      "within_1_minute": 0.7212
+    },
+    {
+      "model": "deeplog_end",
+      "timeout_s": -1,
+      "sessions": 172519,
+      "precision": 0.797894,
+      "recall": 0.956487,
+      "f1": 0.870022,
+      "tp": 3561,
+      "fp": 902,
+      "fn": 162,
+      "alerts_before_log_end": 4463,
+      "caught_before_log_end": 3561,
+      "false_alarms_per_hour": 171.43,
+      "latency_s": {
+        "p10": 3.0,
+        "p50": 2751.0,
+        "p90": 8957.0
+      },
+      "within_1_minute": 0.3842
+    },
+    {
+      "model": "deeplog_end",
+      "timeout_s": 300,
+      "sessions": 172519,
+      "precision": 0.703476,
+      "recall": 0.61429,
+      "f1": 0.655865,
+      "tp": 2287,
+      "fp": 964,
+      "fn": 1436,
+      "alerts_before_log_end": 3251,
+      "caught_before_log_end": 2287,
+      "false_alarms_per_hour": 183.21,
+      "latency_s": {
+        "p10": 3.0,
+        "p50": 24.0,
+        "p90": 300.0
+      },
+      "within_1_minute": 0.5982
+    },
+    {
+      "model": "deeplog_end",
+      "timeout_s": 1800,
+      "sessions": 172519,
+      "precision": 0.732482,
+      "recall": 0.631749,
+      "f1": 0.678396,
+      "tp": 2352,
+      "fp": 859,
+      "fn": 1371,
+      "alerts_before_log_end": 3161,
+      "caught_before_log_end": 2302,
+      "false_alarms_per_hour": 163.26,
+      "latency_s": {
+        "p10": 3.0,
+        "p50": 30.0,
+        "p90": 1800.0
+      },
+      "within_1_minute": 0.5816
+    },
+    {
+      "model": "deeplog_end",
+      "timeout_s": 7200,
+      "sessions": 172519,
+      "precision": 0.79469,
+      "recall": 0.932581,
+      "f1": 0.858131,
+      "tp": 3472,
+      "fp": 897,
+      "fn": 251,
+      "alerts_before_log_end": 4099,
+      "caught_before_log_end": 3202,
+      "false_alarms_per_hour": 170.48,
+      "latency_s": {
+        "p10": 3.0,
+        "p50": 4272.0,
+        "p90": 7200.0
+      },
+      "within_1_minute": 0.394
+    },
+    {
+      "model": "deeplog_end",
+      "timeout_s": 44334,
+      "sessions": 172519,
+      "precision": 0.797894,
+      "recall": 0.956487,
+      "f1": 0.870022,
+      "tp": 3561,
+      "fp": 902,
+      "fn": 162,
+      "alerts_before_log_end": 3783,
+      "caught_before_log_end": 2881,
+      "false_alarms_per_hour": 171.43,
+      "latency_s": {
+        "p10": 3.0,
+        "p50": 4495.0,
+        "p90": 44334.0
+      },
+      "within_1_minute": 0.3842
+    },
+    {
+      "model": "pca",
+      "timeout_s": -1,
+      "sessions": 172519,
+      "precision": 0.997987,
+      "recall": 0.932313,
+      "f1": 0.964033,
+      "tp": 3471,
+      "fp": 7,
+      "fn": 252,
+      "alerts_before_log_end": 3478,
+      "caught_before_log_end": 3471,
+      "false_alarms_per_hour": 1.33,
+      "latency_s": {
+        "p10": 2918.0,
+        "p50": 13087.0,
+        "p90": 16379.0
+      },
+      "within_1_minute": 0.0
+    },
+    {
+      "model": "pca",
+      "timeout_s": 300,
+      "sessions": 172519,
+      "precision": 0.974588,
+      "recall": 0.556272,
+      "f1": 0.708276,
+      "tp": 2071,
+      "fp": 54,
+      "fn": 1652,
+      "alerts_before_log_end": 2125,
+      "caught_before_log_end": 2071,
+      "false_alarms_per_hour": 10.26,
+      "latency_s": {
+        "p10": 300.0,
+        "p50": 303.0,
+        "p90": 345.0
+      },
+      "within_1_minute": 0.0
+    },
+    {
+      "model": "pca",
+      "timeout_s": 1800,
+      "sessions": 172519,
+      "precision": 0.994874,
+      "recall": 0.573462,
+      "f1": 0.727552,
+      "tp": 2135,
+      "fp": 11,
+      "fn": 1588,
+      "alerts_before_log_end": 1970,
+      "caught_before_log_end": 1959,
+      "false_alarms_per_hour": 2.09,
+      "latency_s": {
+        "p10": 1800.0,
+        "p50": 1804.0,
+        "p90": 2357.2
+      },
+      "within_1_minute": 0.0
+    },
+    {
+      "model": "pca",
+      "timeout_s": 7200,
+      "sessions": 172519,
+      "precision": 0.997934,
+      "recall": 0.908407,
+      "f1": 0.951069,
+      "tp": 3382,
+      "fp": 7,
+      "fn": 341,
+      "alerts_before_log_end": 2417,
+      "caught_before_log_end": 2414,
+      "false_alarms_per_hour": 0.57,
+      "latency_s": {
+        "p10": 7200.0,
+        "p50": 7465.5,
+        "p90": 14175.9
+      },
+      "within_1_minute": 0.0
+    },
+    {
+      "model": "pca",
+      "timeout_s": 44334,
+      "sessions": 172519,
+      "precision": 0.997987,
+      "recall": 0.932313,
+      "f1": 0.964033,
+      "tp": 3471,
+      "fp": 7,
+      "fn": 252,
+      "alerts_before_log_end": 0,
+      "caught_before_log_end": 0,
+      "false_alarms_per_hour": 0.0,
+      "latency_s": {
+        "p10": 44334.0,
+        "p50": 44828.0,
+        "p90": 51509.0
+      },
+      "within_1_minute": 0.0
+    }
+  ],
+  "agreement_with_offline": {
+    "deeplog": {
+      "sessions": 172519,
+      "disagree": 0,
+      "disagree_off_threshold": 0
+    },
+    "deeplog_end": {
+      "sessions": 172519,
+      "disagree": 2,
+      "disagree_off_threshold": 0
+    },
+    "pca": {
+      "sessions": 172519,
+      "disagree": 0,
+      "disagree_off_threshold": 0
+    }
+  },
+  "checks": {
+    "every_test_session_decided": true,
+    "every_test_event_streamed_once": true,
+    "end_of_log_verdicts_match_offline": true
+  }
+}

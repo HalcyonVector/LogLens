@@ -269,6 +269,66 @@
           0.9336
         ]
       }
+    },
+    "logbert_topg": {
+      "precision": 0.933377,
+      "recall": 0.771421,
+      "f1": 0.844706,
+      "fpr": 0.00121448,
+      "tp": 2872,
+      "fp": 205,
+      "fn": 851,
+      "flagged": 3077,
+      "prevalence": 0.02158,
+      "pr_auc": 0.765823,
+      "ci": {
+        "precision": [
+          0.9247,
+          0.9423
+        ],
+        "recall": [
+          0.7577,
+          0.7841
+        ],
+        "f1": [
+          0.8351,
+          0.8538
+        ],
+        "pr_auc": [
+          0.7503,
+          0.7819
+        ]
+      }
+    },
+    "logbert_end_logprob": {
+      "precision": 0.868594,
+      "recall": 0.992479,
+      "f1": 0.926413,
+      "fpr": 0.00331169,
+      "tp": 3695,
+      "fp": 559,
+      "fn": 28,
+      "flagged": 4254,
+      "prevalence": 0.02158,
+      "pr_auc": 0.872892,
+      "ci": {
+        "precision": [
+          0.8581,
+          0.8788
+        ],
+        "recall": [
+          0.9895,
+          0.9951
+        ],
+        "f1": [
+          0.9203,
+          0.9326
+        ],
+        "pr_auc": [
+          0.8589,
+          0.8872
+        ]
+      }
     }
   },
   "paired_differences": {
@@ -317,6 +377,54 @@
       "ci": [
         0.3912,
         0.4231
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "logbert_end_logprob_minus_deeplog_end_tuned_logprob_f1": {
+      "mean": 0.0561,
+      "ci": [
+        0.0508,
+        0.0614
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "logbert_end_logprob_minus_deeplog_end_tuned_logprob_pr_auc": {
+      "mean": -0.0538,
+      "ci": [
+        -0.0638,
+        -0.0438
+      ],
+      "share_of_resamples_above_zero": 0.0
+    },
+    "pca_minus_logbert_end_logprob_f1": {
+      "mean": 0.0377,
+      "ci": [
+        0.0308,
+        0.0448
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "pca_minus_logbert_end_logprob_pr_auc": {
+      "mean": 0.0568,
+      "ci": [
+        0.0398,
+        0.0725
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "logbert_topg_minus_deeplog_topg_f1": {
+      "mean": 0.2359,
+      "ci": [
+        0.2239,
+        0.2472
+      ],
+      "share_of_resamples_above_zero": 1.0
+    },
+    "logbert_topg_minus_deeplog_topg_pr_auc": {
+      "mean": 0.2384,
+      "ci": [
+        0.2234,
+        0.2531
       ],
       "share_of_resamples_above_zero": 1.0
     }
@@ -558,6 +666,54 @@
         0,
         680
       ]
+    },
+    "logbert_topg": {
+      "caught": 2872,
+      "seconds": {
+        "p10": 44337,
+        "p50": 48616,
+        "p90": 51638
+      },
+      "events": {
+        "p10": 4,
+        "p50": 20,
+        "p90": 28
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2872
+      ]
+    },
+    "logbert_end_logprob": {
+      "caught": 3695,
+      "seconds": {
+        "p10": 44334,
+        "p50": 45618,
+        "p90": 51514
+      },
+      "events": {
+        "p10": 2,
+        "p50": 20,
+        "p90": 27
+      },
+      "within_1_minute": 0.0,
+      "within_1_hour": 0.0,
+      "histogram_minutes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3695
+      ]
     }
   },
   "operations": {
@@ -616,6 +772,18 @@
         "alerts_per_hour": 882.8,
         "false_alarms_per_hour": 178.3,
         "false_alarms_per_1000_normal": 5.34
+      },
+      "logbert_topg": {
+        "alerts": 3077,
+        "alerts_per_hour": 608.4,
+        "false_alarms_per_hour": 40.5,
+        "false_alarms_per_1000_normal": 1.21
+      },
+      "logbert_end_logprob": {
+        "alerts": 4254,
+        "alerts_per_hour": 841.1,
+        "false_alarms_per_hour": 110.5,
+        "false_alarms_per_1000_normal": 3.31
       }
     },
     "per_hour": {
@@ -796,6 +964,42 @@
           "2008-11-11T10:00": 173,
           "2008-11-11T11:00": 41
         }
+      },
+      "logbert_topg": {
+        "tp": {
+          "2008-11-11T06:00": 534,
+          "2008-11-11T07:00": 1412,
+          "2008-11-11T08:00": 298,
+          "2008-11-11T09:00": 247,
+          "2008-11-11T10:00": 373,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 8,
+          "2008-11-11T07:00": 19,
+          "2008-11-11T08:00": 82,
+          "2008-11-11T09:00": 71,
+          "2008-11-11T10:00": 21,
+          "2008-11-11T11:00": 4
+        }
+      },
+      "logbert_end_logprob": {
+        "tp": {
+          "2008-11-11T06:00": 685,
+          "2008-11-11T07:00": 1656,
+          "2008-11-11T08:00": 424,
+          "2008-11-11T09:00": 351,
+          "2008-11-11T10:00": 571,
+          "2008-11-11T11:00": 8
+        },
+        "fp": {
+          "2008-11-11T06:00": 14,
+          "2008-11-11T07:00": 82,
+          "2008-11-11T08:00": 178,
+          "2008-11-11T09:00": 173,
+          "2008-11-11T10:00": 93,
+          "2008-11-11T11:00": 19
+        }
       }
     }
   },
@@ -847,16 +1051,16 @@
           "lift": 6.0
         },
         {
-          "event_id": "T11",
-          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+          "event_id": "T12",
+          "template": "<IP>:Transmitted block <BLK> to <IP>",
           "sessions": 252,
           "share": 1.0,
           "reference_share": 0.1698,
           "lift": 5.89
         },
         {
-          "event_id": "T12",
-          "template": "<IP>:Transmitted block <BLK> to <IP>",
+          "event_id": "T11",
+          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
           "sessions": 252,
           "share": 1.0,
           "reference_share": 0.1698,
@@ -879,16 +1083,16 @@
           "lift": 1.82
         },
         {
-          "event_id": "T02",
-          "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+          "event_id": "T04",
+          "template": "Received block <BLK> of size <NUM> from <IP>",
           "sessions": 252,
           "share": 1.0,
           "reference_share": 0.5966,
           "lift": 1.68
         },
         {
-          "event_id": "T04",
-          "template": "Received block <BLK> of size <NUM> from <IP>",
+          "event_id": "T02",
+          "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
           "sessions": 252,
           "share": 1.0,
           "reference_share": 0.5966,
@@ -901,16 +1105,16 @@
       "misses": 160,
       "in_false_alarms": [
         {
-          "event_id": "T11",
-          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+          "event_id": "T12",
+          "template": "<IP>:Transmitted block <BLK> to <IP>",
           "sessions": 221,
           "share": 0.245,
           "reference_share": 0.0029,
           "lift": 84.06
         },
         {
-          "event_id": "T12",
-          "template": "<IP>:Transmitted block <BLK> to <IP>",
+          "event_id": "T11",
+          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
           "sessions": 221,
           "share": 0.245,
           "reference_share": 0.0029,
@@ -975,16 +1179,16 @@
           "lift": 6.0
         },
         {
-          "event_id": "T11",
-          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
+          "event_id": "T12",
+          "template": "<IP>:Transmitted block <BLK> to <IP>",
           "sessions": 160,
           "share": 1.0,
           "reference_share": 0.1698,
           "lift": 5.89
         },
         {
-          "event_id": "T12",
-          "template": "<IP>:Transmitted block <BLK> to <IP>",
+          "event_id": "T11",
+          "template": "Received block <BLK> src: <IP> dest: <IP> of size <NUM>",
           "sessions": 160,
           "share": 1.0,
           "reference_share": 0.1698,
@@ -1007,16 +1211,16 @@
           "lift": 1.79
         },
         {
-          "event_id": "T02",
-          "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
+          "event_id": "T04",
+          "template": "Received block <BLK> of size <NUM> from <IP>",
           "sessions": 160,
           "share": 1.0,
           "reference_share": 0.5966,
           "lift": 1.68
         },
         {
-          "event_id": "T04",
-          "template": "Received block <BLK> of size <NUM> from <IP>",
+          "event_id": "T02",
+          "template": "BLOCK* NameSystem.addStoredBlock: blockMap updated: <IP> is added to <BLK> size <NUM>",
           "sessions": 160,
           "share": 1.0,
           "reference_share": 0.5966,
@@ -1043,6 +1247,24 @@
       "only_a": 1834,
       "only_b": 246,
       "neither": 6
+    },
+    "pca_vs_logbert": {
+      "a": "pca",
+      "b": "logbert_end_logprob",
+      "anomalies": 3723,
+      "both": 3448,
+      "only_a": 23,
+      "only_b": 247,
+      "neither": 5
+    },
+    "lstm_vs_logbert": {
+      "a": "deeplog_end_tuned_logprob",
+      "b": "logbert_end_logprob",
+      "anomalies": 3723,
+      "both": 3539,
+      "only_a": 24,
+      "only_b": 156,
+      "neither": 4
     }
   },
   "templates": [
