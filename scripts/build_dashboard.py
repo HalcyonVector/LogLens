@@ -571,6 +571,19 @@ def bgl_recipe() -> str:
     return f'<div class="lb recipe">{out}</div>'
 
 
+def beyond() -> str:
+    """Two links under the hero to the sections that go past HDFS."""
+    out = []
+    if BGL_DRIFT and BGL["bgl_1h"]["baselines"]:
+        r = BGL["bgl_1h"]["baselines"]["results"]["chrono"]
+        best_model = max(v["f1"] for k, v in r.items() if k != "warn_rule")
+        out.append(f'<a href="#bgl"><span class="mono">06 / BGL</span>On a supercomputer log, a one-line rule (any FATAL or FAILURE line) scores F1 <b class="num">{r["warn_rule"]["f1"]:.3f}</b> on later hourly windows; the best model reaches {best_model:.3f}.</a>')
+    full = next((x for x in (SCALE["thunderbird_scale"] or {}).get("runs", []) if x["fraction"] == 1.0), None)
+    if full:
+        out.append(f'<a href="#scale"><span class="mono">07 / Scale</span>The whole pipeline runs on all <b class="num">{full["lines"] / 1e6:,.0f}M</b> Thunderbird lines ({human_bytes(full["input_bytes"])}) in {full["timings"]["total_s"] / 3600:.1f} hours on one laptop, and parsing is {pct((full["timings"]["fit_s"] + full["timings"]["silver_s"]) / full["timings"]["total_s"], 0)} of it.</a>')
+    return f'<div class="beyond">{"".join(out)}</div>' if out else ""
+
+
 def bgl_section() -> str:
     if not BGL_DRIFT or not BGL["bgl_20ev"]["baselines"]:
         return ""
@@ -747,7 +760,7 @@ def page() -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LogLens</title>
-<meta name="description" content="Do sequence models really catch anomalous logs? 11.2M HDFS log lines, a chronological split, and a 2009 PCA baseline that still wins.">
+<meta name="description" content="Do sequence models really catch anomalous logs? 11.2M HDFS log lines, a chronological split, and a 2009 PCA baseline that still wins; then BGL, and the pipeline on 211M Thunderbird lines.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0b'/%3E%3Crect x='6' y='9' width='14' height='3' rx='1.5' fill='%23fcfcfb'/%3E%3Crect x='6' y='15' width='20' height='3' rx='1.5' fill='%23eb6834'/%3E%3Crect x='6' y='21' width='10' height='3' rx='1.5' fill='%23fcfcfb'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -773,6 +786,7 @@ def page() -> str:
     <div class="tile"><span class="lab">Random-split inflation</span><b class="num">{gap_best:+.1f}</b><span class="sub">F1 points for the LSTM, {gap_pca:+.1f} for PCA</span></div>
   </div>
   {hero_tape()}
+  {beyond()}
 </section>
 
 <section id="verdict" class="sec">
@@ -859,10 +873,12 @@ def page() -> str:
 
 <footer class="foot">
   <div class="foot-grid">
-    <div><h4>About</h4><p>LogLens tests whether log anomaly detectors keep their published scores when evaluated on later data than they were trained on. It is a research benchmark on public 2008 data, not a production detector.</p><p><a href="{REPO}" target="_blank" rel="noopener">Source code on GitHub</a></p></div>
+    <div><h4>About</h4><p>LogLens tests whether log anomaly detectors keep their published scores when evaluated on later data than they were trained on. The same method is repeated on BGL, and the pipeline is timed on all 211M Thunderbird lines. It is a research benchmark on public HDFS (2008), BGL and Thunderbird (2005 to 2006) logs, not a production detector.</p><p><a href="{REPO}" target="_blank" rel="noopener">Source code on GitHub</a></p></div>
     <div><h4>Data</h4><ul>
       <li><a href="https://github.com/logpai/loghub" target="_blank" rel="noopener">LogHub</a>: the HDFS_v1 log (11.2M lines), block labels, ground-truth templates and event traces</li>
-      <li><a href="https://zenodo.org/records/8196385" target="_blank" rel="noopener">LogHub on Zenodo</a>: the archive the pipeline downloads and checksums</li>
+      <li><a href="https://github.com/logpai/loghub" target="_blank" rel="noopener">LogHub</a>: the BGL log (4.7M lines) and the Thunderbird log (211M lines), with an alert tag on every line</li>
+      <li><a href="https://zenodo.org/records/8196385" target="_blank" rel="noopener">LogHub on Zenodo</a>: the archives the pipeline downloads and checksums</li>
+      <li><a href="https://github.com/logpai/loghub-2.0" target="_blank" rel="noopener">Loghub-2.0</a>: a ground-truth template for every BGL line, used to choose and score the BGL parsers</li>
       <li><a href="https://github.com/logpai/Drain3" target="_blank" rel="noopener">Drain3</a>: the template miner fitted on the training period</li></ul></div>
     <div><h4>References</h4><ul>
       <li><a href="https://doi.org/10.1145/1629575.1629587" target="_blank" rel="noopener">Xu et al., Detecting Large-Scale System Problems by Mining Console Logs (SOSP 2009)</a></li>
@@ -870,7 +886,9 @@ def page() -> str:
       <li><a href="https://doi.org/10.1109/ICWS.2017.13" target="_blank" rel="noopener">He et al., Drain (ICWS 2017)</a></li>
       <li><a href="https://doi.org/10.1109/ICDM.2008.17" target="_blank" rel="noopener">Liu et al., Isolation Forest (ICDM 2008)</a></li>
       <li><a href="https://arxiv.org/abs/2202.04301" target="_blank" rel="noopener">Le and Zhang, Log-based Anomaly Detection with Deep Learning: How Far Are We? (ICSE 2022)</a></li>
-      <li><a href="https://arxiv.org/abs/2008.06448" target="_blank" rel="noopener">Zhu et al., Loghub (ISSRE 2023)</a></li></ul></div>
+      <li><a href="https://arxiv.org/abs/2008.06448" target="_blank" rel="noopener">Zhu et al., Loghub (ISSRE 2023)</a></li>
+      <li><a href="https://doi.org/10.1109/DSN.2007.103" target="_blank" rel="noopener">Oliner and Stearley, What Supercomputers Say: A Study of Five System Logs (DSN 2007)</a></li>
+      <li><a href="https://arxiv.org/abs/2308.10828" target="_blank" rel="noopener">Jiang et al., A Large-Scale Evaluation for Log Parsing Techniques (Loghub-2.0, ISSTA 2024)</a></li></ul></div>
   </div>
   <div class="bar"><span>Built by <b>Sagnik</b></span><a href="https://github.com/HalcyonVector" target="_blank" rel="noopener">GitHub @HalcyonVector</a><a href="{REPO}" target="_blank" rel="noopener">Repository</a><a href="{REPO}/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a><span class="muted">Built {built}</span></div>
 </footer>
@@ -941,6 +959,11 @@ h1{font-size:clamp(32px,5.2vw,60px);line-height:1.04;letter-spacing:-.025em;font
 h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--sequence-wash) 62%)}
 .lede{font-size:clamp(17px,1.6vw,19.5px);color:var(--ink-2);max-width:62ch;margin:26px 0 34px}
 .lede b{color:var(--ink)}
+.beyond{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:22px 0 0}
+.beyond a{display:block;padding:16px 18px;border:1px solid var(--grid);border-radius:12px;color:var(--ink-2);text-decoration:none;font-size:14.5px;line-height:1.5}
+.beyond a:hover,.beyond a:focus-visible{border-color:var(--axis);color:var(--ink)}
+.beyond .mono{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.beyond b{color:var(--ink)}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--grid);border:1px solid var(--grid);border-radius:14px;overflow:hidden}
 .tile{background:var(--surface);padding:18px 20px 20px;display:flex;flex-direction:column;gap:4px}
 .tile .lab{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
@@ -1123,6 +1146,7 @@ details .tbl{margin-top:10px}
   .foot-grid{grid-template-columns:1fr;gap:26px}
 }
 @media (max-width:640px){
+  .beyond{grid-template-columns:minmax(0,1fr)}
   .hero{padding:40px 0 28px}
   .top nav{display:none}
   .top{justify-content:space-between}

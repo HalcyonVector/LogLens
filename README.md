@@ -24,7 +24,7 @@ This is a personal research and learning project on public benchmark data. It is
 
 ## Findings
 
-Real results from the full pipeline; every number below is exported by it and shown on the dashboard.
+Real results from the full pipeline; every number below is exported by it and shown on the dashboard. A shorter narrative version is in [docs/WRITEUP.md](docs/WRITEUP.md).
 
 ### The data
 
@@ -176,7 +176,7 @@ The same Spark chain (read and split each line, learn templates, tag every line,
 
 - A DeepLog-style LSTM (embedding, 2 layers of 64 units) trained only on normal training sessions to predict each next event from the previous 10, with the start padded so every event is predicted.
 - Two variants, published DeepLog and DeepLog with an END event, each scored two ways: worst rank (top-g, with g chosen on validation) and least likely event (log-probability).
-- Three seeds per protocol, early stopping on validation loss (with a 60-epoch cap that no run reached), and the same chronological and random protocols as the baselines.
+- Three seeds per protocol, early stopping on validation loss (with a 60-epoch cap that no HDFS run reached), and the same chronological and random protocols as the baselines.
 - A validation-only search over history length and hidden size for the END variant; the chosen setting runs as an extra variant next to the published one.
 - Every finished tuning setting and seed is checkpointed, so an interrupted run resumes where it stopped; the checkpoints are removed once a run completes.
 - Identical (window, next event) pairs are merged and drawn in proportion to how often they occur, which matches training on all 7.1M windows; each of the 18,375 distinct sequences is scored once.
@@ -263,14 +263,15 @@ The same Spark chain (read and split each line, learn templates, tag every line,
 | **Hosting** | GitHub Pages | Serves `docs/index.html` from the main branch |
 | **Scale storage** | Docker named volume | Native Linux storage inside Docker's VM for the 32 GB Thunderbird log |
 | **Environment** | Docker (Python 3.12, Java 17) | Avoids Spark's Windows dependencies; code and data are bind-mounted |
-| **Testing** | pytest | Unit tests for the line regex, masking, template regexes and grouping accuracy |
+| **Testing** | pytest | 31 unit tests: line regexes, masking for all three logs, template regexes, grouping accuracy, metrics and thresholds, LSTM windows and checkpoints |
 
 ---
 
 ## Prerequisites
 
 - **Docker Desktop** (or Docker Engine on Linux): [Download here](https://www.docker.com/products/docker-desktop/)
-- About **3 GB of free disk** for HDFS_v1 and its Parquet layers
+- About **3 GB of free disk** for HDFS_v1 and its Parquet layers, and about 2.5 GB more for BGL (both copies of the log and its Parquet layers)
+- For the optional Thunderbird scale run, about **45 GB** free inside Docker's virtual disk (the 2 GB archive, the 32 GB log, the 1% and 10% copies and each run's Parquet output)
 
 No API keys and no accounts.
 
@@ -323,6 +324,7 @@ LogLens/
 │
 ├── docs/
 │   ├── index.html                # The results page (served by GitHub Pages)
+│   ├── WRITEUP.md                # Short write-up of the findings
 │   └── screenshots/              # README screenshots
 │
 ├── src/loglens/
@@ -364,7 +366,7 @@ LogLens/
 
 ```
 raw text ──► bronze (Parquet by hour) ──► split (session start) ──► silver (event ID per line) ──► gold (sessions) ──► baselines + LSTM ──► data/dashboard/*.json ──► static page
-               │ quarantine                 │ training cutoff ─────► Drain3 fit                                       │ MLflow                 (planned)
+               │ quarantine                 │ training cutoff ─────► Drain3 fit                                       │ MLflow
                ▼                                                         │
            run log (counts, checks, timings)                     parse eval vs LogHub ground truth
 ```
