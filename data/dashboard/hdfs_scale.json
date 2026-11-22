@@ -1,0 +1,82 @@
+{
+  "runs": [
+    {
+      "lines": 111756,
+      "lines_expected": 111756,
+      "input_bytes": 15757102,
+      "sessions": 8843,
+      "distinct_masked": 21,
+      "train_distinct_masked": null,
+      "templates": 50,
+      "unk_lines": 0,
+      "bytes": {
+        "bronze": 2668579,
+        "silver": 2720183,
+        "gold": 234825
+      },
+      "timings": {
+        "bronze_s": 11.7,
+        "fit_s": 0.1,
+        "silver_s": 6.6,
+        "gold_s": 6.4,
+        "total_s": 24.8
+      },
+      "lines_per_s": 4506,
+      "dataset": "hdfs",
+      "fraction": 0.01,
+      "storage": "docker volume"
+    },
+    {
+      "lines": 1117562,
+      "lines_expected": 1117562,
+      "input_bytes": 157341788,
+      "sessions": 74888,
+      "distinct_masked": 38,
+      "train_distinct_masked": null,
+      "templates": 50,
+      "unk_lines": 0,
+      "bytes": {
+        "bronze": 27229098,
+        "silver": 27910437,
+        "gold": 2262811
+      },
+      "timings": {
+        "bronze_s": 4.3,
+        "fit_s": 0.0,
+        "silver_s": 10.0,
+        "gold_s": 6.0,
+        "total_s": 20.3
+      },
+      "lines_per_s": 55052,
+      "dataset": "hdfs",
+      "fraction": 0.1,
+      "storage": "docker volume"
+    },
+    {
+      "lines": 11175629,
+      "lines_expected": 11175629,
+      "input_bytes": 1577982906,
+      "sessions": 575061,
+      "distinct_masked": 54,
+      "train_distinct_masked": null,
+      "templates": 50,
+      "unk_lines": 15,
+      "bytes": {
+        "bronze": 278966057,
+        "silver": 284274636,
+        "gold": 18702586
+      },
+      "timings": {
+        "bronze_s": 35.3,
+        "fit_s": 0.1,
+        "silver_s": 103.2,
+        "gold_s": 143.1,
+        "total_s": 281.7
+      },
+      "lines_per_s": 39672,
+      "dataset": "hdfs",
+      "fraction": 1.0,
+      "storage": "docker volume"
+    }
+  ]
+}

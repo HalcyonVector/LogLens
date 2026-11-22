@@ -88,3 +88,14 @@ lstm-bgl:
 	for s in $(BGL_SCHEMES); do $(PY) -m loglens.lstm $$s || exit 1; done
 
 bgl: download-bgl bronze-bgl split-bgl parse-sweep-bgl parse-bgl parse-eval-bgl gold-bgl baselines-bgl drift-bgl lstm-bgl
+
+# ---- Scale benchmark: HDFS Spark vs pandas and volume vs bind mount, then Thunderbird on the volume
+.PHONY: scale download-thunderbird
+download-thunderbird:
+	LOGLENS_DATA=/scale/data $(PY) scripts/download_data.py Thunderbird
+
+scale:
+	$(PY) -m loglens.scale hdfs
+	for f in 0.01 0.1 1.0; do $(PY) -m loglens.pandas_baseline hdfs $$f || exit 1; done
+	$(PY) -m loglens.scale hdfs --fractions=1.0 --bind
+	LOGLENS_DATA=/scale/data LOGLENS_DRIVER_MEMORY=4g $(PY) -m loglens.scale thunderbird

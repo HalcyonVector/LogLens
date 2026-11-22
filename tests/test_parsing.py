@@ -83,3 +83,8 @@ def test_scheme_settings_inherit_from_their_log():
     assert s["session"] == {"kind": "count", "size": 20}
     assert s["masks"] == "bgl" and s["expected_lines"] == 4_747_963
     assert session_col("bgl_1h") == "session_id" and session_col("hdfs") == "block_id"
+
+
+def test_thunderbird_masks_hosts_but_not_ordinary_words():
+    out = mask_text("xinetd[4019]: START: rsync pid=5681 from=10.100.28.42 on an214 and tbird-sm1, eth0 up", "thunderbird")
+    assert out == "xinetd[<NUM>]: START: rsync pid=<NUM> from=<IP> on <NODE> and <NODE>, eth0 up"

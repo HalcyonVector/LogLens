@@ -1,0 +1,76 @@
+{
+  "runs": [
+    {
+      "engine": "pandas, one process, 1M-line chunks",
+      "input": "/scale/inputs/hdfs_1pct.log",
+      "dataset": "hdfs",
+      "fraction": 0.01,
+      "lines": 111756,
+      "sessions": 8843,
+      "events": 111756,
+      "count_matrix": [
+        8843,
+        51
+      ],
+      "distinct_masked": 21,
+      "timings": {
+        "read_and_split_s": 1.2,
+        "mask_s": 2.0,
+        "tag_s": 0.0,
+        "explode_s": 0.4,
+        "sessionize_s": 1.1,
+        "total_s": 4.7
+      },
+      "lines_per_s": 23778,
+      "peak_memory_mb": 270
+    },
+    {
+      "engine": "pandas, one process, 1M-line chunks",
+      "input": "/scale/inputs/hdfs_10pct.log",
+      "dataset": "hdfs",
+      "fraction": 0.1,
+      "lines": 1117562,
+      "sessions": 74888,
+      "events": 1117562,
+      "count_matrix": [
+        74888,
+        51
+      ],
+      "distinct_masked": 38,
+      "timings": {
+        "read_and_split_s": 12.1,
+        "mask_s": 28.4,
+        "tag_s": 0.3,
+        "explode_s": 3.7,
+        "sessionize_s": 10.7,
+        "total_s": 55.1
+      },
+      "lines_per_s": 20282,
+      "peak_memory_mb": 1530
+    },
+    {
+      "engine": "pandas, one process, 1M-line chunks",
+      "input": "/scale/inputs/hdfs_100pct.log",
+      "dataset": "hdfs",
+      "fraction": 1.0,
+      "lines": 11175629,
+      "sessions": 575061,
+      "events": 11175629,
+      "count_matrix": [
+        575061,
+        51
+      ],
+      "distinct_masked": 54,
+      "timings": {
+        "read_and_split_s": 96.5,
+        "mask_s": 211.7,
+        "tag_s": 2.3,
+        "explode_s": 48.0,
+        "sessionize_s": 238.1,
+        "total_s": 596.6
+      },
+      "lines_per_s": 18732,
+      "peak_memory_mb": 3694
+    }
+  ]
+}

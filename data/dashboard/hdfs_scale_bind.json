@@ -1,0 +1,30 @@
+{
+  "runs": [
+    {
+      "lines": 11175629,
+      "lines_expected": 11175629,
+      "input_bytes": 1577982906,
+      "sessions": 575061,
+      "distinct_masked": 54,
+      "train_distinct_masked": null,
+      "templates": 50,
+      "unk_lines": 15,
+      "bytes": {
+        "bronze": 278966057,
+        "silver": 284274636,
+        "gold": 18696857
+      },
+      "timings": {
+        "bronze_s": 61.4,
+        "fit_s": 0.1,
+        "silver_s": 96.7,
+        "gold_s": 183.1,
+        "total_s": 341.3
+      },
+      "lines_per_s": 32744,
+      "dataset": "hdfs",
+      "fraction": 1.0,
+      "storage": "bind mount"
+    }
+  ]
+}

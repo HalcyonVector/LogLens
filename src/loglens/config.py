@@ -56,6 +56,23 @@ DATASETS = {
         # gold table and model run, sharing this dataset's bronze and silver.
         "schemes": ["bgl_1h", "bgl_20ev", "bgl_20ev_allfit"],
     },
+    "thunderbird": {
+        # Used only by the scale benchmark (python -m loglens.scale thunderbird), with
+        # LOGLENS_DATA=/scale/data so the 32 GB log is read from the Docker volume.
+        "raw": RAW / "Thunderbird" / "Thunderbird.log",
+        # - 1131523501 2005.11.09 aadmin1 Nov 10 00:05:01 src@aadmin1 in.tftpd[14620]: tftp: client does not accept options
+        # The date field can disagree with the month/day that follow, so time comes from the epoch field.
+        "regex": r"^(\S+) (\d+) (\S+) (\S+) (\w{3})\s+(\d+) (\S+) (\S+)(?: (.*))?$",
+        "fields": ["alert", "epoch", "date", "node", "month", "day", "time", "location", "message"],
+        "ts": {"cols": ["epoch"], "format": "unix"},
+        "expected_lines": 211_212_192,
+        "masks": "thunderbird",
+        "session": {"kind": "time", "seconds": 3600},
+        "session_col": "session_id",
+        # Templates are learned inside each scale run, on the first 60% of that run's input.
+        "scale_fit": True,
+        "drain_sim_th": 0.7,
+    },
 }
 
 # Windowing schemes for logs without natural sessions. Each behaves like a

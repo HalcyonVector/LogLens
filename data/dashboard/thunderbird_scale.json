@@ -1,0 +1,91 @@
+{
+  "runs": [
+    {
+      "lines": 2112121,
+      "lines_expected": 2112121,
+      "input_bytes": 276546531,
+      "sessions": 68,
+      "distinct_masked": 27839,
+      "train_distinct_masked": 25207,
+      "templates": 961,
+      "match_strategy": "fallback",
+      "unk_lines": 17062,
+      "bytes": {
+        "bronze": 22281906,
+        "silver": 23428408,
+        "gold": 42113
+      },
+      "timings": {
+        "bronze_s": 13.2,
+        "fit_s": 9.3,
+        "silver_s": 33.4,
+        "gold_s": 3.8,
+        "total_s": 59.7
+      },
+      "lines_per_s": 35379,
+      "anomalous_windows": 12,
+      "alert_lines": 7059,
+      "dataset": "thunderbird",
+      "fraction": 0.01,
+      "storage": "docker volume"
+    },
+    {
+      "lines": 21121219,
+      "lines_expected": 21121219,
+      "input_bytes": 3419421236,
+      "sessions": 1048,
+      "distinct_masked": 209335,
+      "train_distinct_masked": 152518,
+      "templates": 9037,
+      "match_strategy": "fallback",
+      "unk_lines": 363395,
+      "bytes": {
+        "bronze": 291373393,
+        "silver": 252375499,
+        "gold": 591281
+      },
+      "timings": {
+        "bronze_s": 46.6,
+        "fit_s": 71.7,
+        "silver_s": 342.8,
+        "gold_s": 9.3,
+        "total_s": 470.4
+      },
+      "lines_per_s": 44901,
+      "anomalous_windows": 486,
+      "alert_lines": 785927,
+      "dataset": "thunderbird",
+      "fraction": 0.1,
+      "storage": "docker volume"
+    },
+    {
+      "lines": 211212192,
+      "lines_expected": 211212192,
+      "input_bytes": 31788301041,
+      "sessions": 5718,
+      "distinct_masked": 1390390,
+      "train_distinct_masked": 748430,
+      "templates": 69831,
+      "match_strategy": "fallback",
+      "unk_lines": 3737862,
+      "bytes": {
+        "bronze": 3084262681,
+        "silver": 2959821276,
+        "gold": 4601935
+      },
+      "timings": {
+        "bronze_s": 611.8,
+        "fit_s": 2195.1,
+        "silver_s": 9893.5,
+        "gold_s": 185.2,
+        "total_s": 12885.6
+      },
+      "lines_per_s": 16391,
+      "anomalous_windows": 2058,
+      "alert_lines": 3248239,
+      "dataset": "thunderbird",
+      "fraction": 1.0,
+      "storage": "docker volume"
+    }
+  ]
+}

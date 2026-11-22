@@ -12,7 +12,7 @@ Built with Python, PySpark (Parquet medallion layers), Drain3, scikit-learn, Lig
 
 ![Each of the 3,723 anomalous test sessions as one square: published DeepLog and PCA miss almost disjoint sets, while the LSTM with an END event catches nearly everything PCA does](docs/screenshots/misses.png)
 
-**Status:** the HDFS study and the BGL generalization run are complete and on the dashboard. The Thunderbird scale run is next.
+**Status:** the HDFS study, the BGL generalization run and the Thunderbird scale benchmark are complete and on the dashboard.
 
 ---
 
@@ -24,7 +24,7 @@ This is a personal research and learning project on public benchmark data. It is
 
 ## Findings
 
-Real results from the stages built so far. Model results will be added as each stage lands.
+Real results from the full pipeline; every number below is exported by it and shown on the dashboard.
 
 ### The data
 
@@ -113,6 +113,23 @@ BGL is 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, with an a
 - **The benchmark recipe turns 0.114 into 0.993.** The same LightGBM on the same 20-line windows scores **0.114** on a time-ordered split, **0.830** on a random split, and **0.993** on a random split with the parser fitted on the whole log, which is the setup most published BGL results use. For the LSTM the same recipe gives **0.977** against an honest **0.176** to **0.244**: a gap of about **73 points**, against under 1 point for PCA on HDFS.
 - **The random-split gap is far larger than on HDFS.** After correcting for the anomaly rate, a random split adds about **20 points** of F1 to the LSTM on both BGL schemes, against about 4 on HDFS, because shuffled windows let the model train on the very failures it is later tested on.
 
+### Scale: the same chain on 211 million lines
+
+The same Spark chain (read and split each line, learn templates, tag every line, group lines into sessions or hourly windows) was timed on the first 1%, 10% and 100% of two logs, writing Parquet at every stage so each one is really computed. HDFS reuses its tuned templates; Thunderbird learns its templates inside each run, on the first 60% of that input's lines. All runs are on one 16-core laptop.
+
+| Thunderbird input | Lines | Templates learned | Distinct masked messages | Time | Lines per second |
+|-------------------|-------|-------------------|--------------------------|------|------------------|
+| First 1% | 2,112,121 | 961 | 27,839 | 59.7 s | 35,379 |
+| First 10% | 21,121,219 | 9,037 | 209,335 | 7.8 min | 44,901 |
+| Full log | 211,212,192 | 69,831 | 1,390,390 | 3.6 h | 16,391 |
+
+- **The full Thunderbird log runs end to end on one laptop.** All **211,212,192** lines (31.8 GB) go from raw text to **5,718** hourly windows in **3.6 hours** of compute time. **2,058** of those windows (36.0%) contain at least one of the log's **3,248,239** alert lines (1.5% of all lines).
+- **Ten times the lines cost 27 times the time.** From the 10% run to the full log, reading and splitting grows 13x, but learning templates grows 31x and tagging 29x. The vocabulary does not converge: templates keep appearing at roughly the same rate as lines (961, 9,037, 69,831), and every message that misses the template tree is compared with every template of its length, so the cost grows with lines times templates. With the parser threshold untuned for Thunderbird, much of that vocabulary is probably variable text the masks miss rather than genuinely new events.
+- **Parsing is the pipeline at scale.** On the full log, learning and tagging templates take **94%** of the run (17.0% and 76.8%); reading the 31.8 GB of raw text takes 4.7% and building the windows 1.4%. **3,737,862** lines (1.8%) match no template learned on the first 60% of the log, against 0.8% at 1%.
+- **Spark only pays off past about a million lines.** On HDFS, raw text to a finished session table, pandas takes **4.7 s** at 112K lines against Spark's **24.8 s**, almost all of it start-up. At 1.1M lines Spark is 2.7x faster (20.3 s against 55.1 s), and at the full 11.2M lines **2.1x** faster (281.7 s against 596.6 s), by which point the single pandas process has grown to **3.7 GB** of memory.
+- **Storage costs as much as a model choice.** Reading HDFS through the Windows bind mount, as the rest of the pipeline does, takes **61.4 s** against **35.3 s** from a Docker volume (1.7x) and makes the whole chain 21% slower, which is why Thunderbird lives on the volume.
+- **Columnar storage shrinks log text several-fold before any modelling.** Bronze Parquet is **10.3x** smaller than Thunderbird's raw text (31.8 GB to 3.1 GB) and 5.7x smaller for HDFS (1.6 GB to 279 MB); the Thunderbird gold table of hourly windows is 4.6 MB.
+
 ---
 
 ## Features
@@ -198,9 +215,14 @@ BGL is 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, with an a
 
 - Lines per hour by level, level mix, lines and non-INFO lines per component, blocks named per line, and the label balance.
 
-### Planned stages
+### Scale benchmark
 
-- **Scale:** the full 211M-line Thunderbird log through ingest and parsing, with a scaling curve.
+- One Spark chain (read and split, learn templates, tag every line, build sessions or hourly windows), each stage written to Parquet so every stage is really computed, timed on the first 1%, 10% and 100% of a log.
+- Thunderbird's 211M lines (32 GB) on a Docker named volume, with templates learned inside each run on the first 60% of its input and matched in parallel across the cores.
+- The same chain in plain pandas, in one process on 1M-line chunks, on the same HDFS inputs, with its peak memory.
+- The HDFS chain run again through the Windows bind mount, to measure what the storage costs.
+- Output sizes of every layer, to show how much columnar storage shrinks repetitive log text.
+- A downloader that resumes interrupted transfers with HTTP range requests and checks every archive's MD5.
 
 ---
 
@@ -210,7 +232,7 @@ BGL is 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, with an a
 |--------|------|------------------|
 | [LogHub HDFS_v1](https://github.com/logpai/loghub) | Raw log, labels and ground truth ([Zenodo](https://zenodo.org/records/8196385)) | 11,175,629 lines from a 200+ node Hadoop cluster, a Normal/Anomaly label for each of 575,061 blocks, 29 ground-truth templates and the published event sequence of every block |
 | [LogHub BGL](https://github.com/logpai/loghub) | Raw log, labelled per line | 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, each tagged with an alert category or "-" |
-| [LogHub Thunderbird](https://github.com/logpai/loghub) | Raw log, labelled per line | 211,212,192 lines (scale run, planned) |
+| [LogHub Thunderbird](https://github.com/logpai/loghub) | Raw log, labelled per line | 211,212,192 lines (32 GB) from the Thunderbird supercomputer over 244 days, used for the scale benchmark |
 | [Loghub-2.0](https://github.com/logpai/loghub-2.0) | Annotated templates ([Zenodo](https://zenodo.org/records/8275861)) | A ground-truth template for 4,631,261 BGL lines (320 templates), used to choose and score the BGL parsers |
 
 **How the data is cleaned and joined:**
@@ -239,6 +261,7 @@ BGL is 4,747,963 lines from a Blue Gene/L supercomputer over 215 days, with an a
 | **Tracking** | MLflow (local file store) | One run per model and protocol, compared in the MLflow UI |
 | **Dashboard** | Static HTML, CSS and inline SVG, a little vanilla JavaScript | Generated by `scripts/build_dashboard.py`; IBM Plex Sans and Mono; no framework |
 | **Hosting** | GitHub Pages | Serves `docs/index.html` from the main branch |
+| **Scale storage** | Docker named volume | Native Linux storage inside Docker's VM for the 32 GB Thunderbird log |
 | **Environment** | Docker (Python 3.12, Java 17) | Avoids Spark's Windows dependencies; code and data are bind-mounted |
 | **Testing** | pytest | Unit tests for the line regex, masking, template regexes and grouping accuracy |
 
@@ -272,6 +295,7 @@ docker compose run --rm loglens make evaluate      # intervals, alerts per hour,
 docker compose run --rm loglens make ablation      # training-size ablation (about 30 min, resumable)
 python scripts/build_dashboard.py                  # docs/index.html from data/dashboard/*.json (standard library only)
 docker compose run --rm loglens make bgl           # the whole BGL run: download, windows, parsers, models (about 2.5 h, resumable)
+docker compose run --rm loglens make scale         # Spark vs pandas, volume vs bind mount, Thunderbird at 1/10/100%
 docker compose run --rm loglens make test
 docker compose run --rm --service-ports loglens make mlflow-ui   # http://localhost:5000
 ```
@@ -294,7 +318,7 @@ LogLens/
 │   └── Dockerfile.dockerignore   # Keeps data/ out of the build context
 │
 ├── scripts/
-│   ├── download_data.py          # Zenodo download with MD5 verification
+│   ├── download_data.py          # Resumable Zenodo download with MD5 verification
 │   └── build_dashboard.py        # docs/index.html from data/dashboard/*.json
 │
 ├── docs/
@@ -317,7 +341,9 @@ LogLens/
 │   ├── lstm.py                   # DeepLog-style LSTM, END-event variant, tuning, checkpoints
 │   ├── evaluate.py               # Intervals, operations, timeout and latency, errors, drill-down
 │   ├── ablation.py               # Training-size ablation
-│   └── drift.py                  # Alert categories and vocabulary by period (BGL)
+│   ├── drift.py                  # Alert categories and vocabulary by period (BGL)
+│   ├── scale.py                  # Timed Spark chain on growing inputs (HDFS, Thunderbird)
+│   └── pandas_baseline.py        # The same HDFS chain in one pandas process
 │
 ├── tests/
 │   ├── test_ingest_regex.py
@@ -350,13 +376,14 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **Run log.** Every stage writes `data/runlog/<dataset>_<stage>.json`. These feed the dashboard's pipeline-health panel.
 - **The dashboard never reads raw data.** `scripts/build_dashboard.py` reads only the small aggregates in `data/dashboard/` (under 2 MB in all) and writes one self-contained `docs/index.html`, which GitHub Pages serves as a static file. Charts are HTML rows and inline SVG, so the page has no build step and no framework; line charts are drawn at two widths so their text stays readable on a phone.
 - **Colour follows the model family everywhere.** Count models are blue, sequence models orange, the supervised reference aqua and rules grey, checked with a colour-vision-deficiency validator in both themes; every mark also carries a text label, so colour is never the only cue.
+- **The scale runs live on a Docker volume.** Thunderbird's 32 GB log sits on a Docker named volume (native Linux storage inside Docker's VM) rather than the Windows bind mount the rest of the pipeline reads through, and each scale stage writes its Parquet output there, then deletes it once its size has been recorded. Distinct masked messages are matched once each, in a `mapInPandas` stage across all 16 cores with the template tree broadcast to every worker, and joined back to every line.
 - **Execution.** Spark runs in local mode inside one container. Bronze ingest takes about 4 minutes, the split about 1.3 minutes, the parse about 1.5 minutes (plus 4.7 for the benchmark) and the gold layer about 2 minutes, mostly spent reading through the Windows bind mount. All five baselines under both protocols fit and score in under a minute; each LSTM run trains in 2 to 4 minutes on the CPU and scores all 575,061 sessions in about 7 seconds (about 83,000 windows per second, thanks to scoring each distinct sequence once).
 
 ---
 
 ## Testing and Validation
 
-**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label); and BGL (node IDs and both hex styles masked, words with digits left alone, and window schemes inheriting their log's settings). 30 tests in all.
+**Unit tests:** the HDFS line regex (a typical line, a message containing colons, a line that must not parse); masking (IP with port, a path that contains a block ID, numbers but not digits inside words, idempotence); template regexes (a wildcard is exactly one token, ground-truth wildcards allow anything); grouping accuracy (a perfect one-to-one case, and merges, splits and UNK lines all counted as wrong); evaluation (precision/recall/F1 counts, threshold selection, a threshold taken from validation and applied unchanged to test, the random split's proportions and determinism, label-conflict counting, the false-positive rate, and rescaling F1 to another anomaly rate); and the LSTM (left padding so every event is a target, merging identical windows with their counts, padding never predicted, an UNK event always outside the top-g, configurable history length and hidden size, and checkpoints that save, reload and clear by prefix); and the ablation's subsampling (it keeps the requested share of training sessions and leaves validation and test untouched, a test that caught a NumPy fixed-width string silently truncating the label); and BGL (node IDs and both hex styles masked, words with digits left alone, and window schemes inheriting their log's settings); and Thunderbird (host names masked, ordinary words such as eth0 left alone). 31 tests in all.
 
 **BGL pipeline checks:** 4,747,963 lines with none quarantined; 348,460 alert lines, matching LogHub; every line in exactly one window under both schemes; every window labelled; Loghub-2.0's ground truth matched for 97.5% of lines (exactly the lines it keeps); no training-period line left unnamed by its own parser.
 
@@ -373,17 +400,19 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **The test period is cut off by the end of the log.** About 40% of test sessions never reach their delete events because the log stops, and the read workload of the early hours is gone. That is the honest condition of evaluating on later data from a finite log, but it means part of what the models are judged on is censoring rather than behaviour.
 - **The idle timeout is a modelling choice.** Latency for count models and the END variant assumes a live system waits 12.3 hours of silence before judging a session; a different system would choose differently, and a shorter wait would cut more normal sessions short.
 - **The ablation's LSTM rows are single draws.** The baselines use 5 random training subsets per size; the LSTM, at several minutes per fit, uses one, so its 0.902 at 1% against 0.852 at 100% may be partly the luck of that draw.
-- **Validation thresholds maximise F1.** A real deployment would more likely fix an alert budget; alerts per hour are not reported yet.
+- **Validation thresholds maximise F1.** A real deployment would more likely fix an alert budget; alerts per hour are reported only at the F1-optimal threshold.
 - **The random protocol reuses the chronological parser.** Templates were fitted on the chronological training period for both protocols. With only 15 unseen lines, this has a negligible effect, but it is not a fully separate pipeline.
 - **LightGBM sees labels; the other models do not.** It is shown as a supervised reference, not as a like-for-like competitor.
 - **Two benchmarks, both old.** HDFS_v1 (2008) and BGL (2005) are the standard public logs, with labels from their original authors; results may not carry over to modern systems.
 - **BGL windows are a modelling choice.** A window is anomalous if any line in it is; hours without any log line produce no window; and 1-hour and 20-line windows give different answers, which is why both are shown.
 - **No intervals for BGL.** BGL results are single fits for the baselines and 3-seed means for the LSTM; the HDFS bootstrap was not repeated for BGL. The gaps reported there (tens of F1 points) are far larger than any sampling noise seen on HDFS.
+- **Scale timings are single runs on one laptop.** The same stage varied by up to 3x between runs (Windows and Docker share the machine), so the curves show orders of magnitude and crossovers, not precise speeds. The Thunderbird runs measure the data pipeline only; no detector was trained on Thunderbird, and its parser threshold was not tuned against ground truth.
 - **BGL random-split LSTM runs reached the 60-epoch cap.** Their scores could rise slightly with longer training, which would only widen the random-split gap.
 - **Labels are taken as given.** No relabelling or label-noise analysis is done.
 - **The parser threshold was chosen with ground-truth templates.** The sweep uses LogHub's template labels (not the anomaly labels) on the validation period. A real deployment would not have those, so the 0.4 result shows what an untuned parser would have done.
 - **Ground-truth tags come from LogHub's template patterns.** Each line's reference event is assigned by matching LogHub's 29 templates; this is validated against LogHub's published traces (an exact match for every block), but it is not a separate human annotation.
 - **Timings are single runs on one laptop.** They show relative speed, not a controlled benchmark, and include reading through a Windows bind mount.
+- **The laptop slept during the full Thunderbird run.** Stages are timed with a monotonic clock, which stops while the machine is suspended, so the 3.6 hours reported is compute time; the run took longer on the wall clock.
 
 ---
 
@@ -394,6 +423,7 @@ raw text ──► bronze (Parquet by hour) ──► split (session start) ─�
 - **A semantic event model** (sentence embeddings of templates) so unseen templates in later periods are handled without retraining.
 - **A streaming replay** of the test period with Spark Structured Streaming, to measure real time-to-alert.
 - **More LogHub systems**, such as Hadoop and OpenStack, to widen the generalization check.
+- **A faster matcher for large vocabularies.** On Thunderbird, checking each unmatched message against every template of the same length dominates the run; an exact lookup for messages seen in training, and a Thunderbird parser threshold tuned against Loghub-2.0's ground truth, should both cut the vocabulary and the time.
 
 ---
 

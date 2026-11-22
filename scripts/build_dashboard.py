@@ -600,6 +600,136 @@ def bgl_section() -> str:
 </section>"""
 
 
+
+# --------------------------------------------------------------- scale -------
+
+SCALE = {k: load_any(k) for k in ("hdfs_scale", "hdfs_scale_bind", "hdfs_pandas", "thunderbird_scale")}
+STAGES = [("bronze_s", "Read and split"), ("fit_s", "Learn templates"), ("silver_s", "Tag templates"), ("gold_s", "Build sessions")]
+
+
+def human_bytes(b: float) -> str:
+    for unit in ("B", "KB", "MB", "GB"):
+        if b < 1000 or unit == "GB":  # decimal units, as the README and LogHub quote sizes
+            return f"{b:,.0f} {unit}" if unit in ("B", "KB") else f"{b:,.1f} {unit}"
+        b /= 1000
+    return f"{b:.1f} GB"
+
+
+def lines_label(n: int) -> str:
+    return f"{n / 1e6:,.1f}M lines" if n >= 1e6 else f"{n / 1e3:,.0f}K lines"
+
+
+def spark_vs_pandas() -> str:
+    sp = {r["fraction"]: r for r in (SCALE["hdfs_scale"] or {}).get("runs", [])}
+    pd_ = {r["fraction"]: r for r in (SCALE["hdfs_pandas"] or {}).get("runs", [])}
+    fr = sorted(set(sp) & set(pd_))
+    if not fr:
+        return ""
+    hi = max(max(sp[f]["timings"]["total_s"], pd_[f]["timings"]["total_s"]) for f in fr) * 1.05
+    out = []
+    for f in fr:
+        a, b = sp[f], pd_[f]
+        for eng, r, cls in (("Spark", a, "fam-count"), ("pandas", b, "fam-naive")):
+            t = r["timings"]["total_s"]
+            tp = tip(f"{eng}, {lines_label(r['lines'])}", [("Seconds, end to end", f"{t:,.1f}"), ("Lines per second", n(r["lines_per_s"])), *([("Peak memory", f"{r['peak_memory_mb']:,} MB")] if r.get("peak_memory_mb") else [])])
+            out.append(
+                f'<div class="lb-row" tabindex="0" data-tip="{tp}"><div class="lb-name">{"<b>" + lines_label(r["lines"]) + "</b> " if eng == "Spark" else ""}<span class="muted">{eng}</span></div>'
+                f'<div class="st-track"><span class="st-true {cls}" style="width:{max(0.4, 100 * t / hi):.1f}%"></span></div>'
+                f'<div class="lb-val num">{t:,.0f} s</div></div>'
+            )
+    return f'<div class="lb sp">{"".join(out)}</div>'
+
+
+def duration(sec: float) -> str:
+    if sec < 120:
+        return f"{sec:,.0f} s"
+    return f"{sec / 60:,.1f} min" if sec < 7200 else f"{sec / 3600:,.1f} h"
+
+
+def stage_bars() -> str:
+    runs = []
+    if SCALE["hdfs_scale"]:
+        runs += [("HDFS", r) for r in SCALE["hdfs_scale"]["runs"] if r["fraction"] == 1.0]
+    if SCALE["thunderbird_scale"]:
+        runs += [("Thunderbird", r) for r in SCALE["thunderbird_scale"]["runs"]]
+    if not runs:
+        return ""
+    # Each bar is its own run's time split into stages: the full Thunderbird run is 45x the
+    # HDFS one, so one shared scale would leave every other bar a sliver.
+    out = []
+    for name, r in runs:
+        segs = []
+        for i, (k, label) in enumerate(STAGES):
+            v = r["timings"].get(k, 0)
+            if v / r["timings"]["total_s"] < 0.005:
+                continue
+            segs.append(f'<span class="stg s{i}" style="flex:{v} 1 0" data-tip="{tip(f"{name}, {lines_label(r["lines"])}: {label}", [("Seconds", f"{v:,.1f}"), ("Share of the run", pct(v / r["timings"]["total_s"], 0))])}" tabindex="0"></span>')
+        out.append(
+            f'<div class="lb-row"><div class="lb-name"><b>{name}</b>&nbsp;<span class="muted">{lines_label(r["lines"])}</span></div>'
+            f'<div class="stg-track">{"".join(segs)}</div><div class="lb-val num">{duration(r["timings"]["total_s"])}</div></div>'
+        )
+    legend = "".join(f'<li><span class="sw stg s{i}"></span>{label}</li>' for i, (_, label) in enumerate(STAGES))
+    return f'<div class="lb">{"".join(out)}</div><ul class="legend inline">{legend}</ul>'
+
+
+def storage_bars() -> str:
+    v = next((r for r in (SCALE["hdfs_scale"] or {}).get("runs", []) if r["fraction"] == 1.0), None)
+    b = next((r for r in (SCALE["hdfs_scale_bind"] or {}).get("runs", []) if r["fraction"] == 1.0), None)
+    if not (v and b):
+        return ""
+    rows = [("Read and split, Docker volume", v["timings"]["bronze_s"]), ("Read and split, Windows bind mount", b["timings"]["bronze_s"]),
+            ("Whole chain, Docker volume", v["timings"]["total_s"]), ("Whole chain, Windows bind mount", b["timings"]["total_s"])]
+    hi = max(x for _, x in rows) * 1.05
+    return '<div class="lb">' + "".join(
+        f'<div class="lb-row" tabindex="0" data-tip="{tip(lab, [("Seconds", f"{x:,.1f}")])}"><div class="lb-name">{esc(lab)}</div>'
+        f'<div class="st-track"><span class="st-true fam-{"count" if "volume" in lab else "naive"}" style="width:{100 * x / hi:.1f}%"></span></div>'
+        f'<div class="lb-val num">{x:,.0f} s</div></div>'
+        for lab, x in rows
+    ) + "</div>"
+
+
+def size_table() -> str:
+    rows = []
+    for name, key in (("HDFS", "hdfs_scale"), ("Thunderbird", "thunderbird_scale")):
+        r = next((x for x in (SCALE[key] or {}).get("runs", []) if x["fraction"] == 1.0), None)
+        if not r:
+            continue
+        b = r["bytes"]
+        rows.append(f'<tr><td>{name}</td><td class="num">{human_bytes(r["input_bytes"])}</td><td class="num">{human_bytes(b["bronze"])}</td>'
+                    f'<td class="num">{human_bytes(b["silver"])}</td><td class="num">{human_bytes(b["gold"])}</td>'
+                    f'<td class="num">{r["input_bytes"] / b["bronze"]:.1f}x</td></tr>')
+    if not rows:
+        return ""
+    return ('<div class="tbl"><table><thead><tr><th>Log</th><th class="num">Raw text</th><th class="num">Bronze Parquet</th>'
+            '<th class="num">Silver</th><th class="num">Gold</th><th class="num">Raw / bronze</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table></div>")
+
+
+def scale_section() -> str:
+    tb = {r["fraction"]: r for r in (SCALE["thunderbird_scale"] or {}).get("runs", [])}
+    sp = {r["fraction"]: r for r in (SCALE["hdfs_scale"] or {}).get("runs", [])}
+    pdx = {r["fraction"]: r for r in (SCALE["hdfs_pandas"] or {}).get("runs", [])}
+    if not sp or not pdx:
+        return ""
+    full = tb.get(1.0)
+    lede = (f"All {full['lines']:,} Thunderbird lines ({human_bytes(full['input_bytes'])}) go from raw text to hourly windows in {full['timings']['total_s'] / 3600:,.1f} hours on one laptop. Ten times the lines of the 10% run cost {full['timings']['total_s'] / tb[0.1]['timings']['total_s']:.0f} times the time, because the template vocabulary keeps growing with the log ({tb[0.1]['templates']:,} templates at 10%, {full['templates']:,} at full size) and every unknown message is checked against it."
+            if full else "The Thunderbird run is in progress.")
+    return f"""
+<section id="scale" class="sec">
+  <div class="sec-head"><span class="idx mono">07</span><h2>What does it take to run at scale?</h2>
+  <p>{lede} Spark is the right tool once the input is past a million lines or so; below that its start-up cost loses to plain pandas.</p></div>
+  <div class="sec-body">
+    <h3>Spark against pandas on HDFS, raw text to a finished session table</h3>
+    {spark_vs_pandas()}
+    <p class="note">Same work in both: split each line, mask it, tag it with a learned template, group lines into block sessions with count vectors. pandas runs in one process on 1M-line chunks; Spark runs in local mode on 16 cores. At {lines_label(sp[0.01]['lines'])} pandas is {sp[0.01]['timings']['total_s'] / pdx[0.01]['timings']['total_s']:.0f}x faster, because Spark spends most of the run starting up; at the full {lines_label(sp[1.0]['lines'])} Spark is {pdx[1.0]['timings']['total_s'] / sp[1.0]['timings']['total_s']:.1f}x faster, and pandas has grown to {pdx[1.0]['peak_memory_mb'] / 1024:.1f} GB of memory.</p>
+    <h3>Where the time goes</h3>
+    {stage_bars()}
+    <p class="note">Each stage writes Parquet, so every stage is really computed. Each bar is that run's own time, split by stage. Thunderbird learns its templates inside the run, on the first 60% of each input; HDFS reuses the templates learned earlier.</p>
+    <h3>Storage matters too</h3>{storage_bars()}<p class="note">HDFS at full size. Reading through the Windows bind mount, as the rest of the pipeline does, costs about {(lambda b, v: f"{b / v:.1f}")(next(r for r in SCALE["hdfs_scale_bind"]["runs"] if r["fraction"] == 1.0)["timings"]["bronze_s"], sp[1.0]["timings"]["bronze_s"])}x on the read stage; the Thunderbird runs read from a Docker volume.</p>
+    <h3>How much each layer keeps</h3>{size_table()}<p class="note">Columnar Parquet with dictionary encoding: repetitive log text compresses several-fold before any modelling.</p>
+  </div>
+</section>"""
+
+
 # --------------------------------------------------------------------- page --
 
 
@@ -627,7 +757,7 @@ def page() -> str:
 <body>
 <header class="top">
   <a class="brand mono" href="#top">LogLens<span>/hdfs</span></a>
-  <nav class="mono"><a href="#verdict">Verdict</a><a href="#split">Split</a><a href="#misses">Misses</a><a href="#operate">Operate</a><a href="#data">Data</a><a href="#bgl">BGL</a><a href="#sessions">Sessions</a></nav>
+  <nav class="mono"><a href="#verdict">Verdict</a><a href="#split">Split</a><a href="#misses">Misses</a><a href="#operate">Operate</a><a href="#data">Data</a><a href="#bgl">BGL</a><a href="#scale">Scale</a><a href="#sessions">Sessions</a></nav>
   <button class="theme" type="button" aria-label="Switch light or dark theme"><span aria-hidden="true"></span></button>
 </header>
 
@@ -710,8 +840,10 @@ def page() -> str:
 
 {bgl_section()}
 
+{scale_section()}
+
 <section id="sessions" class="sec">
-  <div class="sec-head"><span class="idx mono">07</span><h2>Read the sessions yourself</h2>
+  <div class="sec-head"><span class="idx mono">08</span><h2>Read the sessions yourself</h2>
   <p>Real test sessions, as event sequences. Each event is shaded by how surprised the LSTM was to see it; the outlined event is where it fired. Hover an event for its log template.</p></div>
   <div class="sec-body">
     <div class="toggle groups" role="tablist" aria-label="Session group">
@@ -921,6 +1053,14 @@ h3{font-size:14px;font-weight:600;margin:34px 0 14px;color:var(--ink)}
 .bg-v{font-size:13px;text-align:right}
 .tag{display:inline-block;font:500 10.5px "IBM Plex Sans",sans-serif;letter-spacing:.02em;padding:2px 7px;border-radius:999px;background:var(--sequence-wash);color:var(--ink);margin-left:6px;vertical-align:1px}
 .recipe .lb-row{grid-template-columns:360px 1fr 64px}
+.stg-track{display:flex;gap:2px;height:14px;align-items:stretch}
+.stg{display:block;height:100%;outline:none}
+.stg:first-child{border-radius:0}
+.stg:last-child{border-radius:0 4px 4px 0}
+.stg.s0,.sw.stg.s0{background:var(--count)} .stg.s1,.sw.stg.s1{background:color-mix(in srgb,var(--count) 55%,var(--page))} .stg.s2,.sw.stg.s2{background:var(--neutral)} .stg.s3,.sw.stg.s3{background:color-mix(in srgb,var(--neutral) 50%,var(--page))}
+.stg:hover,.stg:focus-visible{filter:brightness(1.15)}
+.legend .sw.stg{display:inline-block;width:12px;height:12px;border-radius:3px;flex:none}
+.lb.sp .lb-row:nth-child(2n){margin-bottom:8px}
 .lat{padding-top:26px}
 .lat-timeout{position:absolute;top:0;bottom:22px;left:calc(252px + (100% - 338px) * var(--x) / 100);border-left:1px solid var(--ink-2);pointer-events:none}
 .lat-timeout span{position:absolute;top:0;left:6px;font-size:11.5px;color:var(--ink-2);white-space:nowrap}

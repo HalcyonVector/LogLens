@@ -31,6 +31,14 @@ MASKS_BY_DATASET: dict[str, list[tuple[str, str]]] = {
         ("HEX", r"(?<![\w<])[0-9a-fA-F]{8}(?![\w>])"),
         ("NUM", r"(?<![\w<])-?\d+(?![\w>])"),
     ],
+    "thunderbird": [
+        ("IP", r"/?\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?"),
+        ("PATH", r"(?<![\w.])/[\w./\-]+"),
+        ("HEX", r"0x[0-9a-fA-F]+"),
+        # Thunderbird hosts: an214, cn949, aadmin1, dadmin3, tbird-admin1, tbird-sm1.
+        ("NODE", r"(?<![\w-])(?:tbird-[a-z]+|[a-d]admin|[a-e]n)\d+(?![\w])"),
+        ("NUM", r"(?<![\w<])-?\d+(?![\w>])"),
+    ],
 }
 # The HDFS rules, kept under the old name for callers that predate other datasets.
 MASKS = MASKS_BY_DATASET["hdfs"]
